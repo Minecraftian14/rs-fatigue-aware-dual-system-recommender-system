@@ -1,0 +1,274 @@
+{
+	"nodes":[
+		{"id":"6dd13314cf7ca7ae","type":"group","x":-1460,"y":720,"width":920,"height":300,"color":"5","label":"System 2 (Long-term utility estimator)"},
+		{"id":"994f5ef6103d6ebf","type":"group","x":-1460,"y":400,"width":920,"height":260,"color":"5","label":"System 1 (Impulsive recommender)"},
+		{"id":"fb289fc75436ae80","type":"group","x":-2240,"y":-300,"width":560,"height":340,"color":"5","label":"Shared State Encoder"},
+		{"id":"b7fa2396fa7923e5","type":"group","x":-1460,"y":140,"width":920,"height":200,"color":"1","label":"Fatigue and Burden model"},
+		{"id":"d0de99c7b3dd60b1","type":"group","x":-1460,"y":1080,"width":920,"height":190,"color":"1","label":"Gating mechanism (controller)"},
+		{"id":"49f3e265b48c105f","type":"group","x":-1960,"y":-1160,"width":360,"height":380,"color":"6","label":"User Interaction Input"},
+		{"id":"072812e698a1212b","type":"text","text":"At every time step, t:\n- UserID\n- ItemID\n- Timestamp\n- Dwell Time\n- Category\n- SessionID","x":-1940,"y":-1140,"width":318,"height":259},
+		{"id":"ea8ba7e747945caf","type":"text","text":"$x_t​=(u, i_t​, t_t, dwell_t​, category_t​)$","x":-1940,"y":-860,"width":318,"height":60},
+		{"id":"0b356aea2e68cee3","type":"text","text":"User behavioral signals\n- Entropy\n- Repetition\n- Session length","x":-1720,"y":-688,"width":240,"height":143,"color":"6"},
+		{"id":"c3e8f2ea85e7e905","type":"text","text":"Sequence of previous interactions - x_1:t-1","x":-2080,"y":-688,"width":240,"height":143,"color":"6"},
+		{"id":"0699d82cadb7803c","type":"text","text":"User latent embedding","x":-2220,"y":-40,"width":240,"height":60,"color":"4"},
+		{"id":"105fb6a80983a9d9","type":"text","text":"Contextual session state","x":-1940,"y":-40,"width":240,"height":60,"color":"4"},
+		{"id":"18df5323c26ae2ab","type":"text","text":"$s_t = Encoder(x_{1:t-1})$","x":-2100,"y":-180,"width":280,"height":60,"color":"3"},
+		{"id":"a49a9c99990012a0","type":"text","text":"Transformer-based Model","x":-2100,"y":-280,"width":280,"height":60,"color":"3"},
+		{"id":"cc28064355ab6a41","type":"text","text":"**Transformer-based sequential model**\n\n(trained using cross-entropy loss to optimize for next click probability)","x":-1440,"y":420,"width":220,"height":220,"color":"3"},
+		{"id":"70dbb4bccf9af7b9","type":"text","text":"Candidate scores for items - $P_1(i|s_t)$","x":-1200,"y":443,"width":260,"height":174,"color":"4"},
+		{"id":"63419b7dc898bbe1","type":"text","text":"Selected top-k candidates - $C_t = TopK(P_1)$","x":-920,"y":500,"width":260,"height":60},
+		{"id":"cfaf9c4c6afe8bc1","type":"text","text":"**State**\n$S_t = f(s_t, f_s)$","x":-1440,"y":740,"width":320,"height":60,"color":"6"},
+		{"id":"23a5d75ba6460943","type":"text","text":"Choose an item from candidate set, $C_t$","x":-1440,"y":821,"width":320,"height":78,"color":"6"},
+		{"id":"9e2451715ccd1554","type":"text","text":"Reward, $R_t = a.Click_t + b.Retention_{t+N} - c.f_t$","x":-1440,"y":920,"width":320,"height":80,"color":"6"},
+		{"id":"c17fc38e5ca4abc9","type":"text","text":"RL Algorithm","x":-1017,"y":821,"width":155,"height":78,"color":"3"},
+		{"id":"19ea6a4ce2666070","type":"text","text":"Re-ranked scores, $P_2(i|S_t)$","x":-820,"y":821,"width":240,"height":78,"color":"4"},
+		{"id":"42ebed38ffca687d","type":"text","text":"$g_t = \\sigma(MLP(s_t, f_t))$","x":-1410,"y":1140,"width":250,"height":60,"color":"3"},
+		{"id":"3738964b22ab405b","type":"text","text":"$Score(i) = g_t.P_2(i) + (1-g_t).P_1(i)$","x":-1060,"y":1140,"width":308,"height":60},
+		{
+			"id":"6260d80d7925f41c",
+			"type":"text",
+			"text":"Output \n(System 1 recommendations or System 2 recommendations - Top1 or TopK)",
+			"styleAttributes":{},
+			"x":-1300,
+			"y":1320,
+			"width":600,
+			"height":80,
+			"color":"4"
+		},
+		{
+			"id":"ea9700cbb05ad78d",
+			"type":"text",
+			"text":"User Interactions recorded:\n- Click/Skip\n- Dwell time\n- Continue session\n- Churn ",
+			"styleAttributes":{},
+			"x":-1180,
+			"y":1460,
+			"width":360,
+			"height":180,
+			"color":"2"
+		},
+		{"id":"a00108dd287cf667","type":"text","text":"Fatigue score, $f_t$","x":-1080,"y":160,"width":220,"height":60,"color":"4"},
+		{"id":"cf10e65aaa886a7c","type":"text","text":"Churn probability, p_churn","x":-1080,"y":260,"width":220,"height":60,"color":"4"},
+		{"id":"6e9a00dcbc427bb1","type":"text","text":"### Fatigue Model\n$F_t = model(F_t-1, s_t)$","x":-1440,"y":180,"width":250,"height":120,"color":"3"},
+		{
+			"id":"13b42f0e9fed996a",
+			"type":"text",
+			"text":"Feedback ",
+			"styleAttributes":{},
+			"x":-2380,
+			"y":500,
+			"width":200,
+			"height":60,
+			"color":"2"
+		},
+		{
+			"id":"fdd1a37f666484ce",
+			"type":"text",
+			"text":"# Objective Function\n\nA loss derived from all three blocks:\n- Fatigue\n- System 1\n- System 2\n\n$L=L_{S1}​+λ_1​L_{S2}​+λ_2​L_{fatigue}​$",
+			"styleAttributes":{},
+			"x":-220,
+			"y":420,
+			"width":340,
+			"height":340,
+			"color":"#ffffff"
+		},
+		{"id":"0c932436086794d4","type":"text","text":"## Problem Statement\nModern recommender systems optimize for short-term engagement using correlation-based ranking models, ignoring **cognitive fatigue, long-term satisfaction, and human wellbeing**. This leads to overconsumption, boredom, and eventual churn. We propose a dual-system recommender that models user fatigue and dynamically balances short-term engagement with long-term utility to optimize sustained user value.","x":-2100,"y":-1480,"width":800,"height":240},
+		{"id":"d003f5bd4fe18f99","type":"text","text":"How exactly are we going to utilize the fatigue metric? Like, how is it incorporated in the algorithm and why do we need it?","x":6480,"y":-1640,"width":740,"height":58},
+		{"id":"7e4e2c624e0315ef","type":"text","text":"## **Problem Statement:**\n\nDue to the rise in the ethical aspects of the recsys, a lot of work has been completed. Develop a symbolic reasoning layer in system 2 to verify if an empathetic response is genuinely useful\n\nusing LLMs to model several personas and letting them act as agents in a simulated environment to test and enhance our recsys algorithms -- NOO\ncreate an algorithm to model fatigue and burden\n\ncourse sequence recommender: recommending items based on their use rather than just based on the recent views\n\ntext is a high dimensional, sparse and inefficient medium for learning models, we can develop a system which can generate a continuous concept vector which can be used to query the dense item index\n\nnew item handling in system 2\n\ncomplexity risk of a request based selection of system1 vs system 2-based recommendations\n\n","x":6642,"y":-2240,"width":958,"height":480},
+		{"id":"72ecce2106e14a2a","type":"text","text":"# **Dual-System Human-Centric Recommender with Fatigue-Aware Long-Term Optimization (DS-HCRS)**\n","x":6770,"y":-1760,"width":920,"height":80},
+		{"id":"74f061320cacec49","type":"text","text":"Excellent — this is now mature research thinking.\n\nBased on:\n\n* Your earlier neuro-symbolic + causal ideas\n* Cognitive state modeling\n* Fatigue/burden modeling\n* System 1 vs System 2 framing\n* Long-term vs short-term optimization\n* Human-centered + ethical + wellbeing focus\n* And the uploaded notes \n\nI’ll now propose a **single coherent, end-to-end, research-worthy, feasible project** that integrates the strongest ideas — without becoming unimplementable.\n\n---\n\n# 🚀 Proposed Project\n\n# **Dual-System Human-Centric Recommender with Fatigue-Aware Long-Term Optimization (DS-HCRS)**\n\n---\n\n# 🧩 Core Idea (High-Level)\n\nBuild a recommender system that:\n\n1. Models **short-term impulsive engagement (System 1)**\n2. Models **long-term user utility and wellbeing (System 2)**\n3. Explicitly models **fatigue, burden, and cognitive saturation**\n4. Dynamically decides whether to use fast heuristic ranking or slow reflective reasoning\n5. Optimizes for long-term retention and wellbeing — not just clicks\n\nThis integrates:\n\n* Sequential recommendation\n* Fatigue modeling\n* System 1 vs System 2 control\n* Long-term reward modeling (RL)\n* Human-centered optimization\n\nAnd it is doable within student constraints.\n\n---\n\n# 🎯 Proper Problem Statement\n\n> Modern recommender systems optimize for short-term engagement using correlation-based ranking models, ignoring cognitive fatigue, long-term satisfaction, and human wellbeing. This leads to overconsumption, boredom, and eventual churn. We propose a dual-system recommender that models user fatigue and dynamically balances short-term engagement with long-term utility to optimize sustained user value.\n\n---\n\n# 🏗 Methodology (End-to-End System)\n\n## 1️⃣ Data\n\nUse existing sequential datasets like:\n\n* MovieLens (with timestamps)\n* Amazon Reviews\n* EdNet (if educational variant)\n* Or any public clickstream dataset\n\nYou do NOT need emotional text.\n\nYou need:\n\n* User-item interactions\n* Timestamp\n* Session structure\n\n---\n\n## 2️⃣ Core Modeling Components\n\n### 🔹 A. System 1: Impulsive Recommender\n\nStandard sequential model:\n\n* GRU4Rec / SASRec / Transformer-based sequential recommender\n* Optimizes next-click probability\n\nThis models:\n\n* Immediate engagement\n* Dopamine spikes\n* Recency bias\n\n---\n\n### 🔹 B. Fatigue & Burden Model (Novel Component)\n\nDefine a fatigue function:\n\n[\nFatigue_t = f(repetition, novelty decay, session length, category saturation, time-on-platform)\n]\n\nExample features:\n\n* Consecutive similar items\n* Time spent in session\n* Entropy of recent recommendations\n* Repetition rate\n\nYou model:\n\n* Probability of boredom\n* Probability of churn\n* Diminishing marginal utility\n\nThis is lightweight and feasible.\n\n---\n\n### 🔹 C. System 2: Long-Term Utility Estimator\n\nInstead of predicting click,\npredict:\n\n* Retention probability after N steps\n* Long-term engagement score\n* Lifetime value proxy\n\nUse:\n\n* Reinforcement Learning\n* Multi-objective optimization\n* Long-horizon reward\n\nReward example:\n\n[\nR_t = \\alpha (Immediate Click) + \\beta (Long-term Retention) - \\gamma (Fatigue)\n]\n\nThis operationalizes your uploaded notes on long-term vs short-term tradeoff .\n\n---\n\n### 🔹 D. System-1 vs System-2 Gating Mechanism\n\nIntroduce a decision function:\n\nIf request complexity or fatigue is low → use System 1\nIf fatigue risk is high → switch to System 2\n\nThis models:\n“Complexity risk of request-based selection of System 1 vs System 2-based recommendations”\n\nThat’s psychologically grounded and novel.\n\n---\n\n### 🔹 E. Optional: Concept Vector Generator for Cold Start\n\nInstead of sparse text:\n\n* Use pretrained LLM to embed item descriptions\n* Compress into dense “concept vectors”\n* Index using FAISS\n\nThis solves:\n\n* Cold start\n* High dimensional text sparsity\n\nFeasible without training LLMs — just use embeddings.\n\n---\n\n# 🌟 Novelty\n\nYour novelty lies in:\n\n### 1️⃣ Explicit Fatigue Modeling in Sequential Recommendation\n\nMost models assume monotonic reward accumulation.\nYou model diminishing utility and cognitive burden.\n\n### 2️⃣ Dual-System Architecture for Recommendation\n\nFormal System 1 vs System 2 operationalization in recommender systems.\n\n### 3️⃣ Dynamic Switching Based on Cognitive State\n\nInstead of static ranking,\nyou adapt recommendation strategy based on modeled user state.\n\n### 4️⃣ Long-Term Human-Centered Objective\n\nShift from NDCG optimization to retention + wellbeing-aware reward modeling.\n\nThis is aligned with:\n\n* Human-Centered Recommender Systems\n* Long-term RL in RecSys\n* Addiction-aware modeling\n* Ethical AI\n\nBut your integration is unique.\n\n---\n\n# 📊 Evaluation Strategy\n\n## 1️⃣ Offline Metrics (Standard)\n\n* NDCG\n* Recall@K\n* MRR\n\nCompare:\n\n* Baseline sequential model\n* Your dual-system model\n\n---\n\n## 2️⃣ Long-Term Simulation\n\nSimulate user trajectories:\n\nDay 1 → 20 recommendations\nDay 5 → fatigue accumulates\nDay 20 → churn probability increases\n\nMeasure:\n\n* Retention curve\n* Time-to-churn\n* Fatigue accumulation\n\n---\n\n## 3️⃣ Overconsumption Metric\n\nDefine:\n\n[\nOverconsumption = Session Length - Optimal Utility Threshold\n]\n\nCheck whether your model:\n\n* Reduces binge behavior\n* Improves sustainable engagement\n\n---\n\n## 4️⃣ Ablation Study\n\nRemove:\n\n* Fatigue model\n* Gating mechanism\n* Long-term reward\n\nShow performance drop.\n\nThat makes the paper strong.\n\n---\n\n# ⚠ Limitations\n\n1. Fatigue modeling is an approximation — real psychology is more complex.\n2. Offline datasets lack explicit wellbeing signals.\n3. Long-term reward must be simulated.\n4. Requires careful reward balancing to avoid trivial solutions.\n\nBut all manageable at student scale.\n\n---\n\n# 🏆 Why This Is a Strong Student Project\n\n* Uses public datasets\n* No need for expensive human studies\n* Integrates theory + engineering\n* Novel but not impossible\n* Can produce:\n\n  * 1 systems paper\n  * 1 long-term modeling paper\n  * 1 simulation/behavior modeling extension\n\n---\n\n# 🧠 If You Want a Cleaner Title\n\n“Fatigue-Aware Dual-System Recommendation for Long-Term Human-Centered Optimization”\n\nor\n\n“Modeling Cognitive Burden in Sequential Recommendation via Dual-System Reinforcement Learning”\n\n---\n\n# 🔥 Why This Is Better Than Pure Persona Simulation\n\nYou previously considered LLM-based persona agents.\n\nThat’s interesting but:\n\n* Hard to validate scientifically\n* Reviewers may see it as artificial\n* Evaluation becomes fuzzy\n\nThis project stays:\n\n* Quantitative\n* Measurable\n* Structured\n* Publishable\n\n---\n\nIf you'd like next, I can:\n\n* Draw the full system architecture in structured form\n* Convert this into a NeurIPS/RecSys-style abstract\n* Or help you scope it into a 6-month MSc thesis plan\n","x":6510,"y":-1540,"width":680,"height":1380},
+		{"id":"32142bc0f142ff07","type":"text","text":"Excellent — this is the *right* question.\n\nIf fatigue is just a “nice idea,” reviewers will destroy it.\nYou need:\n\n1. A **mathematical definition**\n2. A **clear algorithmic role**\n3. A **justification of necessity**\n4. Evidence it changes behavior\n\nLet’s make it concrete.\n\n---\n\n# 1️⃣ Why Do We Even Need a Fatigue Metric?\n\nStandard recommender systems assume:\n\n> More engagement = more satisfaction.\n\nBut in reality:\n\n* Repeated similar items → boredom\n* Long sessions → cognitive exhaustion\n* Overexposure → reduced novelty value\n* Continuous dopamine spikes → short-term retention but long-term churn\n\nWithout modeling fatigue, your model will:\n\n* Over-recommend similar high-click items\n* Encourage binge behavior\n* Inflate short-term metrics\n* Hurt long-term retention\n\nFatigue is the **missing state variable** in sequential recommendation.\n\nIt captures diminishing marginal utility.\n\n---\n\n# 2️⃣ What Is Fatigue (Formally)?\n\nWe define fatigue as a latent dynamic state variable:\n\n[\nF_t = f(H_t)\n]\n\nWhere:\n\n* (H_t) = recent interaction history\n* (F_t) ∈ [0,1]\n* Higher value = higher cognitive burden / saturation\n\nIt evolves over time:\n\n[\nF_t = \\lambda F_{t-1} + g(similarity, session_length, repetition, time_gap)\n]\n\nWhere:\n\n* λ = decay factor\n* g(.) increases fatigue when:\n\n  * Items are similar\n  * Session is long\n  * Repetition is high\n\nFatigue naturally decays when:\n\n* User takes a break\n* Content diversity increases\n\n---\n\n# 3️⃣ How Is It Incorporated Into the Algorithm?\n\nNow we get precise.\n\nThere are three integration strategies.\n\n---\n\n## 🔹 Method 1: Feature-Level Integration (Simplest)\n\nAdd fatigue as an input feature to your ranking model.\n\nInstead of:\n\n[\nScore(u,i)\n]\n\nYou compute:\n\n[\nScore(u,i, F_t)\n]\n\nThis lets the model learn:\n\n* When fatigue is high → promote novelty\n* When fatigue is low → allow engagement optimization\n\nThis is easiest and publishable.\n\n---\n\n## 🔹 Method 2: Reward-Level Integration (Stronger)\n\nIn RL-based recommendation:\n\nOriginal reward:\n\n[\nR_t = Click_t\n]\n\nYour modified reward:\n\n[\nR_t = \\alpha Click_t - \\beta F_t\n]\n\nNow the agent learns:\n\n* Maximize engagement\n* Minimize fatigue accumulation\n\nThis explicitly penalizes overconsumption.\n\nThis operationalizes long-term optimization.\n\n---\n\n## 🔹 Method 3: Gating Mechanism (System 1 vs System 2)\n\nDefine a switching function:\n\nIf:\n[\nF_t < \\tau\n]\n→ Use System 1 (fast ranking)\n\nIf:\n[\nF_t ≥ \\tau\n]\n→ Use System 2 (diversity-promoting / long-term strategy)\n\nNow fatigue controls which recommender is active.\n\nThis is psychologically grounded and novel.\n\n---\n\n# 4️⃣ What Changes Because of Fatigue?\n\nWithout fatigue:\n\n* Model recommends 10 similar viral reels.\n* User binge consumes.\n* Engagement spike.\n* Burnout next week.\n\nWith fatigue:\n\n* After 3 similar reels → fatigue rises.\n* Model injects novelty.\n* Or slows intensity.\n* User experiences balanced stimulation.\n* Retention curve flattens instead of crashing.\n\nIt shifts system behavior from:\n“Exploit high-click content”\nto\n“Maintain sustainable engagement.”\n\n---\n\n# 5️⃣ How Do We Compute Fatigue Practically?\n\nYou don’t need psychology lab data.\n\nYou can approximate using:\n\n### A. Repetition Score\n\n[\nRep_t = Similarity(i_t, i_{t-1})\n]\n\n### B. Category Saturation\n\nEntropy of last K items:\n\nLow entropy → high fatigue\n\n### C. Session Length\n\nLong session → increased fatigue\n\n### D. Time Decay\n\nBreaks reduce fatigue:\n\n[\nF_t = F_{t-1} \\cdot e^{- \\delta \\cdot time_gap}\n]\n\nAll computable from logs.\n\nNo external data required.\n\n---\n\n# 6️⃣ How Do You Prove It Works?\n\nYou show:\n\n1. Baseline model\n2. Fatigue-aware model\n\nCompare:\n\n* Time-to-churn\n* Session length variance\n* Retention curves\n* Long-horizon reward\n\nIf fatigue-aware model:\n\n* Reduces binge spikes\n* Improves long-term retention\n\nThen fatigue is validated.\n\n---\n\n# 7️⃣ Conceptual Insight\n\nStandard recommender models assume utility accumulates linearly.\n\nBut in real humans:\n\n[\nMarginal\\ Utility \\downarrow\\ with\\ repeated\\ exposure\n]\n\nFatigue models diminishing returns.\n\nIt turns the system from:\n\nEngagement maximizer\ninto\nSustainable utility optimizer.\n\n---\n\n# 8️⃣ The Deeper Research Contribution\n\nYou are introducing a dynamic internal user state variable that:\n\n* Is not directly observed\n* Evolves temporally\n* Modulates reward\n* Alters policy decisions\n\nThat’s cognitively inspired modeling.\n\nIt moves RecSys from:\nStatic preference learning\nto\nState-aware human modeling.\n\n---\n\n# Final Answer (Short Version)\n\nWe need fatigue because engagement is not equal to satisfaction.\nFatigue models diminishing marginal utility and cognitive burden.\n\nWe incorporate it:\n\n* As an input feature,\n* As a penalty in the reward function,\n* Or as a gating signal between System 1 and System 2.\n\nIt ensures the recommender optimizes long-term retention instead of short-term dopamine spikes.\n\n---\n\nIf you’d like, I can next:\n\n* Write the exact pseudo-code of the fatigue-aware algorithm\n* Show how this fits into a Transformer-based recommender\n* Or explain how reviewers might criticize the fatigue assumption and how to defend it\n","x":7230,"y":-1540,"width":740,"height":1320}
+	],
+	"edges":[
+		{"id":"d6eb7d386639f468","fromNode":"cc28064355ab6a41","fromSide":"right","toNode":"70dbb4bccf9af7b9","toSide":"left"},
+		{"id":"4e62e5da581b5f7c","fromNode":"c17fc38e5ca4abc9","fromSide":"right","toNode":"19ea6a4ce2666070","toSide":"left"},
+		{"id":"3726b3c92cca9ad8","fromFloating":false,"fromNode":"49f3e265b48c105f","fromSide":"bottom","toNode":"c3e8f2ea85e7e905","toSide":"top","color":"6"},
+		{"id":"12d2d20ea833f437","toFloating":false,"fromFloating":false,"fromNode":"c3e8f2ea85e7e905","fromSide":"bottom","toNode":"fb289fc75436ae80","toSide":"top","color":"6"},
+		{"id":"8eb3dc9d370cb4b6","fromNode":"a49a9c99990012a0","fromSide":"bottom","toNode":"18df5323c26ae2ab","toSide":"top"},
+		{"id":"ef3e285eb1c4cc77","fromNode":"18df5323c26ae2ab","fromSide":"bottom","toNode":"0699d82cadb7803c","toSide":"top"},
+		{"id":"4689256a257c7412","fromNode":"18df5323c26ae2ab","fromSide":"bottom","toNode":"105fb6a80983a9d9","toSide":"top"},
+		{"id":"9b38556675fc5f16","toFloating":false,"fromNode":"49f3e265b48c105f","fromSide":"bottom","toNode":"0b356aea2e68cee3","toSide":"top","color":"6"},
+		{"id":"6790db433501e601","fromNode":"6e9a00dcbc427bb1","fromSide":"right","toNode":"a00108dd287cf667","toSide":"left"},
+		{"id":"72e11071e4889a59","fromNode":"6e9a00dcbc427bb1","fromSide":"right","toNode":"cf10e65aaa886a7c","toSide":"left"},
+		{"id":"7cadcc62c563bc7e","fromNode":"70dbb4bccf9af7b9","fromSide":"right","toNode":"63419b7dc898bbe1","toSide":"left"},
+		{
+			"id":"40db98ea41f0dd1e",
+			"fromFloating":false,
+			"styleAttributes":{"pathfindingMethod":"square"},
+			"fromNode":"fb289fc75436ae80",
+			"fromSide":"bottom",
+			"toNode":"b7fa2396fa7923e5",
+			"toSide":"left",
+			"color":"6"
+		},
+		{
+			"id":"269461a7059bfd69",
+			"fromFloating":false,
+			"toFloating":false,
+			"styleAttributes":{
+				"pathfindingMethod":null
+			},
+			"fromNode":"0b356aea2e68cee3",
+			"fromSide":"bottom",
+			"toNode":"b7fa2396fa7923e5",
+			"toSide":"left",
+			"color":"6"
+		},
+		{
+			"id":"68bfebc1177546f9",
+			"fromFloating":false,
+			"styleAttributes":{"pathfindingMethod":"square"},
+			"fromNode":"fb289fc75436ae80",
+			"fromSide":"bottom",
+			"toNode":"6dd13314cf7ca7ae",
+			"toSide":"left",
+			"color":"6"
+		},
+		{
+			"id":"1f42eb6f84b8ec0b",
+			"toFloating":false,
+			"fromFloating":false,
+			"styleAttributes":{
+				"pathfindingMethod":null
+			},
+			"fromNode":"b7fa2396fa7923e5",
+			"fromSide":"right",
+			"toNode":"6dd13314cf7ca7ae",
+			"toSide":"right",
+			"color":"1"
+		},
+		{"id":"c1a21ae3bebc6d0b","toFloating":false,"fromNode":"9e2451715ccd1554","fromSide":"right","toNode":"c17fc38e5ca4abc9","toSide":"bottom"},
+		{"id":"345536d1c120fb59","fromNode":"23a5d75ba6460943","fromSide":"right","toNode":"c17fc38e5ca4abc9","toSide":"left"},
+		{"id":"c238188501c513bd","toFloating":false,"fromNode":"cfaf9c4c6afe8bc1","fromSide":"right","toNode":"c17fc38e5ca4abc9","toSide":"top"},
+		{"id":"b5ec8d38c695ce0d","fromFloating":false,"toFloating":false,"fromNode":"b7fa2396fa7923e5","fromSide":"right","toNode":"d0de99c7b3dd60b1","toSide":"right","color":"1"},
+		{"id":"fe90eca191846301","fromFloating":false,"fromNode":"0b356aea2e68cee3","fromSide":"bottom","toNode":"d0de99c7b3dd60b1","toSide":"left","color":"6"},
+		{
+			"id":"6d95b646e131e489",
+			"styleAttributes":{"pathfindingMethod":"square"},
+			"toFloating":false,
+			"fromFloating":false,
+			"fromNode":"fb289fc75436ae80",
+			"fromSide":"bottom",
+			"toNode":"994f5ef6103d6ebf",
+			"toSide":"left",
+			"color":"6"
+		},
+		{"id":"d7162ef4d177bc76","fromFloating":false,"fromNode":"fb289fc75436ae80","fromSide":"bottom","toNode":"d0de99c7b3dd60b1","toSide":"left","color":"6"},
+		{
+			"id":"26d2901900e4efcf",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"42ebed38ffca687d",
+			"fromSide":"right",
+			"toNode":"3738964b22ab405b",
+			"toSide":"left"
+		},
+		{
+			"id":"0ad1e12741dd1815",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"d0de99c7b3dd60b1",
+			"fromSide":"bottom",
+			"toNode":"6260d80d7925f41c",
+			"toSide":"top"
+		},
+		{
+			"id":"a3c72d6e4da4cad8",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"6260d80d7925f41c",
+			"fromSide":"bottom",
+			"toNode":"ea9700cbb05ad78d",
+			"toSide":"top"
+		},
+		{
+			"id":"e93b45fb912a2d8b",
+			"styleAttributes":{
+				"pathfindingMethod":null
+			},
+			"toFloating":false,
+			"fromFloating":false,
+			"fromNode":"13b42f0e9fed996a",
+			"fromSide":"right",
+			"toNode":"6dd13314cf7ca7ae",
+			"toSide":"left",
+			"color":"2"
+		},
+		{
+			"id":"9f99b9674c183f21",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromFloating":false,
+			"fromNode":"13b42f0e9fed996a",
+			"fromSide":"right",
+			"toNode":"b7fa2396fa7923e5",
+			"toSide":"left",
+			"color":"2"
+		},
+		{
+			"id":"fc668e3cecad04c1",
+			"styleAttributes":{"pathfindingMethod":"square"},
+			"toFloating":false,
+			"fromFloating":false,
+			"fromNode":"ea9700cbb05ad78d",
+			"fromSide":"left",
+			"toNode":"13b42f0e9fed996a",
+			"toSide":"bottom",
+			"color":"2"
+		},
+		{
+			"id":"1f3abaf9c536ad98",
+			"styleAttributes":{"pathfindingMethod":"square"},
+			"toFloating":false,
+			"fromFloating":false,
+			"fromNode":"13b42f0e9fed996a",
+			"fromSide":"top",
+			"toNode":"fb289fc75436ae80",
+			"toSide":"left",
+			"color":"2"
+		},
+		{
+			"id":"e3b28cb169862712",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromFloating":false,
+			"fromNode":"994f5ef6103d6ebf",
+			"fromSide":"right",
+			"toNode":"6dd13314cf7ca7ae",
+			"toSide":"right",
+			"color":"5"
+		},
+		{
+			"id":"954a6f993370a081",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromFloating":false,
+			"fromNode":"b7fa2396fa7923e5",
+			"fromSide":"right",
+			"toNode":"fdd1a37f666484ce",
+			"toSide":"left"
+		},
+		{
+			"id":"fa65e2610fa56ade",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromFloating":false,
+			"fromNode":"994f5ef6103d6ebf",
+			"fromSide":"right",
+			"toNode":"fdd1a37f666484ce",
+			"toSide":"left"
+		},
+		{
+			"id":"4972b04b90a118f3",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"6dd13314cf7ca7ae",
+			"fromSide":"right",
+			"toNode":"fdd1a37f666484ce",
+			"toSide":"left"
+		}
+	],
+	"metadata":{
+		"version":"1.0-1.0",
+		"frontmatter":{}
+	}
+}

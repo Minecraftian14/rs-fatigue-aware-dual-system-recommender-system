@@ -1,0 +1,472 @@
+# Online Metrics
+
+
+Most academic (need to verify) focused on offline metrics like NDCG or hit rate on static datasets. Industries have to operate on severe constraints of scale, latency, and cost.
+
+Industries would like to focus more on revenue, conversation and retention
+
+
+Real time modelling and temporal dynamic, latency in milliseconds, idk, read again (ask llm to explain)
+
+
+Long term vs short term satisfaction
+
+Focus on long term using RL to model sequential decision making process:: rewards on user loyalty, and lifetime value instead of immediate hit rates
+
+
+Not applicable, basically respond accordingly to user's emotion state. 
+We are not generating text anyways. 
+
+Uh... Does items inherently convey some message, nevertheless we can't know the user's emotion without his language text which are would not process anyways
+
+
+
+
+
+
+
+
+
+# Emotionally Aware Systems
+
+
+# Privacy, security and decentralisation
+
+
+Metacognition = thinking about thinking.
+
+The project proposes:
+
+A symbolic module that monitors the LLM.
+
+It checks:
+
+- Is the LLM hallucinating?
+    
+- Is it contradicting known facts?
+    
+- Is this recommendation aligned with health goals?
+    
+- Is it encouraging over-consumption?
+
+
+# Casual inference
+
+Aim, ensure recomm is truly personalized
+How, casual debiasing fws to eliminate confounding factors like item popularity and demographic variables
+
+
+Most ML does:
+
+Correlation learning.
+
+Example:  
+People who watch X also buy Y.
+
+Causal reasoning asks:
+
+If I _force_ someone to see X,  
+will it cause Y?
+
+That’s different.
+
+Do-calculus (from Judea Pearl’s framework) formalizes:
+
+Interventions vs observations.
+
+
+to verify whether their recommendations causally improve users’ long-term wellbeing or inadvertently cause harm or manipulation
+
+
+Right now, most AI recommenders are:
+
+- Pattern recognizers
+    
+- Engagement optimizers
+    
+- Statistical machines
+
+But they don’t reason about:
+
+- Is this actually good for you?
+    
+- Is this manipulative?
+    
+- Does this align with your long-term health?
+
+
+Neural models (like LLMs):
+
+- Great at language
+    
+- Great at detecting emotion
+    
+- Bad at consistency and logical guarantees
+    
+
+Symbolic systems:
+
+- Explicit rules
+    
+- Logical constraints
+    
+- Knowledge graphs
+    
+- Policy enforcement
+
+
+Neural networks → pattern recognition  
+Symbolic logic → rules + reasoning
+
+
+Normally:
+
+Each user is optimized individually.
+
+Here:
+
+They optimize for:
+
+Total well-being across all users.
+
+It’s like:
+
+Individual fitness vs public health.
+
+
+# Causal Inference + Do-Calculus
+
+
+# Metacognitive Controller
+
+
+# Neuro-Symbolic AI
+
+
+# Empathetic AI systems
+
+
+# Social Welfare Recommender
+
+
+Model it mathematically like:
+Satisfaction(t) = f(diversity, novelty, repetition, time)
+
+
+# Modeling Fatigue and Boredom
+
+
+Build a structured graph encoding:
+
+- Health guidelines
+    
+- Financial well-being principles
+    
+- Legal regulations
+    
+- Ethical constraints
+    
+
+Example nodes:
+
+- "Overconsumption"
+    
+- "Addiction risk"
+    
+- "User long-term goals"
+    
+- "Mental health preservation"
+
+
+# Knowledge Graph of Human Values + Legal Policies
+
+
+# Debiasing: Manipulative vs Genuinely Helpful
+
+
+An empathetic-sounding response can still be manipulative.
+
+> I know you’re feeling lonely… maybe treat yourself with this premium subscription.
+
+It _sounds_ caring.  
+But causally it may exploit vulnerability.
+
+
+# Long Trajectory
+
+
+Trajectory = sequence of interactions over time.
+
+Instead of:
+
+One recommendation → one click
+
+We simulate:
+
+Day 1 → 20 recommendations  
+Day 2 → boredom level changes  
+Day 10 → fatigue accumulates  
+Day 50 → agent churns or thrives
+
+So we model behavior over _months_ of simulated time.
+
+
+# Sequential Recommendation
+
+
+Presenting recommendations as a sequence, first this, then this then that.
+(All are not presented at once, but based on how many already recommended so far)
+
+
+# LLM-Based Persona Agents
+
+
+Now imagine each LLM is given:
+
+- A personality
+    
+- Preferences
+    
+- Interests
+    
+- Emotional tendencies
+    
+
+Example persona:
+
+- Loves indie films
+    
+- Gets bored quickly
+    
+- Hates repetition
+    
+- Impulsive late at night
+    
+
+Each of these is an “agent.”
+
+And thousands of them interact with recommendation systems.
+
+
+Most current solutions are similar to system 1, intuitive but erroneous (hallucination and lack of deeper logical grounding over the high dimensionality of user preferences) 
+
+We need to move on to system 2, rationality
+
+
+
+# System 1 vs System 2 Recommendation
+
+
+This is borrowed from psychology (Daniel Kahneman).
+
+- System 1 = Fast, impulsive, reactive
+    
+- System 2 = Slow, reflective, long-term thinking
+    
+
+In recommender terms:
+
+**System 1 recommender:**
+
+- Maximizes immediate clicks
+    
+- Shows what grabs attention
+    
+- Optimizes short-term engagement
+    
+
+**System 2 recommender:**
+
+- Optimizes long-term satisfaction
+    
+- Balances novelty and familiarity
+    
+- Avoids burnout
+
+
+
+
+|Dimension|Academic Focus|Industrial Focus|
+|---|---|---|
+|Data Scale|Small, static datasets (e.g., MovieLens)|Massive, dynamic streaming data|
+|Metrics|Precision, Recall, NDCG|Revenue, Conversion, Retention|
+|Latency|Usually not a primary concern|Millisecond-level response requirements|
+|Model Complexity|High (e.g., large LLM fine-tuning)|Optimized (e.g., multi-stage distilled models)|
+|Experimentation|Offline evaluation|Online A/B testing|
+
+
+
+
+# Transparency
+
+
+| Data Strategy                  | Mechanism                                                | Primary Benefit                                      |
+| ------------------------------ | -------------------------------------------------------- | ---------------------------------------------------- |
+| Knowledge-Infused Augmentation | Injecting LLM world knowledge into sparse datasets       | Mitigates cold-start and improves semantic richness  |
+| Agent-Based Simulation         | Using LLMs to simulate diverse user interaction paths    | Enhances model robustness and provides training data |
+| Multi-Domain Unification       | Aligning cross-domain items via semantic representations | Bridges domain gaps and representation misalignment  |
+| Modality-Specific Encoding     | Hierarchical attention for text, images, and audio       | Enables nuanced multimodal user modeling             |
+
+
+
+# Gen-AI Shift
+
+
+# Explainability
+
+
+This shift is best understood using three dimensions: data, models and tasks
+
+
+Client A has set: {A, B, C}  
+Client B has set: {B, C, D}
+
+They want to know:
+
+> What do we both have in common?
+
+But without revealing:
+
+- A’s full set
+    
+- B’s full set
+
+
+This is about adding **noise** to gradients.
+
+You may remember:  
+Regularization prevents overfitting.
+
+Privacy noise prevents:
+
+- Reconstruction attacks
+    
+- Gradient inversion attacks
+    
+
+Gradient inversion =  
+Someone reconstructs your training data from gradients.
+
+And multimodal gradients are _much richer_ than simple tabular data.
+
+
+The shift from "scoring and ranking" to a generative concept. Synthesis of recommendations, identifies, or even the content itself.
+
+
+Lack of historical data -> poor cold start performance.
+Solved using LLMs with their world knowledge embedded in them.
+Eg: a gen model can recomm a movie based on a director's thematic style and current cultural trends without needing an explicit knowledge graph
+
+
+# Local Differential Privacy
+
+
+# Private Set Interaction
+
+
+Each user only sees their local graph slice.
+
+But maybe some neighbors overlap with others.
+
+
+# Sub-graph Expansion
+
+
+Instead of images or sequences, you train on a **graph**:
+Users <-> Products  
+Users <-> Users  
+Items <-> Items
+
+
+How do we expand local graphs to improve learning —  
+without revealing the full global graph?
+
+That’s the “sub-graph expansion” problem.
+
+
+# Graph Neural Networks
+
+
+Server sends model → everyone trains locally → they send back gradients → server averages them
+
+
+# Fairness
+
+
+The model can learn sensitive attributes like gender implicitly due to the nature of its algorithm; thus developing a bias.
+
+
+# Federated Learning
+
+
+# HCRS
+
+Human centred recommender systems
+
+Prioritise human values like trust, safety, fairness and well being
+
+
+
+Huh? Maybe i was being too critic of age. It goes much deeper, it might group people based on harmful mentality
+
+
+# Addiction Aware
+
+
+### System-1 (Impulsive / Moreishness)
+
+This is:
+- Instant gratification
+- Dopamine-driven
+- Habitual scrolling
+- Clickbait
+
+Properties:
+- Strong short-term effect
+- Decays quickly
+- Creates a temporary spike in return probability
+
+Example:
+You binge 10 reels tonight.  
+Tomorrow morning you feel the urge to open the app again.  
+But that urge fades quickly.
+
+
+## System-2 (Utility / Long-term value)
+
+This is:
+- Meaningful content
+- Learning something useful
+- Getting value aligned with goals
+
+Properties:
+- Smaller short-term spike
+- Longer-lasting effect
+- Drives sustained retention
+
+Example:
+You watch a high-quality ML lecture series.  
+You return next week to continue learning.
+
+# A user might keep returning even if the platform only shows moreish content.
+
+Because if System-1 spikes are large enough and frequent enough, they can sustain repeated returns — even if utility is low.
+
+This models:
+- Doomscrolling
+- Habit loops
+- Short-term addictive usage
+
+They are **not** modeling cases like:
+- Clinical addiction
+- Compulsive behavior independent of content quality
+- Structural habit loops that persist even without gratification
+
+Their model still assumes:
+> Return probability depends on past experience.
+
+
+# Noise Modelling
+
+
+# Behavior Aware

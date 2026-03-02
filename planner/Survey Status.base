@@ -1,0 +1,10 @@
+filters:
+  and:
+    - file.inFolder("planner/survey")
+views:
+  - type: table
+    name: Table
+    order:
+      - file.name
+      - file.tags
+      - link

@@ -1,3 +1,5 @@
 .obsidian/workspace.json
 *.pdf
 .trash/
+build/
+out/

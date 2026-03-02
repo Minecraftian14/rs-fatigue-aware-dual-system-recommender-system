@@ -1,0 +1,17 @@
+\section{Tables}
+Note that, for IEEE-style tables, the
+ $\backslash${\tt{caption}} command should come BEFORE the table. Table captions use title case. Articles (a, an, the), coordinating conjunctions (and, but, for, or, nor), and most short prepositions are lowercase unless they are the first or last word. Table text will default to $\backslash${\tt{footnotesize}} as
+ the IEEE normally uses this smaller font for tables.
+ The $\backslash${\tt{label}} must come after $\backslash${\tt{caption}} as always.
+ 
+\begin{table}[!t]
+\caption{An Example of a Table\label{tab:table1}}
+\centering
+\begin{tabular}{|c||c|}
+\hline
+One & Two\\
+\hline
+Three & Four\\
+\hline
+\end{tabular}
+\end{table}

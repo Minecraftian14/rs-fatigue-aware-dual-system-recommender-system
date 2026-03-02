@@ -1,0 +1,56 @@
+\documentclass[lettersize,journal]{IEEEtran}
+
+\input{preamble}
+\input{custom_macros}
+\input{custom_formatting}
+
+% updated with editorial comments 8/9/2021
+
+\begin{document}
+
+\title{A Sample Article Using IEEEtran.cls\\ for IEEE Journals and Transactions}
+
+\author{IEEE Publication Technology,~\IEEEmembership{Staff,~IEEE,}
+        % <-this % stops a space
+\thanks{This paper was produced by the IEEE Publication Technology Group. They are in Piscataway, NJ.}% <-this % stops a space
+\thanks{Manuscript received April 19, 2021; revised August 16, 2021.}}
+
+% The paper headers
+\markboth{Journal of \LaTeX\ Class Files,~Vol.~14, No.~8, August~2021}%
+{Shell \MakeLowercase{\textit{et al.}}: A Sample Article Using IEEEtran.cls for IEEE Journals}
+
+\IEEEpubid{0000--0000/00\$00.00~\copyright~2021 IEEE}
+% Remember, if you use this you must call \IEEEpubidadjcol in the second
+% column for its text to clear the IEEEpubid mark.
+
+\maketitle
+
+\begin{abstract}
+This document describes the most common article elements and how to use the IEEEtran class with \LaTeX \ to produce files that are suitable for submission to the IEEE.  IEEEtran can produce conference, journal, and technical note (correspondence) papers with a suitable choice of class options. 
+\end{abstract}
+
+\begin{IEEEkeywords}
+Article submission, IEEE, IEEEtran, journal, \LaTeX, paper, template, typesetting.
+\end{IEEEkeywords}
+
+\input{sections/s01_introduction}
+\input{sections/s02_templates}
+\input{sections/s03_user_groups}
+\input{sections/s04_other_resources}
+\input{sections/s05_text}
+\input{sections/s06_common_elements}
+\input{sections/s07_tables}
+\input{sections/s08_algorithms}
+\input{sections/s09_mathematics}
+\input{sections/s10_conclusion}
+\input{sections/s11_acknowledgments}
+\input{sections/s12_appendix}
+\input{sections/s13_references}
+\input{sections/s14_simple_references}
+\input{sections/s15_biography}
+
+\vfill
+
+\end{document}
+
+

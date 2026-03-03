@@ -1,4 +1,4 @@
-@tail -n +3 "%~f0" | jshell -
+@tail -n +3 "%~f0" | jshell - | clip
 @goto :eof
 
 import java.awt.*;
@@ -12,15 +12,20 @@ if (data == null || !data.isDataFlavorSupported(DataFlavor.stringFlavor)) {
 }
 
 var text = ((String) data.getTransferData(DataFlavor.stringFlavor)).trim();
+var lines = text.split("[\\n\\r]+");
+
+var expectedColumnCount = lines[0].split("\\|").length - 1;
+var columnSetting = "|l|" + "|c|".repeat(expectedColumnCount - 1);
+
 System.out.println("""
 \\begin{table}[!t]
 \\caption{An Example of a Table\\label{tab:tableABC}}
 \\centering
-\\begin{tabular}{|l||c||c||c||c|}
+\\begin{tabular}{%s}
 \\hline
-""".strip());
+""".formatted(columnSetting).strip());
 
-for (var line: text.split("[\\n\\r]+")) {
+for (var line: lines) {
     var words = line.substring(1, line.length() - 1).split("\\|");
     for (int i = 0; i < words.length; i++) words[i] = words[i].strip();
     if (words[0].startsWith("-") && words[0].endsWith("-")) {

@@ -103,16 +103,6 @@
 			"color":"4"
 		},
 		{
-			"id":"684ed8c55459a25c",
-			"type":"text",
-			"text":"- Directly matches **implicit feedback**\n    \n- Naturally incorporates:\n    \n    - Negative sampling\n        \n    - Temporal decay\n        \n    - Propensity weighting\n        \n- Evaluation metrics already aligned (Precision@K, NDCG@K)\n    \n- Easy to define strong DIY baselines\n    \n- Flexible: you can extend later (sequence, debiasing, cold start)",
-			"styleAttributes":{},
-			"x":800,
-			"y":-140,
-			"width":560,
-			"height":260
-		},
-		{
 			"id":"a8a6f604bd8b1805",
 			"type":"text",
 			"text":"## 1️⃣ First: reduce the problem space (very important)\n\nYou were given **three canonical problems**:\n\n1. **Rating prediction**\n    \n2. **Next-item prediction**\n    \n3. **Top-N recommendation**\n    \n\nLet’s evaluate them **against your constraints**.\n\n### ❌ Rating prediction (I do NOT recommend this)\n\nWhy:\n\n- Requires **explicit feedback**\n    \n- Extremely sparse\n    \n- Less relevant in modern systems\n    \n- Weak alignment with real-world recommender pipelines\n    \n- Hard to incorporate exposure/position bias properly\n    \n\n**Verdict:**  \n❌ Avoid unless explicitly required\n\n---\n\n### ⚠️ Next-item prediction\n\nPros:\n\n- Very popular in research\n    \n- Clean sequential formulation\n    \n- Easy to use temporal splits\n    \n- Works well with implicit feedback\n    \n\nCons:\n\n- Often becomes _“train a Transformer and report NDCG”_\n    \n- Hard to show novelty **before midterms**\n    \n- Baselines are already strong\n    \n\n**Verdict:**  \n⚠️ Good, but risky unless you add a _clear modeling twist_\n\n---\n\n### ✅ Top-N recommendation (BEST choice)\n\nPros:\n\n- Directly matches **implicit feedback**\n    \n- Naturally incorporates:\n    \n    - Negative sampling\n        \n    - Temporal decay\n        \n    - Propensity weighting\n        \n- Evaluation metrics already aligned (Precision@K, NDCG@K)\n    \n- Easy to define strong DIY baselines\n    \n- Flexible: you can extend later (sequence, debiasing, cold start)\n    \n\n**Verdict:**  \n✅ **This should be your project framing**\n\n> 💡 Important insight:  \n> **Next-item prediction is just a special case of Top-N recommendation with temporal conditioning.**\n\n---\n\n## 2️⃣ Now let’s map your class pointers → a coherent project\n\nYou already have:\n\n- Implicit feedback\n    \n- Bias discussion\n    \n- Data leakage awareness\n    \n- Evaluation rigor\n    \n- Baselines\n    \n\nWhat’s missing?  \n👉 **A single clear research question**\n\n---\n\n## 3️⃣ Strong project framing (recommended)\n\n### 🎯 FINAL PROJECT CHOICE\n\n> **Top-N Recommendation from Implicit Feedback under Temporal and Exposure Bias**\n\nThis is:\n\n- Academically correct\n    \n- Industry relevant\n    \n- Feasible before midterms\n    \n- Extendable after midterms\n    \n\n---\n\n## 4️⃣ Convert this into a clean IEEE-style problem statement\n\n### **Problem Statement**\n\nUser preferences in modern recommender systems are primarily inferred from **implicit feedback** such as clicks and interactions. However, implicit feedback is a **noisy, biased proxy** of true user preference due to exposure bias, position bias, and missing negative signals. Traditional recommender models trained naively on such data often overestimate popular or highly exposed items and fail to generalize.\n\nThis project aims to design and evaluate a **Top-N recommendation framework** that:\n\n1. Learns user preferences from implicit feedback\n    \n2. Incorporates temporal dynamics of user behavior\n    \n3. Mitigates bias introduced by exposure and missing negatives\n    \n4. Evaluates recommendations using leakage-free temporal splits\n    \n\n---\n\n## 5️⃣ Literature survey (how to structure, not dump papers)\n\nYour survey should have **4 short subsections**, not a paper list.\n\n### 1. Implicit Feedback Recommendation\n\n- Difference between explicit vs implicit signals\n    \n- Why negative sampling is required\n    \n- Risks of treating unobserved as negative\n    \n\n### 2. Bias in Recommendation Systems\n\n- Exposure bias\n    \n- Position bias\n    \n- Confounding factors\n    \n- Why offline metrics can be misleading\n    \n\n### 3. Temporal Modeling of Preferences\n\n- User preferences evolve\n    \n- Temporal decay improves alignment\n    \n- Importance of event time vs log time\n    \n\n### 4. Evaluation Challenges\n\n- Offline vs online evaluation\n    \n- Temporal splits\n    \n- Leakage traps\n    \n\n> ⚠️ Keep this **conceptual**, not citation-heavy.  \n> IEEE reviewers like clarity more than name-dropping.\n\n---\n\n## 6️⃣ Proposed method (simple, correct, research-grade)\n\nThis is where many students overcomplicate. Don’t.\n\n### **Data formulation**\n\n- Implicit feedback: (user, item, timestamp, event_type)\n    \n- Positive samples = observed interactions\n    \n- Negative samples = unobserved items (sampled)\n    \n\n### **Model pipeline**\n\n1. **User representation**\n    \n    - Aggregation of interacted item embeddings\n        \n    - Temporal decay applied to older interactions\n        \n2. **Item representation**\n    \n    - Learnable embeddings\n        \n3. **Scoring function**\n    \n    - Dot product or shallow neural layer\n        \n4. **Bias handling**\n    \n    - Propensity weighting OR\n        \n    - Exposure-aware negative sampling\n        \n5. **Training objective**\n    \n    - Pairwise ranking loss (BPR-style)\n        \n    - Weighted by temporal decay\n        \n\n---\n\n## 7️⃣ Baselines (VERY important for marks)\n\nYou already listed the perfect ones:\n\n- Popularity-based\n    \n- Recency-based\n    \n- Co-visitation-based\n    \n- Random\n    \n\n> 🚨 Explicitly say:  \n> “All baselines are implemented from scratch to ensure fair comparison.”\n\n---\n\n## 8️⃣ Evaluation (aligns perfectly with class notes)\n\n### Offline evaluation\n\n- Temporal split (NO random split)\n    \n- Per-user evaluation\n    \n- Metrics:\n    \n    - Precision@K\n        \n    - Recall@K\n        \n    - NDCG@K\n        \n\n### Sanity checks\n\n- Popular items vs long-tail\n    \n- Effect of temporal decay\n    \n- Ablation: with/without bias correction\n    \n\n---\n\n## 9️⃣ Cold start (address, don’t solve fully)\n\nBefore midterms, **acknowledge**, don’t fully solve:\n\n- New users → fallback to popularity/recency\n    \n- New items → exposure-based warm-up\n    \n- State clearly as _future work_\n    \n\nThis shows maturity.\n\n---\n\n## 🔟 Final decision summary (what you should submit)\n\n✅ **Chosen problem**: Top-N recommendation  \n✅ **Feedback type**: Implicit  \n✅ **Core challenges addressed**:\n\n- Bias\n    \n- Temporal dynamics\n    \n- Leakage-free evaluation  \n    ✅ **Extendable later** to:\n    \n- Sequential models\n    \n- Contrastive learning\n    \n- Cold start solutions\n    \n\n---\n\n## If you want next:\n\nI can:\n\n- Convert this **directly into IEEE conference template text**\n    \n- Write **Problem Statement + Literature Survey sections verbatim**\n    \n- Design **figure diagrams** (data flow, evaluation split)\n    \n- Help you choose **dataset (MovieLens vs Amazon vs synthetic)**\n    \n\nJust tell me:  \n👉 _“Write the IEEE report draft”_ or _“Help me extend novelty”_",
@@ -175,26 +165,6 @@
 			"height":1340
 		},
 		{
-			"id":"aab8a64ca5747e15",
-			"type":"text",
-			"text":"# C. Fairness in Recommendation Systems (Critical for Novelty)\n\nThis is where **your main novelty lives**.\n\n---\n\n### 7. _Fairness-Aware Recommendation: An Overview_\n\n**Burke et al., ACM TiiS 2017**  \nhttps://dl.acm.org/doi/10.1145/3052569\n\n**Why relevant**\n\n- Classic taxonomy: user fairness, item fairness, exposure fairness\n    \n- Helps define _what fairness means_ in RS\n    \n\nGood for **problem motivation**.\n\n---\n\n### 8. _Causal Fairness in Recommender Systems_\n\n**Zhang et al., WWW 2021**  \nhttps://arxiv.org/abs/2102.12529\n\n**Why relevant**\n\n- Highlights bias sources (exposure, popularity)\n    \n- Motivates fairness constraints beyond accuracy\n    \n\nYou don’t need causal modeling, but the **bias argument** is strong.\n\n---\n\n### 9. _Fairness-Aware Graph Neural Networks_\n\n**Dai & Wang, KDD 2021**  \nhttps://arxiv.org/abs/2106.06166\n\n**Why relevant**\n\n- Shows how fairness constraints can be injected into GNNs\n    \n- Not recommendation-specific → **gap you can exploit**\n    \n- Useful for designing your fairness regularizer\n    \n\n---\n\n### 10. _Debiasing Learning for Fair Recommendation_\n\n**Wu et al., NeurIPS 2021**  \nhttps://arxiv.org/abs/2106.03570\n\n**Why relevant**\n\n- Uses reweighting / regularization to reduce bias\n    \n- Demonstrates trade-off between accuracy and fairness\n    \n- Good reference when discussing **accuracy–fairness tradeoff**\n",
-			"styleAttributes":{},
-			"x":4080,
-			"y":-80,
-			"width":540,
-			"height":1340
-		},
-		{
-			"id":"c2b34e63eb0a87ee",
-			"type":"text",
-			"text":"# D. Accuracy–Fairness Trade-off & Theory\n\nThis helps you justify the **theoretical analysis** part.\n\n---\n\n### 11. _On the Trade-off Between Accuracy and Fairness in Recommendation Systems_\n\n**Ekstrand et al., RecSys 2018**  \nhttps://dl.acm.org/doi/10.1145/3240323.3240374\n\n**Why relevant**\n\n- Empirical evidence that fairness constraints affect accuracy\n    \n- Sets up motivation for your theoretical analysis\n    \n\n---\n\n### 12. _Generalization Bounds for Fair Learning_\n\n**Donini et al., NeurIPS 2018**  \nhttps://arxiv.org/abs/1808.06613\n\n**Why relevant**\n\n- Provides **theoretical tools**\n    \n- You can cite this when you say:\n    \n    > “We analyze how fairness regularization impacts generalization…”\n",
-			"styleAttributes":{},
-			"x":4640,
-			"y":-80,
-			"width":540,
-			"height":1340
-		},
-		{
 			"id":"d95213f60852522e",
 			"type":"text",
 			"text":"# How to Position Your Novelty (VERY IMPORTANT)\n\nAfter citing these, you can clearly say:\n\n> Existing graph-based recommenders optimize accuracy alone.  \n> Existing contrastive recommenders improve robustness but ignore fairness.  \n> Existing fairness-aware models rarely combine **graph structure + self-supervision**.\n\n### Your gap:\n\n**No unified framework that jointly:**\n\n- learns graph-based representations\n    \n- uses contrastive self-supervision\n    \n- enforces fairness constraints\n ",
@@ -215,6 +185,26 @@
 			"height":620
 		},
 		{
+			"id":"aab8a64ca5747e15",
+			"type":"text",
+			"text":"# C. Fairness in Recommendation Systems (Critical for Novelty)\n\nThis is where **your main novelty lives**.\n\n---\n\n### 7. _Fairness-Aware Recommendation: An Overview_\n\n**Burke et al., ACM TiiS 2017**  \nhttps://dl.acm.org/doi/10.1145/3052569\n\n**Why relevant**\n\n- Classic taxonomy: user fairness, item fairness, exposure fairness\n    \n- Helps define _what fairness means_ in RS\n    \n\nGood for **problem motivation**.\n\n---\n\n### 8. _Causal Fairness in Recommender Systems_\n\n**Zhang et al., WWW 2021**  \nhttps://arxiv.org/abs/2102.12529\n\n**Why relevant**\n\n- Highlights bias sources (exposure, popularity)\n    \n- Motivates fairness constraints beyond accuracy\n    \n\nYou don’t need causal modeling, but the **bias argument** is strong.\n\n---\n\n### 9. _Fairness-Aware Graph Neural Networks_\n\n**Dai & Wang, KDD 2021**  \nhttps://arxiv.org/abs/2106.06166\n\n**Why relevant**\n\n- Shows how fairness constraints can be injected into GNNs\n    \n- Not recommendation-specific → **gap you can exploit**\n    \n- Useful for designing your fairness regularizer\n    \n\n---\n\n### 10. _Debiasing Learning for Fair Recommendation_\n\n**Wu et al., NeurIPS 2021**  \nhttps://arxiv.org/abs/2106.03570\n\n**Why relevant**\n\n- Uses reweighting / regularization to reduce bias\n    \n- Demonstrates trade-off between accuracy and fairness\n    \n- Good reference when discussing **accuracy–fairness tradeoff**\n",
+			"styleAttributes":{},
+			"x":4080,
+			"y":-80,
+			"width":540,
+			"height":1340
+		},
+		{
+			"id":"c2b34e63eb0a87ee",
+			"type":"text",
+			"text":"# D. Accuracy–Fairness Trade-off & Theory\n\nThis helps you justify the **theoretical analysis** part.\n\n---\n\n### 11. _On the Trade-off Between Accuracy and Fairness in Recommendation Systems_\n\n**Ekstrand et al., RecSys 2018**  \nhttps://dl.acm.org/doi/10.1145/3240323.3240374\n\n**Why relevant**\n\n- Empirical evidence that fairness constraints affect accuracy\n    \n- Sets up motivation for your theoretical analysis\n    \n\n---\n\n### 12. _Generalization Bounds for Fair Learning_\n\n**Donini et al., NeurIPS 2018**  \nhttps://arxiv.org/abs/1808.06613\n\n**Why relevant**\n\n- Provides **theoretical tools**\n    \n- You can cite this when you say:\n    \n    > “We analyze how fairness regularization impacts generalization…”\n",
+			"styleAttributes":{},
+			"x":4640,
+			"y":-80,
+			"width":540,
+			"height":1340
+		},
+		{
 			"id":"a5f881a9dfac8fc1",
 			"type":"text",
 			"text":"## ⭐ Highly Relevant Papers For Your Project\n\nIf you want _novelty and direct inspiration_ for your _fairness-constrained graph-contrastive model_, these are good ones to build on:\n\n### 🔹 Graph + Fairness\n\n1. **Heterophily-Aware Fair Recommendation using Graph Convolutional Networks**  \n    _Gholinejad et al., 2024_ — addresses fairness in GNN based recommenders by adjusting aggregation/normalization to reduce bias.  \n    https://arxiv.org/abs/2402.03365\n    \n2. **Learning Fair Representations for Recommendation: A Graph-Based Perspective**  \n    _Wu et al., 2021_ — learns graph embeddings that obfuscate sensitive attributes (adversarial fairness).  \n    https://arxiv.org/abs/2102.09140\n    \n\nBoth are _closer to fairness in graph contexts_ than your IEEE reference.\n\n---\n\n### 🔹 Contrastive Learning in Graph Recommendation\n\n3. **LightGCL: Graph Contrastive Learning for Recommendation**  \n    _Cai et al., 2023_ — simple but effective CL framework for graph-based recommendation, focusing on data augmentation limitations.  \n    https://arxiv.org/abs/2302.08191\n    \n\nThis is exactly the type of contrastive RS model you want to build upon.\n\n---\n\n### 🔹 Fairness in Sequential / Graph Recommendation\n\n4. **FairSR: Fairness-aware Sequential Recommendation with Preference Graph Embeddings**  \n    _Li et al., 2022_ — combines fairness constraints with sequential recommendation and graph modeling.  \n    https://arxiv.org/abs/2205.00313\n    \n\nThis is a _fairness + graph embedding_ work that is _closest to your direction_.",
@@ -223,6 +213,16 @@
 			"y":1320,
 			"width":1040,
 			"height":620
+		},
+		{
+			"id":"684ed8c55459a25c",
+			"type":"text",
+			"text":"- Directly matches **implicit feedback**\n    \n- Naturally incorporates:\n    \n    - Negative sampling\n        \n    - Temporal decay\n        \n    - Propensity weighting\n        \n- Evaluation metrics already aligned (Precision@K, NDCG@K)\n    \n- Easy to define strong DIY baselines\n    \n- Flexible: you can extend later (sequence, debiasing, cold start)",
+			"styleAttributes":{},
+			"x":800,
+			"y":-100,
+			"width":560,
+			"height":260
 		}
 	],
 	"edges":[
@@ -248,6 +248,7 @@
 			"id":"83f26cea6cc0b73b",
 			"styleAttributes":{},
 			"toFloating":false,
+			"fromFloating":false,
 			"fromNode":"690b016e6ed18817",
 			"fromSide":"bottom",
 			"toNode":"a8a6f604bd8b1805",

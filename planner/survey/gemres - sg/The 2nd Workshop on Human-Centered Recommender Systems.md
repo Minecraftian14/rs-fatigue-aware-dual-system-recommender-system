@@ -4,5 +4,7 @@ tags:
   - fairness
   - bias
   - welfare
+status: Weak Citation
+file: "[[The 2nd Workshop on Human-Centered Recommender Systems.pdf]]"
 ---
 #research 

@@ -4,5 +4,7 @@ tags:
   - conversational_ai
   - emotion_in_ai
   - LLM4Rec
+status: "Excluded: Conversational AI is Out of Scope"
+usability: Introduction
 ---
 #research #preprint 

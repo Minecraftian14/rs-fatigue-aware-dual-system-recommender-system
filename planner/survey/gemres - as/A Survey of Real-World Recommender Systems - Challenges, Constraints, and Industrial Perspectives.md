@@ -5,5 +5,8 @@ tags:
   - LLM4Rec
   - deployment
   - industrial
+status: Strong Citation
+file: "[[A Survey on Generative Recommendation - Data, Model, and Tasks.pdf]]"
 ---
 #preprint #survey 
+

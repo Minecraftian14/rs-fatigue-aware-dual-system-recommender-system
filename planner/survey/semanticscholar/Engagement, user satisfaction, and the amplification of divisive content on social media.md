@@ -3,6 +3,8 @@ link: https://www.semanticscholar.org/paper/Engagement%2C-user-satisfaction%2C-a
 from: "[[System-2 Recommenders - Disentangling Utility and Engagement in Recommendation Systems via Temporal Point-Processes]]"
 tags:
   - societal-impact
+status: Strong Citation
+file: "[[Engagement, user satisfaction, and the amplification of divisive content on social media.pdf]]"
 ---
 #research  
 

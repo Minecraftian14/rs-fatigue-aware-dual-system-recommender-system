@@ -3,5 +3,7 @@ link: https://medium.com/@beyondtheboard/the-rise-of-emotional-ai-how-next-gench
 tags:
   - emotion_in_ai
   - conversational_ai
+status: "Can Not Cite, Excluded: Conversational AI is Out of Scope"
+usability: Introduction
 ---
 #open-survey 

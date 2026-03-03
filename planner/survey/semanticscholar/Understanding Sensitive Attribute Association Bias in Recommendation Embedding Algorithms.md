@@ -3,6 +3,8 @@ link: https://www.semanticscholar.org/paper/Understanding-Sensitive-Attribute-As
 from: "[[System-2 Recommenders - Disentangling Utility and Engagement in Recommendation Systems via Temporal Point-Processes]]"
 tags:
   - fairness
+status: Strong Citation
+file: "[[Understanding Sensitive Attribute Association Bias in Recommendation Embedding Algorithms.pdf]]"
 ---
 #research  
 

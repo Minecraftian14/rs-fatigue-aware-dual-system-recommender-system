@@ -1,6 +1,7 @@
 filters:
   and:
     - file.inFolder("planner/survey")
+    - file.ext == "md"
 views:
   - type: table
     name: Table
@@ -8,3 +9,10 @@ views:
       - file.name
       - file.tags
       - link
+      - status
+      - usability
+    sort:
+      - property: file.name
+        direction: ASC
+      - property: status
+        direction: ASC

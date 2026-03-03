@@ -4,6 +4,8 @@ from: "[[System-2 Recommenders - Disentangling Utility and Engagement in Recomme
 tags:
   - fairness
   - economics
+status: Strong Citation
+file: "[[Lower Bias, Higher Welfare - How Creator Competition Reshapes Bias-Variance Tradeoff in Recommendation Platforms.pdf]]"
 ---
 #research
 

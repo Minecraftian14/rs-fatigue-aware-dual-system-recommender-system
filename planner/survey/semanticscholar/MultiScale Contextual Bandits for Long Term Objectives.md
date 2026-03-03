@@ -3,6 +3,7 @@ link: https://www.semanticscholar.org/paper/MultiScale-Contextual-Bandits-for-Lo
 from: "[[System-2 Recommenders - Disentangling Utility and Engagement in Recommendation Systems via Temporal Point-Processes]]"
 tags:
   - optimization
+status: Strong Citation
 ---
 #research  
 

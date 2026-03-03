@@ -1,0 +1,1 @@
+@powershell Get-Clipboard | sed -E 's/\. /.\n/g' | clip

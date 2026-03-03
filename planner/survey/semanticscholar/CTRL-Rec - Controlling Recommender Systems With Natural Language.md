@@ -3,6 +3,8 @@ link: https://www.semanticscholar.org/paper/CTRL-Rec%3A-Controlling-Recommender-
 from: "[[System-2 Recommenders - Disentangling Utility and Engagement in Recommendation Systems via Temporal Point-Processes]]"
 tags:
   - controllable-recommendation
+status: Strong Citation
+file: "[[CTRL-Rec - Controlling Recommender Systems With Natural Language.pdf]]"
 ---
 #research
  

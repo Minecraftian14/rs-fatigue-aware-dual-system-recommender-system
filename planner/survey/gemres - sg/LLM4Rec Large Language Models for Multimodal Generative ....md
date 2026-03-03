@@ -6,5 +6,7 @@ tags:
   - GenRec
   - fairness
   - bias
+status: "Excluded: Multimodal is Out of Scope"
+usability: Peripheral Topics
 ---
 #research 

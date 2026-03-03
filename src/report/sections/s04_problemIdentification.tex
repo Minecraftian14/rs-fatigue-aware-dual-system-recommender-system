@@ -1,0 +1,52 @@
+\section{Problem Identification}
+
+\textbf{PLANNER}
+
+This section converts survey → research need.
+
+\subsection{Structural Problems in Current Recommenders}
+
+\subsubsection{Short-Term Reward Bias}
+
+Explain mathematically.
+
+\subsubsection{Absence of Cognitive State Modeling}
+
+Users treated as static preference vectors.
+
+\subsubsection{No Fatigue or Saturation Representation}
+
+Utility assumed additive.
+
+\subsubsection{Static Decision Policies}
+
+No adaptive reasoning depth.
+
+\subsubsection{Misalignment Between Platform Metrics and User Welfare}
+
+\subsection{Empirical Consequences}
+
+\begin{itemize}
+    \item binge consumption    
+    \item reduced novelty
+    \item churn
+    \item polarization
+\end{itemize}
+    
+\subsection{Formal Problem Definition}
+
+Define:
+
+User state:
+
+\[
+s_t = (history, context, fatigue)
+\]
+
+Objective:
+
+\[
+\max \mathbb{E} \sum_{t} R_{t}^{long-term}  
+\]
+
+Explain why classical models fail.

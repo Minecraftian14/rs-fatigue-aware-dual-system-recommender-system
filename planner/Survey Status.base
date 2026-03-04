@@ -12,7 +12,7 @@ views:
       - status
       - usability
     sort:
-      - property: file.name
-        direction: ASC
       - property: status
+        direction: DESC
+      - property: file.name
         direction: ASC

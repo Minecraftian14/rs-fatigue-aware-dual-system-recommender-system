@@ -7,6 +7,7 @@
 
 Recommender systems have seen significant evolutions across various domains
 like e-commerce, media streaming, education, and social platforms.
+\cite{zou2025surveyrealworldrecommendersystems}
 Early studies in this field were more directed towards raw recommendations
 going through algorithmic accuracy; recent industrial requirements have 
 shaped this around deployment constraints.
@@ -14,7 +15,8 @@ shaped this around deployment constraints.
 Application of Recommender Systems in industrial environments highlights 
 several new dimensions of challenges: massive user populations, continuously 
 evolving item catalogs, strict latency requirements, and business-driven 
-optimization goals. 
+optimization goals.
+\cite{zou2025surveyrealworldrecommendersystems}
 These implementations are built over several stages like candidate generation, 
 ranking, filtering, and post-processing components.
 Each stage suffers from a trade-off between computational efficiency and 
@@ -28,10 +30,12 @@ However, these signals are imperfect representations of user satisfaction
 on a long-term value due to several noise factors like fatigue and addiction.
 Therefore, implementations based on these metrics maximize short-term 
 measurable engagement rather than user benefit and welfare.
+\cite{zou2025surveyrealworldrecommendersystems}
 
 Conference trends from KDD, SIGIR, and RecSys further reinforce this 
 observation: increasing attention is being given to robustness, scalability,
 and evaluation realism rather than purely improving ranking accuracy.
+\cite{zhang20252ndworkshophumancenteredrecommender}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -84,6 +88,7 @@ Early approaches focused on contextual bandits, which balance exploration
 and exploitation while optimizing short-term feedback signals.
 Recent work extends this framework to long-horizon optimization, modeling delayed
 rewards such as retention, session continuation, or user lifetime value.
+\cite{Rastogi2025MultiScaleCB}
 
 RL also enables reward shaping, allowing designers to encode
 multiple objectives into a single optimization signal.
@@ -93,12 +98,14 @@ When modeling long-term outcomes, rewards are often derived
 from interaction frequency or platform usage duration.
 As a result, RL improves temporal awareness without 
 fundamentally redefining the optimization objective.
+\cite{Bolis2025BalancingBA,Anwar2024RecommendationAT}
 
 Studies also introduce addiction-aware recommendations, which further highlight 
 this issue, showing that maximizing engagement-based rewards can unintentionally
 encourage compulsive consumption patterns.
 Thus, RL provides a mechanism for long-term optimization 
 but does not guarantee alignment with user wellbeing.
+\cite{Bolis2025BalancingBA,xia2026llmenhancedreinforcementlearninglongterm,Anwar2024RecommendationAT}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -109,22 +116,28 @@ The recent advances in large language models (LLMs) have started a major a parad
 shift in most data science fields, including recommender systems.
 The use of LLMs in recommender systems introduces generative and reasoning-based
 recommendation, while moving away from discriminative ranking.
+\cite{yu2026thinkrecthinkingbasedrecommendationllm}
 Generative recommendation frameworks take recommendations as a 
 sequence generation or reasoning task rather than a scoring problem.
+\cite{hou2025surveygenerativerecommendationdata}
 
 LLM-based approaches offer a deeper insight about the 
 user preferences and natural language interaction. 
 This approach also offers improved cold-start handling 
 through pretrained knowledge representations.
+\cite{202512.0741}
 Agent-based recommender architectures further extend this idea by allowing 
 reasoning loops, planning behaviors, and iterative refinement of recommendations.
+\cite{zhang2023agentcfcollaborativelearningautonomous,shang2025agentrecbenchbenchmarkingllmagentbased}
 Explainable recommendation systems also benefit from LLMs'
 ability to produce human-interpretable justifications.
+\cite{park2026more}
+
 
 Despite these advances, the primary optimization objective remains unchanged.
-LLMs enhance how recommendations are generated but 
-rarely reconsider what should be optimized.
+LLMs enhance how recommendations are generated but rarely reconsider what should be optimized.
 Most systems still aim to maximize predicted relevance or engagement likelihood.
+\cite{202512.0741,liang2026generativereasoningreranker}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -135,21 +148,26 @@ Emerging researches explore recommender systems
 capable of reflection, memory, and reasoning.
 System-2 recommender frameworks try to separate impulsive engagement
 from reflective utility by modeling decision-capable processes.
+\cite{Agarwal2024System2RD}
 
 Agent-based architectures introduce persistent memory structures, 
 reasoning cycles, and iterative refinement mechanisms.
+\cite{yang2026graphbasedagentmemorytaxonomy}
 These frameworks incorporates reasoning, reflection, and refinement 
 attempt to simulate decision-making processes beyond simple ranking.
+\cite{gu2025r4ecreasoningreflectionrefinement}
 
 These approaches represent an important conceptual shift: recommendation 
 is framed as a cognitive process rather than a prediction problem.
 Memory-aware agents and reasoning loops allow systems to reconsider
 their previous decisions and incorporate broader understanding.
+\cite{yang2026graphbasedagentmemorytaxonomy}
 
 However, existing cognitive recommender research primarily focuses 
 on reasoning capability, rather than human state modeling.
 While systems have become more reflective internally, they rarely model 
 user fatigue, burden, or diminishing utility explicitly.
+\cite{Carroll2025CTRLRecCR}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -160,20 +178,24 @@ Some researches have questioned whether engagement-maximizing
 goals align with human welfare.
 Studies demonstrate that optimizing for interaction metrics can 
 amplify biases, and encourage excessive consumption behaviors.
+\cite{Milli2023EngagementUS,Anwar2024RecommendationAT}
 
 Works on recommendation and temptation explores how exposure to engagement 
 oriented recommendations can influence a users self-control and decision making.
 Similarly, research on welfare-aware optimization investigates trade-offs between
 platform performance and user wellbeing; highlighting the tension between
 short-term engagement and long-term satisfaction.
+\cite{Milli2023EngagementUS,Wang2025LowerBH}
 
 Recommender models which work with addiction awareness, incorporates 
 risk-sensitive objectives that penalize harmful interaction patterns.
 Studies on bias and fairness further reveal that recommendation 
 embeddings can encode sensitive associations (often personal).
+\cite{Wang2025LowerBH,Beattie2025UnderstandingSA}
 
 Collectively, these works argue that recommender systems should be evaluated not 
 only by accuracy but also by their long-term societal and psychological effects.
+\cite{dignazi2025rewardingengagementpersonalizationpopularitybased}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -191,11 +213,13 @@ Recent research highlights inconsistencies in evaluation protocols,
 particularly for explainability and reasoning methods.
 Offline evaluation often fails to predict online performance due to 
 feedback loops and distribution shifts introduced due to deployed circumstances.
+\cite{10.1145/3705328.3748028}
 
 Approaches built around control, like conformal risk control, attempt to
 mitigate unwanted recommendations, by introducing uncertainty measures.
 Studies comparing offline and online evaluation further emphasize that
 optimizing standard metrics can reinforce short-term optimization biases.
+\cite{detoni2025dontbringflowersmitigating}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -211,9 +235,9 @@ However, these advances remain largely disconnected.
 The collective findings can be summarized as follows:
 
 \begin{table}[h]
-\caption{An Example of a Table\label{tab:tableABC}}
+\caption{An Example of a Table\label{tab:tableABCDDD}}
 \centering
-\begin{tabular}{|l||c||c|}
+\begin{tabularx}{\columnwidth}{|l||Y||Y|}
 \hline
 Capability & Existing Work & Missing Component \\
 \hline
@@ -223,12 +247,13 @@ LLM reasoning & Semantic understanding and reflection & Adaptive decision contro
 Welfare research & Identification of harms & Operational system integration \\
 Evaluation research & Metric critique and control methods & Alignment with wellbeing objectives \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 This reveals some patterns like: the individual components necessary for human-centered
 recommendation exist, yet no unified framework integrates cognitive modeling, adaptive reasoning, 
 fatigue awareness, and long-term optimization, all put into a single recommender architecture.
+\cite{zou2025surveyrealworldrecommendersystems,Bolis2025BalancingBA,hou2025surveygenerativerecommendationdata,Agarwal2024System2RD,dignazi2025rewardingengagementpersonalizationpopularitybased,Anwar2024RecommendationAT,10.1145/3705328.3748028}
 
 This gap motivates the proposed Dual-System Human-Centric Recommender with Fatigue-Aware 
 Long-Term Optimization (DS-HCRS), which aims to bridge behavioral prediction, cognitive modeling, 

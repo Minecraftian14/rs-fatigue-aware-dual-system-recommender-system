@@ -1,5 +1,157 @@
 \section{Problem Identification}
 
+The literature survey highlights several limitations, a result of how these systems are designed and evaluated.
+Current approaches prioritize short-term engagement and observable signals, often ignoring aspects 
+like the human behavior (cognition, preferences, and satisfaction).
+These limitations also lead to unintended consequences such as user fatigue, repetitive recommendations, 
+and declining long-term engagement.
+
+This section summarizes the key problems identified in the litearture survey 
+and motivates the need for a more human-centered recommendation framework.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Short-Term Engagement Bias}
+
+The focus on immediate user interaction has heavily influenced the design toward 
+metrics like click-through rate (CTR), watch time, or the probability that a user
+will interact with the next recommended item.
+While these metrics are easy to measure and optimize for; they primarily represent 
+short-term engagement rather than long-term satisfaction.
+
+A recommendation that successfully triggers a click does not necessarily mean that
+the user found it valuable or enjoyable; which in turn does not guarantee their 
+retension over an extended period of time.
+Additionally, users may interact with content out of curiosity rather than genuine interest.
+
+Because of this, many recommendation algorithms are trained to 
+maximize short-term interactions rather than long-term user value.
+Over time, this can encourage content that attracts attention 
+quickly but may not contribute satisfying user experiences.
+
+This creates a bias in recommendation systems: \textbf{the system becomes optimized for immediate engagement rather than sustainable user satisfaction.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Lack of Cognitive State Modeling}
+
+Traditional algorithms of recommendation work around 
+available historical data about the user interactions.
+In these models, a user is typically represented as 
+a sequence of past clicks, views, or purchases.
+
+This approach is effective for identifying behavioral patterns; however, it treats users 
+as static data sources, completely ignoring their changing mental states and intentions.
+Important psychological factors such as attention, curiosity, 
+boredom, and fatigue does not have an explicit representation in the model.
+
+As a result, the system can observe \textit{what users do}, but it 
+cannot infer \textit{how users feel} about their current experience.
+For example, a user who continues interacting with recommendations might appear 
+highly engaged, even if they are becoming tired of the repetitive content.
+
+Without modeling a cognitive state, recommender systems lack the ability to adapt 
+to a strategy which can work around how users are experiencing the process.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Absence of Fatigue and Diminishing Utility}
+
+Another important limitation observed is the assumption that 
+user utility remains constant across repeated interactions.
+Most models assume that if a user interacted with some content in the past, 
+recommending similar items repeatedly is a good move.
+
+However, in reality, this repeatition often leads to \textit{diminishing utility}.
+As users encounter similar recommendations multiple times, 
+the perceived value of those recommendations decreases.
+This leads to boredom, reduced interest, and eventually disengagement.
+
+For example, if a user is recommended several videos from a single category or receives
+similar product recommendations, the novelty of those recommendations gradually declines.
+Despite that, many models continue to reinforce the same patterns 
+because they rely heavily on past interaction signals.
+
+Since this notion of fatigue is not explicitly modeled, recommender systems 
+unintentionally generate overly repetitive recommendation streams.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Static Recommendation Policies}
+
+Most model from the traditional setting learn a single strategy representing the training data.
+Therefore, given the historical pretext, these models perform really well.
+Unfortunately, a user is a dynamic entity, with evolving flavours and tastes.
+A single strategy is insufficient to keep track of a user's state or context.
+
+This means the system is incapable of dynamically adjusting its decision strategy 
+based on factors such as session length, user exploration patterns, or signs of fatigue.
+Once a ranking model is trained, it is used to generate recommendations in the same way for every interaction.
+
+In practice, different situations may require different recommendation strategies.
+Early in a session, users may prefer familiar and relevant content.
+Later in the session, introducing novelty or diversity might help prevent fatigue.
+
+Since current systems typically rely on static ranking policies, they lack 
+the ability to adapt its strategy to changing user cognitive state.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Misaligned Evaluation Metrics}
+
+Evaluation metrics play a critical role in shaping recommender system design.
+Most systems are evaluated using metrics such as Precision@K, Recall@K, and 
+NDCG; these metrics measure how accurately the system predicts user interactions.
+
+These metrics are useful for benchmarking algorithm performance, however, 
+only for predictive accuracy, rather than long-term user outcomes.
+A system with a high ranking accuracy can still produce 
+repetitive content, thus reducing user satisfaction.
+
+Furthermore, offline evaluation methods often fail to capture the dynamic 
+feedback loops that take place with real user interactions over time.
+As a result, models that perform well in offline experiments 
+may not always produce the best long-term user experiences.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Summary of Identified Problems}
+
+The analysis above highlights several key limitations in current recommender system design:
+
+\begin{table}[h]
+\caption{TODO Add a caption\label{tab:TODOlabel0102526}}
+\centering
+\begin{tabularx}{\columnwidth}{|l||Y|}
+\hline
+Problem & Description \\
+\hline
+Short-term engagement bias & Systems prioritize immediate interactions rather than long-term satisfaction \\
+Lack of cognitive state modeling & Users are represented only through behavior sequences \\
+Absence of fatigue modeling & Repeated recommendations may reduce user interest over time \\
+Static recommendation policies & Systems do not adapt strategies based on user state \\
+Misaligned evaluation metrics & Metrics reward interaction prediction rather than user wellbeing \\
+\hline
+\end{tabularx}
+\end{table}
+
+Together, these limitations suggest that current recommender systems are primarily optimized for \textbf{short-term behavioral signals rather than long-term human-centered outcomes}.
+
+These challenges motivate the development of new recommendation frameworks that can explicitly consider user cognitive state, fatigue, and long-term satisfaction when generating recommendations.
+
+
+
+
+
+
+
+
 \textbf{PLANNER}
 
 This section converts survey → research need.

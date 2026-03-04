@@ -15,15 +15,15 @@ var text = ((String) data.getTransferData(DataFlavor.stringFlavor)).trim();
 var lines = text.split("[\\n\\r]+");
 
 var expectedColumnCount = lines[0].split("\\|").length - 1;
-var columnSetting = "|l|" + "|c|".repeat(expectedColumnCount - 1);
+var columnSetting = "|l|" + "|Y|".repeat(expectedColumnCount - 1);
 
 System.out.println("""
-\\begin{table}[!t]
-\\caption{An Example of a Table\\label{tab:tableABC}}
+\\begin{table}[h]
+\\caption{TODO Add a caption\\label{tab:TODOlabel%f}}
 \\centering
-\\begin{tabular}{%s}
+\\begin{tabularx}{\\columnwidth}{%s}
 \\hline
-""".formatted(columnSetting).strip());
+""".formatted(Math.random(), columnSetting).strip());
 
 for (var line: lines) {
     var words = line.substring(1, line.length() - 1).split("\\|");
@@ -37,6 +37,6 @@ for (var line: lines) {
 
 System.out.println("""
 \\hline
-\\end{tabular}
+\\end{tabularx}
 \\end{table}
 """);

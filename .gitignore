@@ -15,3 +15,6 @@ temp/
 
 # Auto generated
 src/report/references.bib
+
+# Temporary files, not to be commited
+**/secret*.*

@@ -1,90 +1,28 @@
 \section{Introduction}
 
-\emph{PLANNER}
+Recommender systems have evolved from early accuracy-focused algorithms 
+to complex industrial systems across e-commerce, media, and social platforms.
+Despite these advances, a tension exists between short-term business-driven goals and long-term user wellbeing.
+Most current systems rely on easily measurable signals like clicks and watch time, 
+which maximize immediate engagement but often do not explicitly model the user's cognitive state.
 
-\subsection{Background: Evolution of Recommender Systems}
+\subsection*{The Challenge of Engagement Bias}
 
-Discuss progression:
+Standard sequential and deep learning models treat user histories as ordered sequences to predict the next likely interaction.
+While effective at capturing recency effects, these models implicitly assume that maximizing immediate clicks corresponds to maximizing satisfaction.
+This approach neglects psychological factors such as \textbf{fatigue} and \textbf{diminishing utility}, 
+where repeated exposure to similar content reduces its value and this leads to platform disengagement.
 
-\begin{enumerate}
-    \item Collaborative Filtering
-    \item Matrix Factorization
-    \item Deep Learning RecSys
-    \item Sequential Recommendation
-    \item Reinforcement Learning RecSys
-    \item LLM-Enhanced Recommenders
-    \item Human-Centered Recommendation
-\end{enumerate}
+\subsection*{Proposed Solution: DS-HCRS}
 
-Goal: show historical trajectory toward your idea.
-
-\subsection{Motivation}
-
-Explain modern platform reality:
+To address these limitations, this work proposes the \textbf{DS-HCRS} framework.
+Our approach moves beyond a single static strategy by incorporating:
 
 \begin{itemize}
-    \item Engagement optimization dominates
-    \item Click != satisfaction
-    \item Platforms ignore cognitive limits
-    \item Short-term optimization causes long-term degradation
+    \item \textbf{Dual-System Architecture:} Balancing a fast "impulsive" model for relevance with a reflective "long-term" optimizer.
+    \item \textbf{Cognitive State Modeling:} Explicitly estimating user fatigue and boredom using recurrent models.
+    \item \textbf{Adaptive Strategy Switching:} Using a gating mechanism to shift focus toward the second system when fatigue is detected.
 \end{itemize}
 
-Introduce concepts:
-
-\begin{itemize}
-    \item overconsumption
-    \item user fatigue
-    \item algorithmic addiction
-    \item welfare-aware AI
-\end{itemize}
-
-\subsection{Problem Context}
-
-Explain mismatch:
-
-\begin{table}[b]
-\caption{An Example of a Table\label{tab:tableABDDC}}
-\centering
-\begin{tabular}{|l||c|}
-\hline
-Platform Objective & Human Objective \\
-\hline
-Maximize clicks & Maintain satisfaction \\
-Short-term metrics & Long-term wellbeing \\
-Immediate reward & Sustainable utility \\
-\hline
-\end{tabular}
-\end{table}
-
-\subsection{Research Gap Overview}
-
-High-level gaps identified from surveyed papers:
-
-\begin{itemize}
-    \item Lack of fatigue modeling
-    \item Static recommendation policies
-    \item Weak long-term reward modeling
-    \item No operational System-1/System-2 architecture
-\end{itemize}
-    
-\subsection{Objectives}
-
-Example:
-
-\begin{itemize}
-    \item Analyze limitations of engagement-centric recommenders    
-    \item Study long-term optimization approaches
-    \item Identify missing cognitive modeling components
-    \item Propose DS-HCRS framework
-\end{itemize}
-    
-\subsection{Contributions}
-
-State clearly:
-
-\begin{enumerate}
-    \item Human-centric recommender formulation
-    \item Fatigue-aware modeling framework
-    \item Dual cognitive system architecture
-    \item Long-term RL optimization perspective
-\end{enumerate}
+By framing recommendation as a cognitive process rather than just a prediction problem,
+we aim to develop systems that are sustainable, adaptive, and better aligned with long-term user experience.

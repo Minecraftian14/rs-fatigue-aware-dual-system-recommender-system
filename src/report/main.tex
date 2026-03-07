@@ -41,15 +41,25 @@
 \maketitle
 
 \begin{abstract}
-ADD THE ABSTRACT HERE
+Modern recommender systems are often designed to optimize for short-term engagement metrics such as click-through rates and interaction frequency.
+These signals are easy to measure, but they do not reflect long-term user satisfaction.
+This leads to repetitive recommendations, cognitive fatigue, and reduced user interest.
+This work proposes a Dual-System Human-Centric Recommender System (DS-HCRS) that balances short-term engagement with long-term user experience.
+The framework presents a combination of a fast sequential recommender for immediate relevance,
+and a long-term optimization component that considers user interaction patterns over a period of time.
+In addition, a fatigue state model estimates when users may experience boredom or repetition,
+allowing the system to change its recommendation strategy through an adaptive gating mechanism.
+% The proposed evaluation framework includes both traditional ranking metrics and additional measures related to diversity, novelty, and user engagement on social media datasets.
 \end{abstract}
 
 \begin{IEEEkeywords}
-ADD THE KEYWORDS HERE
+Recommender Systems, Long-Term Optimization, User Fatigue,
+Reinforcement Learning, Cognitive State Modeling, Dual-System Theory,
+Adaptive Gating, Sequential Recommendation
 \end{IEEEkeywords}
 
 \input{sections/s01_introduction.tex}
-\input{sections/s02_foundations_and_background_concepts.tex}
+% \input{sections/s02_foundations_and_background_concepts.tex}
 \input{sections/s03_literature_survey.tex}
 \input{sections/s04_problem_identification.tex}
 \input{sections/s05_proposed_methodology.tex}

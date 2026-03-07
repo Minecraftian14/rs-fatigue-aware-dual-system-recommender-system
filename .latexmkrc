@@ -26,3 +26,8 @@ $pvc_view_file_via_temporary = 1;
 
 # # Extend the list of files deleted when running `latexmk -c`
 # $clean_ext .= ' %R.run.xml %R.bcf';
+
+# Make it use cmd instead of sh to open the pdf
+# $pdf_previewer = 'cmd /c start "" %S';
+$pdf_previewer = '"" build/report/main.pdf && echo %S';
+# $pdf_previewer = 'start "" "C:/Program Files/SumatraPDF/SumatraPDF.exe" -reuse-instance %S';

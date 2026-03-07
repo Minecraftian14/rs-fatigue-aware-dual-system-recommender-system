@@ -1,14 +1,28 @@
 \section{Limitations and Ethical Considerations}
 
-\textbf{PLANNER}
+EVERYTHING IS A I HERE, NEEDS REWRITING
 
-Very important academically.
+While the proposed Dual-System Human-Centric Recommender System introduces several ideas for improving recommendation quality and user experience, it also has limitations that must be acknowledged.
 
-Discuss:
+One limitation arises from the \textbf{difficulty of accurately modeling user cognitive states}.
+The fatigue estimation proposed in this work relies on observable interaction signals such as repetition, novelty, session length, and interaction speed.
+However, these signals are only indirect indicators of a user's internal cognitive state.
+As a result, the fatigue model may sometimes misinterpret user behavior or fail to capture more complex psychological factors that influence user engagement.
 
-\begin{itemize}
-    \item proxy wellbeing limitations
-    \item offline evaluation constraints
-    \item simulation assumptions
-    \item ethical deployment risks
-\end{itemize}
+Another limitation concerns the \textbf{evaluation of long-term outcomes}.
+Many recommender systems are evaluated using offline datasets that contain historical interactions.
+While such datasets allow controlled experimentation, they do not always capture the dynamic feedback loops that occur in real-world deployments.
+Long-term effects such as user retention, boredom, or satisfaction may therefore be difficult to measure accurately without large-scale online experiments.
+
+The proposed system also introduces additional \textbf{computational complexity}.
+Combining multiple components-including sequential recommendation models, fatigue estimation, reinforcement learning optimization, and gating mechanisms-may increase system training and inference costs.
+Efficient implementation and system scalability would therefore require careful engineering in real-world deployments.
+
+Beyond technical limitations, recommender systems raise important \textbf{ethical considerations}.
+Recommendation algorithms influence what users see, consume, and engage with on digital platforms.
+If designed poorly, they may contribute to issues such as content echo chambers, amplification of harmful material, or excessive platform usage.
+
+The proposed framework attempts to address some of these concerns by incorporating fatigue awareness and long-term user utility into the recommendation process.
+However, designing recommender systems that balance platform goals, user satisfaction, and societal impact remains an open challenge.
+Future research should explore how human-centered recommendation objectives can be integrated with fairness, transparency, and responsible AI principles.
+

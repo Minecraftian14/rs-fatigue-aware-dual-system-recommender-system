@@ -1,0 +1,594 @@
+\documentclass[lettersize,journal]{IEEEtran}
+
+\input{preamble}
+\input{custom_macros}
+\input{custom_formatting}
+
+% updated with editorial comments 8/9/2021
+
+\begin{document}
+
+\title{A Sample Article Using IEEEtran.cls\\ for IEEE Journals and Transactions}
+
+\author{IEEE Publication Technology,~\IEEEmembership{Staff,~IEEE,}
+        % <-this % stops a space
+\thanks{This paper was produced by the IEEE Publication Technology Group. They are in Piscataway, NJ.}% <-this % stops a space
+\thanks{Manuscript received April 19, 2021; revised August 16, 2021.}}
+
+% The paper headers
+\markboth{Journal of \LaTeX\ Class Files,~Vol.~14, No.~8, August~2021}%
+{Shell \MakeLowercase{\textit{et al.}}: A Sample Article Using IEEEtran.cls for IEEE Journals}
+
+\IEEEpubid{0000--0000/00\$00.00~\copyright~2021 IEEE}
+% Remember, if you use this you must call \IEEEpubidadjcol in the second
+% column for its text to clear the IEEEpubid mark.
+
+\maketitle
+
+\begin{abstract}
+This document describes the most common article elements and how to use the IEEEtran class with \LaTeX \ to produce files that are suitable for submission to the IEEE.  IEEEtran can produce conference, journal, and technical note (correspondence) papers with a suitable choice of class options. 
+\end{abstract}
+
+\begin{IEEEkeywords}
+Article submission, IEEE, IEEEtran, journal, \LaTeX, paper, template, typesetting.
+\end{IEEEkeywords}
+
+% \input{sections/s01_introduction.tex}
+\section{Introduction}
+
+\emph{PLANNER}
+
+\subsection{Background: Evolution of Recommender Systems}
+
+Discuss progression:
+
+\begin{enumerate}
+    \item Collaborative Filtering
+    \item Matrix Factorization
+    \item Deep Learning RecSys
+    \item Sequential Recommendation
+    \item Reinforcement Learning RecSys
+    \item LLM-Enhanced Recommenders
+    \item Human-Centered Recommendation
+\end{enumerate}
+
+Goal: show historical trajectory toward your idea.
+
+\subsection{Motivation}
+
+Explain modern platform reality:
+
+\begin{itemize}
+    \item Engagement optimization dominates
+    \item Click != satisfaction
+    \item Platforms ignore cognitive limits
+    \item Short-term optimization causes long-term degradation
+\end{itemize}
+
+Introduce concepts:
+
+\begin{itemize}
+    \item overconsumption
+    \item user fatigue
+    \item algorithmic addiction
+    \item welfare-aware AI
+\end{itemize}
+
+\subsection{Problem Context}
+
+Explain mismatch:
+
+\begin{table}[!t]
+\caption{An Example of a Table\label{tab:tableABDDC}}
+\centering
+\begin{tabular}{|l||c|}
+\hline
+Platform Objective & Human Objective \\
+\hline
+Maximize clicks & Maintain satisfaction \\
+Short-term metrics & Long-term wellbeing \\
+Immediate reward & Sustainable utility \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Research Gap Overview}
+
+High-level gaps identified from surveyed papers:
+
+\begin{itemize}
+    \item Lack of fatigue modeling
+    \item Static recommendation policies
+    \item Weak long-term reward modeling
+    \item No operational System-1/System-2 architecture
+\end{itemize}
+    
+\subsection{Objectives}
+
+Example:
+
+\begin{itemize}
+    \item Analyze limitations of engagement-centric recommenders    
+    \item Study long-term optimization approaches
+    \item Identify missing cognitive modeling components
+    \item Propose DS-HCRS framework
+\end{itemize}
+    
+\subsection{Contributions}
+
+State clearly:
+
+\begin{enumerate}
+    \item Human-centric recommender formulation
+    \item Fatigue-aware modeling framework
+    \item Dual cognitive system architecture
+    \item Long-term RL optimization perspective
+\end{enumerate}
+
+\input{sections/s02_foundations_and_background_concepts.tex}
+\section{Foundations and Background Concepts}
+
+\textbf{PLANNER}
+
+\subsection{Classical Recommendation Paradigms}
+
+\begin{itemize}
+    \item Content-based
+    \item Collaborative filtering
+    \item Matrix factorization
+    \item Ranking objectives
+\end{itemize}
+
+\subsection{Sequential Recommendation}
+
+Discuss:
+
+\begin{itemize}
+    \item GRU4Rec
+    \item SASRec
+    \item Transformer-based models
+\end{itemize}
+
+Key limitation:
+$\Rightarrow$ assumes monotonic engagement utility.
+
+\subsection{Reinforcement Learning in RecSys}
+
+Explain:
+
+\begin{itemize}
+    \item MDP formulation
+    \item reward shaping
+    \item bandits vs RL
+    \item long-term value estimation
+\end{itemize}
+
+Link to papers on long-term welfare optimization.
+
+\subsection{Human Decision Theory (System 1 vs System 2)}
+
+Introduce psychological grounding:
+
+\begin{itemize}
+    \item fast vs reflective cognition
+    \item impulsive consumption vs reflective preference
+\end{itemize}
+
+Explain why RecSys implicitly models only System 1.
+
+\subsection{Human-Centered AI \& Welfare Optimization}
+
+Topics:
+
+\begin{itemize}
+    \item fairness
+    \item wellbeing metrics
+    \item ethical recommender design
+    \item satisfaction vs engagement
+\end{itemize}
+
+\subsection{LLMs in Recommendation Systems}
+
+Based on:
+
+\begin{itemize}
+    \item Awesome-LLM-for-RecSys repo
+    \item recent arXiv papers
+\end{itemize}
+
+Discuss:
+
+\begin{itemize}
+    \item embeddings
+    \item reasoning-based recommendation
+    \item cold-start handling
+\end{itemize}
+
+% \input{sections/s03_literature_survey.tex}
+\section{Literature Survey}
+
+\textbf{PLANNER}
+
+This should NOT be paper-by-paper summaries.
+Instead organize by research themes.
+
+\subsection{Engagement-Optimized Recommender Systems}
+
+Survey:
+
+\begin{itemize}
+    \item deep ranking models
+    \item click prediction frameworks
+\end{itemize}   
+
+Findings:
+
+\begin{itemize}
+    \item short-term bias
+    \item reward misalignment
+\end{itemize}
+    
+\subsection{Sequential \& Session-Based Recommendation}
+
+Focus:
+
+\begin{itemize}
+    \item temporal dynamics    
+    \item user behavior modeling
+\end{itemize}   
+
+Limitation:
+
+\begin{itemize}
+    \item no cognitive saturation modeling.
+\end{itemize}
+
+\subsection{Reinforcement Learning for Long-Term Optimization}
+
+Include:
+
+\begin{itemize}
+    \item contextual bandits    
+    \item long-horizon RL papers
+    \item welfare-aware RL
+\end{itemize}
+    
+Findings:
+
+\begin{itemize}
+    \item reward definition still engagement-heavy.
+\end{itemize}
+    
+\subsection{Human-Centered and Welfare-Aware Recommenders}
+
+Discuss:
+
+\begin{itemize}
+    \item System-2 recommenders
+    \item user satisfaction modeling
+    \item ethical optimization
+\end{itemize}
+    
+Key insight:  
+$\Rightarrow$ theory exists, integration missing.
+
+\subsection{Bias, Manipulation, and Overconsumption Studies}
+
+From SemanticScholar papers:
+
+\begin{itemize}
+    \item addictive interaction dynamics
+    \item divisive content amplification
+    \item welfare tradeoffs    
+\end{itemize}    
+
+\subsection{LLM-Augmented Recommender Systems}
+
+Themes:
+
+\begin{itemize}
+    \item semantic reasoning    
+    \item concept embeddings
+    \item controllable recommendation
+\end{itemize}    
+
+Gap:
+
+\begin{itemize}
+    \item reasoning used for relevance, not wellbeing.
+\end{itemize}
+    
+\subsection{Key Trends from Major Conferences}
+
+(Summarize trends rather than papers)
+
+From:
+
+\begin{itemize}
+    \item RecSys 2024/2025
+    \item SIGIR 2024
+    \item KDD 2024
+\end{itemize}
+    
+
+Observed shifts:
+
+\begin{itemize}
+    \item long-term evaluation
+    \item controllability
+    \item explainability
+    \item hybrid AI systems
+\end{itemize}
+
+\subsection{Literature Synthesis Table (VERY IMPORTANT)}
+
+Create table:
+
+\begin{table}[!t]
+\caption{An Example of a Table\label{tab:tableABC}}
+\centering
+\begin{tabular}{|l||c||c||c||c|}
+\hline
+Category & Representative Work & Objective & Strength & Limitation \\
+\hline
+Value 1 & Value 2 & Value 3 & Value 4 & Value 5 \\
+\hline
+\end{tabular}
+\end{table}
+
+This becomes your strongest survey artifact.
+
+% \input{sections/s04_problem_identification.tex}
+\section{Problem Identification}
+
+\textbf{PLANNER}
+
+This section converts survey → research need.
+
+\subsection{Structural Problems in Current Recommenders}
+
+\subsubsection{Short-Term Reward Bias}
+
+Explain mathematically.
+
+\subsubsection{Absence of Cognitive State Modeling}
+
+Users treated as static preference vectors.
+
+\subsubsection{No Fatigue or Saturation Representation}
+
+Utility assumed additive.
+
+\subsubsection{Static Decision Policies}
+
+No adaptive reasoning depth.
+
+\subsubsection{Misalignment Between Platform Metrics and User Welfare}
+
+\subsection{Empirical Consequences}
+
+\begin{itemize}
+    \item binge consumption    
+    \item reduced novelty
+    \item churn
+    \item polarization
+\end{itemize}
+    
+\subsection{Formal Problem Definition}
+
+Define:
+
+User state:
+
+\[
+s_t = (history, context, fatigue)
+\]
+
+Objective:
+
+\[
+\max \mathbb{E} \sum_{t} R_{t}^{long-term}  
+\]
+
+Explain why classical models fail.
+
+% \input{sections/s05_proposed_methodology.tex}
+\section{Proposed Methodology: DS-HCRS Framework}
+
+\textbf{PLANNER}
+
+(Conceptual - no implementation details.)
+
+\subsection{Design Philosophy}
+
+Principles:
+
+\begin{itemize}
+    \item human-aware optimization
+    \item adaptive cognition modeling
+    \item long-term value
+\end{itemize}
+    
+\subsection{System Overview Architecture}
+
+High-level diagram description:
+
+User -> State Modeling -> Dual Systems -> Gating -> Recommendation -> Feedback.
+
+\subsection{System 1: Fast Engagement Model}
+
+Role:
+
+\begin{itemize}
+    \item reactive ranking
+    \item immediate reward modeling.
+\end{itemize}
+    
+\subsection{Fatigue \& Cognitive Burden Model}
+
+Define variables:
+
+\begin{itemize}
+    \item repetition
+    \item entropy decay
+    \item session length
+    \item novelty loss
+\end{itemize}    
+
+Explain theoretical grounding.
+
+\subsection{System 2: Reflective Long-Term Optimizer}
+
+Conceptual RL formulation.
+
+Explain:
+
+\begin{itemize}
+    \item delayed reward
+    \item retention proxy
+    \item welfare regularization.
+\end{itemize}    
+
+\subsection{Dual-System Gating Mechanism}
+
+Decision policy rationale.
+
+Explain adaptive reasoning depth idea.
+
+\subsection{Optional Concept Embedding Module}
+
+LLM embeddings for cold start.
+
+\subsection{Learning Objective Formulation}
+
+General reward:
+
+\[
+R_t = \alpha E_t + \beta L_t - \gamma F_t
+\]
+
+Explain meaning conceptually.
+
+\subsection{Expected Advantages Over Existing Systems}
+
+Table comparison:
+
+\begin{table}[!t]
+\caption{An Example of a Table\label{tab:table1}}
+\centering
+\begin{tabular}{|l||c||c|}
+\hline
+Feature & Traditional & Proposed \\
+\hline
+Fatigue modeling & cross & tick \\
+Long-term reward & Partial & Explicit \\
+Adaptive reasoning & cross & tick \\
+\hline
+\end{tabular}
+\end{table}
+
+% \input{sections/s06_evaluation_design.tex}
+
+\section{Evaluation Design}
+
+\textbf{PLANNER}
+
+(No experiments yet.)
+
+\subsection{Baseline Models}
+
+\begin{itemize}
+    \item sequential recommender
+    \item RL recommender
+\end{itemize}
+
+\subsection{Metrics}
+
+\subsubsection{Short-term}
+
+\begin{itemize}
+    \item NDCG
+    \item Recall@K
+\end{itemize}
+
+\subsubsection{Long-term}
+
+\begin{itemize}
+    \item retention proxy
+    \item churn delay
+    \item fatigue score
+\end{itemize}
+
+\subsection{Simulation Framework}
+
+Explain trajectory simulation conceptually.
+
+\subsection{Ablation Philosophy}
+
+Why component removal validates design.
+
+% \input{sections/s07_expected_research_contributions.tex}
+
+\section{Expected Research Contributions}
+
+\textbf{PLANNER}
+
+Conceptual contributions:
+
+\begin{itemize}
+    \item Cognitive-aware recommendation formulation
+    \item Fatigue-aware utility modeling
+    \item Dual-system control paradigm
+    \item Human-aligned evaluation framing
+\end{itemize}
+
+% \input{sections/s08_limitations_and_ethical_considerations.tex}
+
+\section{Limitations and Ethical Considerations}
+
+\textbf{PLANNER}
+
+Very important academically.
+
+Discuss:
+
+\begin{itemize}
+    \item proxy wellbeing limitations
+    \item offline evaluation constraints
+    \item simulation assumptions
+    \item ethical deployment risks
+\end{itemize}
+
+% \input{sections/s09_future_research_directions.tex}
+
+\section{Future Research Directions}
+
+\textbf{PLANNER}
+
+Examples:
+
+\begin{itemize}
+    \item real user studies
+    \item adaptive psychological modeling
+    \item causal preference learning
+    \item multi-user ecosystem welfare
+\end{itemize}
+
+% \input{sections/s10_conclusion.tex}
+
+\section{Conclusion}
+
+\textbf{PLANNER}
+
+Summarize:
+
+Problem → Gap → DS-HCRS → Expected impact.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\vfill
+
+\end{document}
+
+

@@ -363,7 +363,7 @@ where,
 Interpretation:
 \begin{itemize}
     \item $g_t \approx 0 \to$ rely mostly on System 1
-    \item $g_t \approx 1 \to$ rely more on System 2
+    \item $g_t \approx 1 \to$ rely mostly on System 2
 \end{itemize}
 
 \subsubsection*{Final Recommendation Score}
@@ -424,14 +424,14 @@ but the proposed framework considers additional factors that influence the long-
 
 Conceptually, the recommendation system aims to balance three key factors:
 \begin{itemize}
-    \item \textbf{Immediate engagement}: representing the likelihood that a user interacts with a recommended item
-    \item \textbf{Long-term utility}: reflecting sustained user satisfaction and continued platform use
-    \item \textbf{User fatigue}: representing the potential decline in user interest due to repetitive or excessive recommendations
+    \item \textbf{Immediate engagement}: representing the likelihood that a user interacts with a recommended item.
+    \item \textbf{Long-term utility}: reflecting sustained user satisfaction and continued platform use.
+    \item \textbf{User fatigue}: representing the potential decline in user interest due to repetitive or excessive recommendations.
 \end{itemize}
 
 This balance can be represented conceptually using a reward formulation:
 
-$$\mathcal{L} = \mathcal{L}{S1} + \lambda_1 \mathcal{L}_{RL} + \lambda_2 \mathcal{L}_{fatigue}$$
+$$\mathcal{L} = \mathcal{L}_{S1} + \lambda_1 \mathcal{L}_{RL} + \lambda_2 \mathcal{L}_{fatigue}$$
  
 where
 \begin{itemize}

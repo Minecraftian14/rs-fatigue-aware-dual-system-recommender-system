@@ -30,7 +30,7 @@ These metrics evaluate how well the recommender ranks items that the user actual
 \subsubsection*{Hit Rate}
 Hit Rate measures whether the correct item appears within the top (K) recommendations.
 
-$$HR@K = \frac{1}{|U|} \sum_{u \in U} \mathbf{1}(i_u \in TopK_u)$$
+$$HR @K = \frac{1}{|U|} \sum_{u \in U} \mathbf{1}(i_u \in TopK_u)$$
 
 where
 \begin{itemize}
@@ -42,7 +42,7 @@ where
 \subsubsection*{Precision}
 Precision measures the fraction of recommended items that are relevant.
 
-$$Precision@K = \frac{1}{|U|} \sum_{u \in U} \frac{|Rel_u \cap TopK_u|}{K}$$
+$$Precision @K = \frac{1}{|U|} \sum_{u \in U} \frac{|Rel_u \cap TopK_u|}{K}$$
 
 where
 \begin{itemize}
@@ -52,14 +52,14 @@ where
 \subsubsection*{Recall}
 Recall measures how many relevant items were successfully recommended.
 
-$$Recall@K = \frac{1}{|U|} \sum_{u \in U} \frac{|Rel_u \cap TopK_u|}{|Rel_u|}$$
+$$Recall @K = \frac{1}{|U|} \sum_{u \in U} \frac{|Rel_u \cap TopK_u|}{|Rel_u|}$$
 
 \subsubsection*{Normalized Discounted Cumulative Gain (NDCG)}
 NDCG evaluates ranking quality by giving higher weight to items appearing earlier in the recommendation list.
 
-$$DCG@K = \sum_{i=1}^{K} \frac{2^{rel_i}-1}{\log_2(i+1)}$$
+$$DCG @K = \sum_{i=1}^{K} \frac{2^{rel_i}-1}{\log_2(i+1)}$$
 
-$$NDCG@K = \frac{DCG@K}{IDCG@K}$$
+$$NDCG @K = \frac{DCG @K}{IDCG @K}$$
 
 where
 \begin{itemize}
@@ -96,7 +96,7 @@ Higher return rates suggest stronger long-term satisfaction.
 \subsubsection*{Time-to-Boredom}
 Time-to-boredom estimates how quickly a user stops interacting with recommended content.
 
-$$TimeToBoredom = t_{last_interaction} - t_{session_start}$$
+$$TimeToBoredom = t_{last interaction} - t_{session start}$$
 
 Lower values indicate that the user disengaged earlier.
 
@@ -151,11 +151,11 @@ Higher ILD indicates more diverse recommendations.
 \subsubsection*{Fatigue Score}
 A composite fatigue indicator can be defined using observable signals.
 
-$$FatigueScore = w_1 \cdot repetition + w_2 \cdot low_novelty + w_3 \cdot rapid_skips$$
+$$FatigueScore = w_1 repeats + w_2 low novelty + w_3 skip rate$$
 
 where
 \begin{itemize}
-    \item $rapid_skips$ measures how quickly users move past recommendations.
+    \item $skip rate$ measures how quickly users move past recommendations.
 \end{itemize}
 
 This score provides an approximate indicator of cognitive burden.
@@ -175,7 +175,7 @@ It's important to evaluate their performance as well.
 \subsubsection*{Switching Effectiveness}
 Switching effectiveness measures how recommendation quality changes after fatigue is detected.
 
-$$SwitchGain = Metric_{after_switch} - Metric_{before_switch}$$
+$$SwitchGain = Metric_{after switch} - Metric_{before switch}$$
 
 Positive values indicate that switching improves performance.
 
@@ -183,12 +183,12 @@ Positive values indicate that switching improves performance.
 The gating network decides whether System 1 or System 2 should dominate the recommendation decision.
 A correct switch occurs when switching results in improved recommendation outcomes.
 
-$$SwitchAccuracy = \frac{\text{correct switching decisions}}{\text{total decisions}}$$
+$$Switch \, Accuracy = \frac{\text{correct switching decisions}}{\text{total decisions}}$$
 
 \subsubsection*{Recovery Improvement}
 Recovery measures how well the system restores engagement after fatigue is detected.
 
-$Recovery = Engagement_{post_fatigue} - Engagement_{fatigue}$
+$$Recovery = Engagement_{post fatigue} - Engagement_{fatigue}$$
 
 
 
@@ -270,19 +270,19 @@ This helps us measure the contribution of each module.
 \begin{itemize}
     \item \textbf{A1 - Remove Fatigue Model}\\
     Evaluate the importance of fatigue detection in improving recommendation quality.
-    $$System 1 + System 2 only$$
+    $$System \, 1 + System \, 2 \, only$$
 
     \item \textbf{A2 - Remove Gating Mechanism}\\
     Test whether adaptive switching improves recommendation performance.
     \begin{enumerate}
-        \item $Always System 1$
-        \item $Always System 2$
-        \item $Random switching between systems$
+        \item $Always \, System \, 1$
+        \item $Always \, System \, 2$
+        \item $Random \, switching \, 1 \, between \, systems$
     \end{enumerate}
 
     \item \textbf{A3 - Remove System 2}\\
     Evaluate the benefit of long-term reasoning.
-    $$Fatigue detection + System 1 only$$
+    $$Fatigue \, detection + System \, 1 \, only$$
 
 \end{itemize}
 

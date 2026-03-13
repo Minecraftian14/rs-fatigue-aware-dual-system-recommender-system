@@ -42,12 +42,12 @@
 
 \begin{abstract}
 Modern recommender systems are often designed to optimize for short-term engagement metrics such as click-through rates and interaction frequency.
-These signals are easy to measure, but they do not reflect long-term user satisfaction.
-This leads to repetitive recommendations, cognitive fatigue, and reduced user interest.
-This work proposes a Dual-System Human-Centric Recommender System (DS-HCRS) that balances short-term engagement with long-term user experience.
-The framework presents a combination of a fast sequential recommender for immediate relevance,
-and a long-term optimization component that considers user interaction patterns over a period of time.
-In addition, a fatigue state model estimates when users may experience boredom or repetition,
+These signals are easy to measure, but they may not always reflect long-term user satisfaction.
+This can lead to repetitive recommendations, cognitive fatigue, and reduced user interest.
+This work explores the design of a Dual-System Human-Centric Recommender System (DS-HCRS) that balances short-term engagement with long-term user experience.
+The framework combines a fast sequential recommender for immediate relevance 
+with a component that attempts to model long-term user satisfaction.
+In addition, this system will include a fatigue state model estimates when users may experience boredom or repetition,
 allowing the system to change its recommendation strategy through an adaptive gating mechanism.
 % The proposed evaluation framework includes both traditional ranking metrics and additional measures related to diversity, novelty, and user engagement on social media datasets.
 \end{abstract}
@@ -70,6 +70,7 @@ Adaptive Gating, Sequential Recommendation
 \input{sections/s10_conclusion.tex}
 
 % // TODO: Reformat all tables to TOP or BOTTOM and reference them in their appropriate location.
+% // TODO: Add captions and labels to all tables and then reference them properly.
 % // TODO: Basically, read the conference_101719 format and hot-to properly, and comply.
 
 % \bibliographystyle{IEEEtran}

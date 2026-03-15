@@ -42,7 +42,7 @@ measurable engagement rather than user benefit and welfare.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Traditional and Sequential Recommendation Paradigms}
+\subsection{Evolution of Recommendation Systems}
 
 The foundations of recommender systems originate from 
 collaborative filtering and content-based recommendation methods.
@@ -51,13 +51,12 @@ using historical interaction patterns.
 Matrix factorization techniques introduced latent representations that enabled
 scalable personalization and became the dominant paradigm for many years.
 
-With the rise of deep learning algorithms, recommendation shifted toward neural
+With the rise of deep learning algorithms, recommendation systems shifted towards neural
 ranking models capable of learning complex relationships between users and items.
 This approach improved predictive performance but worked around the 
 same objective: estimating the likelihood of immediate interaction.
 
-By introducing temporal dynamics into the system, 
-gave rise to sequential recommendation models.
+Further, the introduction of temporal dynamics into the system gave rise to sequential recommendation models.
 Architectures such as recurrent neural networks (e.g., GRU4Rec) and 
 attention-based transformer models (e.g., SASRec and subsequent variants)
 treat user interaction histories as ordered sequences.
@@ -71,7 +70,6 @@ interaction prediction; this implicitely assumes that maximizing immediate
 engagement corresponds to maximizing user satisfaction.
 Consequently, users are modeled as behavioral sequences, 
 ignoring internal states such as fatigue and boredom. 
-This also neglects the natural formation of preference.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -204,8 +202,8 @@ only by accuracy but also by their long-term societal and psychological effects.
 
 \subsection{Evaluation Challenges and Control Mechanisms}
 
-Depending on what aspects a model is evaluated, heavily 
-shapes around the internal designing of that system.
+Depending on what aspects a model is evaluated on, 
+it heavily shapes the internal designing of that system.
 Traditional metrics such as $NDCG$, $Recall@K$, and $Mean Reciprocal Rank$ 
 measure ranking accuracy under static assumptions.
 While effective for benchmarking predictive performance,

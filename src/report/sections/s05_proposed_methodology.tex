@@ -39,7 +39,7 @@
 
 \subsection{Overall System Architecture}
 
-The proposed is designed to balance short-term engagement with long-term user satisfaction.
+The proposed system is designed to balance short-term engagement with long-term user satisfaction.
 The system incorporates user interaction history, cognitive state modeling, and fatigue detection to adapt recommendation strategies dynamically.
 Each of these items form their own modules; that not only they provide a flow for architecture presentation, 
 but also supports development in an incremental manner.
@@ -106,7 +106,7 @@ Meanwhile, the system analyzes the interaction context using a \textbf{fatigue a
 This fatigue detection component would estimate whether the user is experiencing reduced 
 interest, repetition, or cognitive overload during the current session.
 
-If the system does detect that the user may benefit from more thoughtful recommendations, the candidate 
+If the system detects that the user may benefit from more thoughtful recommendations, the candidate 
 recommendations are evaluated by a \textbf{long-term optimization module (System 2)}.
 This long-term optimizer focuses on maintaining long-term user satisfaction rather than simply maximizing immediate clicks.
 
@@ -140,7 +140,7 @@ The data is organized as chronological interaction sequences for each user.
 This sequential structure allows the recommendation system to model evolving user preferences
 and detect patterns that may indicate cognitive fatigue or reduced engagement.
 
-Twitter was chosen as the data source because it contains diverse content and frequent user interactions, 
+Twitter is chosen as the data source because it contains diverse content and frequent user interactions, 
 making it suitable for studying recommendation behavior in a dynamic social media environment.
 
 
@@ -152,28 +152,19 @@ making it suitable for studying recommendation behavior in a dynamic social medi
 The first module of the proposed system is a fast recommender model. 
 This is designed to capture the user's \textbf{short-term interests}.
 This module is responsible for producing fast predictions of items that the user is likely to interact with next.
+The goal of System 1 is to estimate the probability that a user interacts with an item given their current state.
 
 \subsubsection*{Candidate Score Prediction}
 
 \begin{equation}
-    P_1(i | s_t)
+    P_1(i | s_t) = softmax(f_{S1}(s_t, e_i))
 \end{equation}
 
 Here:
 \begin{itemize}
+    \item $f_{S1}$ = Simple dot product, a neural network, or an attention-based scoring function.
     \item $i$ = candidate item
     \item $s_t$ = encoded user interaction state
-\end{itemize}
-
-\noindent This function can be modeled using a \textbf{neural scoring function}:
-
-\begin{equation}
-    P_1(i | s_t) = softmax(s_t^T e_i)
-\end{equation}
-
-Here:
-\begin{itemize}
-    \item $e_i$ = embedding vector of item 
 \end{itemize}
 
 This formulation is commonly used in sequential recommendation models.
@@ -213,37 +204,47 @@ that can consider the broader context of the user's interaction.
 
 \subsection{User Fatigue and Cognitive State Modeling}
 
-During long sessions and repeated exposure to similar items, users experience fatigue, boredom, and loses interest.
-These states are rarely captured by conventional recommender systems, 
-which assume that more engagement means greater user satisfaction.
+The proposed framework models fatigue, boredom, and users cognitive state,
+during long sessions and repeated exposure to similar items, 
+which was rarely captured by conventional recommender systems.
+
+It is modelled as:
 
 \subsubsection*{Fatigue State Update}
 
 \noindent Fatigue is modeled as a recurrent latent variable:
 
 \begin{equation}
-    F_t = GRU(F_{t-1}, s_t)
+    F_t = f_{f}(F_{t-1}, s_t)
 \end{equation}
 
 Here:
 \begin{itemize}
+    \item $f_{f}$ = A recurrent model capable of long-term representation
     \item $F_t$ = fatigue state at time $t$
     \item $F_{t-1}$ = previous fatigue state
     \item $s_t$ = current user context
 \end{itemize}
 
-The GRU allows fatigue to accumulate over time.
+The $f_{f}$ model can be implemented using GRU, LSTM or even Attention-based methods.
 
-The proposed framework introduces a component that can estimates the user's \textbf{cognitive state during interaction}.
-The fatigue module aims to estimate whether the current recommendation experience may be deteriorating.
-This estimation can be based on several observable signals, such as:
+Here, the fatigue module aims to estimate whether the current recommendation experience may be deteriorating.
+This estimation can be based on several behavioral signals:
 
+\begin{equation}
+    z_t = ({rep}_t, {len}_t, {div}_t, {dwell}_t)
+\end{equation}
+
+Here:
 \begin{itemize}
-    \item Repeated exposure to similar items
-    \item Increasing session length
-    \item Low diversity among recent recommendations
-    \item Prolonged interaction without meaningful engagement
+    \item ${rep}_t$ = repetition rate of recent items
+    \item ${len}_t$ = current session length
+    \item ${div}_t$ = diversity of recent recommendations
+    \item ${dwell}_t$ = recent dwell time
 \end{itemize}
+
+These signals can be combined with $s_t$ to produce an estimated fatigue score,
+that gives the likelihood that a user's interest has started to decline.
 
 \subsubsection*{Fatigue Score}
 
@@ -264,25 +265,6 @@ Interpretation:
     \item $f_t \approx 1 \to$ high fatigue
 \end{itemize}
 
-\subsubsection*{Behavioral Signals}
-
-\noindent Fatigue estimation may incorporate additional observable signals:
-
-\begin{equation}
-    z_t = ({rep}_t, {len}_t, {div}_t, {dwell}_t)
-\end{equation}
-
-Here:
-\begin{itemize}
-    \item ${rep}_t$ = repetition rate of recent items
-    \item ${len}_t$ = current session length
-    \item ${div}_t$ = diversity of recent recommendations
-    \item ${dwell}_t$ = recent dwell time
-\end{itemize}
-
-These signals can be combined with $s_t$ to produce an estimated fatigue score, 
-that gives the likelihood that a user's interest has started to decline.
-
 The purpose of this module is to allow the recommender system to recognize
 when its current strategy may no longer be beneficial for the user.
 By detecting signs of fatigue or saturation, the system can adjust its 
@@ -293,7 +275,7 @@ recommendation approach before the user becomes disengaged or leaves the platfor
 
 \subsection{System 2: Long-Term Utility Optimization}
 
-The second module is designed towwards \textbf{long-term user utility} rather than immediate engagement.
+The second module is designed towards \textbf{long-term user utility} rather than immediate engagement.
 
 Instead of predicting which item the user is most likely to click next, this module
 evaluates how recommendations may influence the user's experience over a longer term.
@@ -338,7 +320,7 @@ Here:
 \noindent System 2 produces a policy distribution over candidate items:
 
 \begin{equation}
-    P_2(i | S_t)
+    P_{S2}(i | S_t)
 \end{equation}
 
 This function may be implemented using:
@@ -375,7 +357,7 @@ Parameters:
 \noindent The RL objective is to maximize cumulative reward:
 
 \begin{equation}
-    J(\pi) = \mathbb{E} \left[ \sum_{t=0}^{T} \gamma^t R_t \right]
+    V^{\pi^*}(s) = \mathbb{E} \left[ \sum_{t=1}^{T} \gamma^t R(s_t,\pi(s_t)) \right]
 \end{equation}
 
 Here:
@@ -384,7 +366,8 @@ Here:
     \item $\gamma$ = temporal discount factor
 \end{itemize}
 
-By incorporating these longer-term considerations, the system attempts to avoid recommendation strategies that maximize short-term activity at the expense of long-term satisfaction.
+By incorporating these long-term considerations, the system attempts to avoid
+recommendation strategies that maximize short-term activity at the expense of long-term satisfaction.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -407,13 +390,13 @@ For example:
 \subsubsection*{Gating Function}
 
 \begin{equation}
-    g_t = \sigma(MLP(s_t,f_t))
+    g_t = \sigma(f_g(s_t,f_t))
 \end{equation}
 
 where,
 \begin{itemize}
-    \item $g_t \in [0, 1]$
-    \item $MLP(\cdot)$ is a neural network
+    \item $g_t$ describes the gate state
+    \item $f_g$ is a neural network
 \end{itemize}
 
 Interpretation:
@@ -495,14 +478,14 @@ Conceptually, the recommendation system aims to balance three key factors:
 \noindent This balance can be represented conceptually using a reward formulation:
 
 \begin{equation}
-    \mathcal{L} = \mathcal{L}_{S1} + \lambda_1 \mathcal{L}_{RL} + \lambda_2 \mathcal{L}_{fatigue}
+    \mathcal{L} = \mathcal{L}_{S1} + \lambda_1 \mathcal{L}_{S2} + \lambda_2 \mathcal{L}_{f}
 \end{equation}
  
 Here:
 \begin{itemize}
     \item System 1 loss $= \mathcal{L}_{S1} = -log P_1(i_{t+1} | s_t)$
-    \item RL objective $= \mathcal{L}_{RL} = -J(\pi)$
-    \item Fatigue prediction loss $= \mathcal{L}_{fatigue} = BCE(f_t, {churn}_t)$
+    \item RL objective $= \mathcal{L}_{S2} = -V^{\pi^*}(s)$
+    \item Fatigue prediction loss $= \mathcal{L}_{f} = BCE(f_t, {churn}_t)$
     \item $churn_t$ = indicator of session termination or disengagement
 \end{itemize}
 

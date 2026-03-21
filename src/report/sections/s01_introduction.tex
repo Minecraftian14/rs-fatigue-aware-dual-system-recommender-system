@@ -1,0 +1,28 @@
+\section{Introduction}
+
+Recommender systems have evolved from early accuracy-focused algorithms 
+to complex industrial systems across e-commerce, media, and social platforms.
+Despite these advances, a tension exists between short-term business-driven goals and long-term user wellbeing.
+Most current systems rely on easily measurable signals like clicks and watch time, 
+which maximize immediate engagement but often do not explicitly model the user's cognitive state.
+
+\subsection*{The Challenge of Engagement Bias}
+
+Standard sequential and deep learning models treat user histories as ordered sequences to predict the next likely interaction.
+While effective at capturing recency effects, these models implicitly assume that maximizing immediate clicks corresponds to maximizing satisfaction.
+This approach neglects psychological factors such as \textbf{fatigue} and \textbf{diminishing utility}, 
+where repeated exposure to similar content reduces its value and this leads to platform disengagement.
+
+\subsection*{Proposed Solution: DS-HCRS}
+
+To address these limitations, this work proposes exploring a framework called \textbf{DS-HCRS}.
+Our approach moves beyond a single static strategy by incorporating:
+
+\begin{itemize}
+    \item \textbf{Dual-System Architecture:} Balancing a fast "impulsive" model for relevance with a reflective "long-term" optimizer.
+    \item \textbf{Cognitive State Modeling:} Explicitly estimating user fatigue and boredom using recurrent models.
+    \item \textbf{Adaptive Strategy Switching:} Using a gating mechanism to shift focus toward the second system when fatigue is detected.
+\end{itemize}
+
+By framing recommendation as a cognitive process rather than just a prediction problem,
+we aim to develop systems that are sustainable, adaptive, and better aligned with long-term user experience.

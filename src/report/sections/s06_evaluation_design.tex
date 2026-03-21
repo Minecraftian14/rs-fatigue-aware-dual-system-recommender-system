@@ -1,0 +1,326 @@
+\section{Evaluation Design}
+
+% An evaluation mechanism is required to measure how good or bad a new system is working, as compared with a baseline.
+% The evaluation design takes charge of it by presenting a variety of evaluation metrics, each one focussing on
+% different types properties expressed by a recommender system. 
+% The goal of the evaluation is to measure both traditional recommendation accuracy and the system's 
+% ability to improve long-term user experience by reducing fatigue and repetitive content exposure.
+% 
+% The evaluation will be conducted using social media-style interaction datasets such as Twitter.
+% These datasets usually contain sequential and session-based entries.
+% 
+% These datasets provide several interaction patterns, such as content exploration, repeated exposure, and varying session lengths. 
+% This makes them suitable for studying fatigue-aware recommendation systems.
+
+An evaluation framework is needed to compare the performance of the proposed system with a baseline recommender.
+The evaluation design defines a set of metrics that capture different properties of recommendation quality.
+
+The goal of the evaluation is to measure both traditional recommendation performance 
+and the system's ability to support a better long-term user experience.
+In particular, the evaluation focuses on identifying improvements related to 
+reduced content repetition and lower user fatigue during interaction sessions.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Core Recommendation Accuracy}
+
+These traditional ranking metrics are used to measure how accurately the system predicts relevant items.
+Despite the introduction of all the complicated topics like cognitive modeling and long-term optimization, 
+it is important to state that the model is working good on standard recommendations too.
+
+These metrics evaluate how well the recommender ranks items that the user actually interacted with.
+
+
+\noindent \textbf{Hit Rate}\\
+Hit Rate measures whether the correct item appears within the top (K) recommendations.
+
+\begin{equation}
+    HR @K = \frac{1}{|U|} \sum_{u \in U} \mathbf{1}(i_u \in TopK_u)
+\end{equation}
+
+Here:
+\begin{itemize}
+    \item $U$ = set of users
+    \item $i_u$ = ground truth item interacted by user $u$
+    \item $TopK_u$ = top $K$ recommendations for user $u$
+\end{itemize}
+
+
+\noindent \textbf{Precision}\\
+Precision measures the fraction of recommended items that are relevant.
+
+\begin{equation}
+    Precision @K = \frac{1}{|U|} \sum_{u \in U} \frac{|Rel_u \cap TopK_u|}{K}
+\end{equation}
+
+Here:
+\begin{itemize}
+    \item $Rel_u$ = relevant items for user $u$
+\end{itemize}
+
+
+\noindent \textbf{Recall}\\
+Recall measures how many relevant items were successfully recommended.
+
+\begin{equation}
+    Recall @K = \frac{1}{|U|} \sum_{u \in U} \frac{|Rel_u \cap TopK_u|}{|Rel_u|}
+\end{equation}
+
+
+\noindent \textbf{Normalized Discounted Cumulative Gain (NDCG)}\\
+NDCG evaluates ranking quality by giving higher weight to items appearing earlier in the recommendation list.
+
+\begin{equation}
+    DCG @K = \sum_{i=1}^{K} \frac{2^{rel_i}-1}{\log_2(i+1)}
+\end{equation}
+
+\begin{equation}
+    NDCG @K = \frac{DCG @K}{IDCG @K}
+\end{equation}
+
+Here:
+\begin{itemize}
+    \item $rel_i$ is the relevance of the item at position $i$
+    \item $IDCG$ is the ideal DCG
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Long-Term Engagement and User Welfare}
+
+Since one of the proposals presented aims to improve long-term user experience, 
+evaluation design must also include behavioral metrics beyond immediate clicks.
+
+
+\noindent \textbf{Session Length}\\
+Session length measures the number of interactions occurring in a single session.
+
+\begin{equation}
+    SessionLength = \frac{1}{N} \sum_{sessions} |interactions|
+\end{equation}
+
+Longer sessions may indicate sustained engagement, although excessive sessions may also indicate fatigue.
+
+
+\noindent \textbf{Return Rate}\\
+Return rate measures how frequently users return to the platform after a session.
+
+\begin{equation}
+    ReturnRate = \frac{\text{number of returning users}}{\text{total users}}
+\end{equation}
+
+Higher return rates suggest stronger long-term satisfaction.
+
+
+\noindent \textbf{Time-to-Boredom}\\
+Time-to-boredom estimates how quickly a user stops interacting with recommended content.
+
+\begin{equation}
+    TimeToBoredom = t_{last interaction} - t_{session start}
+\end{equation}
+
+Lower values indicate that the user disengaged earlier.
+
+
+\noindent \textbf{Recommendation Acceptance Rate}\\
+This metric measures the proportion of recommended items that result in user interaction.
+
+\begin{equation}
+    AcceptanceRate = \frac{\text{clicked recommendations}}{\text{total recommendations}}
+\end{equation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Fatigue and Boredom Metrics}
+
+Another key objective discussed in the proposal is to detect and reduce recommendation fatigue.
+To evaluate this capability, additional metrics are defined that measure repetition, novelty, and cognitive load.
+
+
+\noindent \textbf{Content Repetition Rate}\\
+Repetition measures how often similar content appears within a recommendation list.
+
+\begin{equation}
+    RepetitionRate = \frac{\text{repeated item categories}}{\text{total recommended items}}
+\end{equation}
+
+Higher repetition may increase fatigue.
+
+
+\noindent \textbf{Novelty}\\
+Novelty measures how uncommon a recommended item is based on global popularity.
+
+\begin{equation}
+    Novelty(i) = -\log P(i)
+\end{equation}
+
+Here:
+\begin{itemize}
+    \item $P(i)$ = probability of item $i$ appearing in the dataset
+\end{itemize}
+
+Higher novelty values indicate less popular content exposure.
+
+
+\noindent \textbf{Intra-List Diversity}\\
+Diversity measures how different items are within a recommendation list.
+
+\begin{equation}
+    ILD = \frac{1}{K(K-1)} \sum_{i \ne j} distance(i,j)
+\end{equation}
+
+Here:
+\begin{itemize}
+    \item $distance(i,j)$ represents item dissimilarity.
+\end{itemize}
+
+Higher ILD indicates more diverse recommendations.
+
+
+\noindent \textbf{Fatigue Score}\\
+A composite fatigue indicator can be defined using observable signals.
+
+\begin{equation}
+    FatigueScore = w_1 repeats + w_2 low novelty + w_3 skip rate
+\end{equation}
+
+Here:
+\begin{itemize}
+    \item $skip rate$ measures how quickly users move past recommendations.
+\end{itemize}
+
+This score provides an approximate indicator of cognitive burden.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{System-1 and System-2 Behavioral Evaluation}
+
+There are quite a lot of dynamics going within the architecture, like the existence of two separate systems and also the gating mechanism.
+It's important to evaluate their performance as well.
+
+
+\noindent \textbf{Switching Effectiveness}\\
+Switching effectiveness measures how recommendation quality changes after fatigue is detected.
+
+\begin{equation}
+    SwitchGain = Metric_{after switch} - Metric_{before switch}
+\end{equation}
+
+Positive values indicate that switching improves performance.
+
+
+\noindent \textbf{Gating Accuracy}\\
+The gating network decides whether System 1 or System 2 should dominate the recommendation decision.
+A correct switch occurs when switching results in improved recommendation outcomes.
+
+\begin{equation}
+    Switch \, Accuracy = \frac{\text{correct switching decisions}}{\text{total decisions}}
+\end{equation}
+
+
+\noindent \textbf{Recovery Improvement}\\
+Recovery measures how well the system restores engagement after fatigue is detected.
+
+\begin{equation}
+    Recovery = Engagement_{post fatigue} - Engagement_{fatigue}
+\end{equation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Human-Centered Recommendation Metrics}
+
+There are some additional metrics derived from responsible recommender system literature, which focuses on human-centered recommendation.
+
+
+\noindent \textbf{Diversity}\\
+Measures the variety of content presented to users.
+Higher diversity helps reduce repetitive exposure.
+
+
+\noindent \textbf{Serendipity}\\
+Serendipity measures the system's ability to recommend items that are both unexpected and relevant.
+
+\begin{equation}
+    Serendipity = Novelty + Relevance
+\end{equation}
+
+This captures recommendations that users may not have discovered otherwise.
+
+
+\noindent \textbf{Coverage}\\
+Coverage measures how much of the item catalog is utilized by the recommender.
+
+\begin{equation}
+    Coverage = \frac{\text{unique recommended items}}{\text{catalog size}}
+\end{equation}
+
+Higher coverage indicates that the system explores a broader range of content.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Baseline Models}
+
+Baseline recommender models representing different recommendation paradigms offer a focussed view into a specialized task; 
+and gives the scope to effectively evaluate the proposed method against these baseline.
+
+\subsubsection*{Classical Recommenders}
+
+Traditional collaborative filtering models provide a simple baseline. 
+For example, Matrix Factorization (MF), Neural Collaborative Filtering (NCF).
+For experimental comparison, Matrix Factorization will be used as the primary classical baseline.
+
+\subsubsection*{Sequential Recommenders}
+
+Sequential models capture temporal interaction patterns. 
+For example GRU4Rec, SASRec, and BERT4Rec.
+SASRec will be used as the primary sequential baseline.
+
+\subsubsection*{Reinforcement Learning Recommenders}
+
+RL-based systems model long-term recommendation effects. 
+For examples Deep Q-learning recommender, Policy gradient recommender, and RLRec.
+RLRec will be used as the main RL baseline.
+
+\subsubsection*{Reasoning-Based Recommenders}
+
+Recent approaches incorporate reasoning or agent-based decision processes.
+Examples include ThinkRec, AgentCF, R4ec, Generative reasoning re-ranker.
+These models provide comparisons with reasoning-enabled recommender systems.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Ablation Study}
+
+An ablation study is conducted to measure the contribution of each module present in the proposed framework.
+This helps us measure the contribution of each module.
+
+\begin{itemize}
+    \item \textbf{A1 - Remove Fatigue Model}\\
+    Evaluate the importance of fatigue detection in improving recommendation quality.
+    \begin{equation}
+        System \, 1 + System \, 2 \, only
+    \end{equation}
+
+    \item \textbf{A2 - Remove Gating Mechanism}\\
+    Test whether adaptive switching improves recommendation performance.
+    \begin{enumerate}
+        \item $Always \, System \, 1$
+        \item $Always \, System \, 2$
+        \item $Random \, switching \, 1 \, between \, systems$
+    \end{enumerate}
+
+    \item \textbf{A3 - Remove System 2}\\
+    Evaluate the benefit of long-term reasoning.
+    \begin{equation}
+        Fatigue \, detection + System \, 1 \, only
+    \end{equation}
+
+\end{itemize}
+

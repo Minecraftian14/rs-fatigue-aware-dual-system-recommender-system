@@ -1,0 +1,20 @@
+# Most volatile file
+.obsidian/workspace.json
+
+# Any built files
+*.pdf
+
+# More obsidian stuff
+.trash/
+
+# More build directories
+build/
+out/
+aux/
+temp/
+
+# Auto generated
+src/report/references.bib
+
+# Temporary files, not to be commited
+**/secret*.*

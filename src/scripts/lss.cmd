@@ -1,0 +1,1 @@
+@ls src\scripts | awk -F . '{ print $1 }'

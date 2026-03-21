@@ -1,0 +1,262 @@
+{
+	"nodes":[
+		{"id":"2fe9f7b2daf31c1b","type":"group","ratio":1.7777777777777777,"x":-260,"y":5860,"width":802,"height":451,"label":"Large models"},
+		{"id":"07015ba17c813aff","type":"group","ratio":1.7777777777777777,"x":-240,"y":-140,"width":761,"height":428,"label":"Early collaborative filtering"},
+		{"id":"761a5a8391e31777","type":"group","ratio":1.7777777777777777,"x":-240,"y":360,"width":761,"height":428,"label":"Memory vs item"},
+		{"id":"1a8606783eb59df3","type":"group","ratio":1.7777777777777777,"x":-240,"y":860,"width":761,"height":428,"label":"Model-based"},
+		{"id":"b28f190775faa30d","type":"group","ratio":1.7777777777777777,"x":-240,"y":1360,"width":761,"height":428,"label":"Contextual bandits"},
+		{"id":"0c00bb96c0386b2b","type":"group","ratio":1.7777777777777777,"x":-240,"y":1860,"width":761,"height":428,"label":"Hybrid models"},
+		{"id":"714d3741ea3fc60b","type":"group","ratio":1.7777777777777777,"x":-240,"y":2360,"width":761,"height":428,"label":"Deep learning"},
+		{"id":"b350daf81bec9d2d","type":"group","ratio":1.7777777777777777,"x":-240,"y":2860,"width":761,"height":428,"label":"Session-based"},
+		{"id":"ce82d1973b960243","type":"group","ratio":1.7777777777777777,"x":-240,"y":3360,"width":761,"height":428,"label":"Attention & transformer-based"},
+		{"id":"3204119b5afb9959","type":"group","ratio":1.7777777777777777,"x":-240,"y":3860,"width":761,"height":428,"label":"Graph neural networks"},
+		{"id":"4a668732056aba9c","type":"group","ratio":1.7777777777777777,"x":-240,"y":4360,"width":761,"height":428,"label":"Self-supervised"},
+		{"id":"49e37e7c149c0dac","type":"group","ratio":1.7777777777777777,"x":-240,"y":4860,"width":761,"height":428,"label":"debiasing & fairness"},
+		{"id":"ffc0a8c632a659e5","type":"group","ratio":1.7777777777777777,"x":-240,"y":5360,"width":761,"height":428,"label":"Large models"},
+		{
+			"id":"917aa53824c6a1ba",
+			"type":"text",
+			"text":"# Early collaborative filtering\n### late 1980s – 1990s\n- **What happened:** The idea of recommending items based on other users’ ratings (collaborative filtering, CF) took shape. Early systems collected user ratings and recommended items liked by similar users.\n    \n- **Why it mattered:** Introduced the core idea: use community feedback instead of hand-crafted rules.\n    \n- **Representative work:** GroupLens system (an early architecture for collaborative filtering applied to Usenet/newsgroups). Paul Resnick.",
+			"styleAttributes":{},
+			"x":-200,
+			"y":-100,
+			"width":680,
+			"height":340
+		},
+		{
+			"id":"a735207ebdb6adef",
+			"type":"text",
+			"text":"# Memory-based vs item-based CF\n### late 1990s – early 2000s\n\n- **What happened:** Researchers formalized **user-based** and **item-based** nearest-neighbor CF and showed scalable item-item approaches were often more practical for large catalogs.\n    \n- **Why it mattered:** Item-based CF (precompute item–item similarities) improved scalability and latency in production systems (e.g., e-commerce).\n    \n- **Representative work:** Sarwar et al., 2001 — _Item-based Collaborative Filtering Recommendation Algorithms_. Badrul Sarwar.",
+			"styleAttributes":{},
+			"x":-200,
+			"y":400,
+			"width":680,
+			"height":340
+		},
+		{
+			"id":"40fbad19cb62e00b",
+			"type":"text",
+			"text":"# Model-based CF & Latent factor models / Matrix Factorization\n### mid 2000s\n\n- **What happened:** Latent-factor models — especially matrix factorization — rose to prominence (notably through the **Netflix Prize**), showing strong accuracy gains by learning low-dimensional user/item embeddings from rating matrices.\n    \n- **Why it mattered:** Gave a principled, scalable way to capture latent tastes/preferences and incorporate temporal/side-info; set a standard for later models.\n    \n- **Representative work / overview:** Koren, Bell & Volinsky (2009) — _Matrix Factorization Techniques for Recommender Systems_ (Netflix Prize era). Yehuda Koren.",
+			"styleAttributes":{},
+			"x":-200,
+			"y":904,
+			"width":680,
+			"height":340
+		},
+		{
+			"id":"6732283abca23ccd",
+			"type":"text",
+			"text":"# Contextual bandits & reinforcement-learning ideas \n### 2000s – 2010s\n\n- **What happened:** When systems must choose which items to show (exploration vs exploitation), ideas from multi-armed bandits and contextual bandits were applied to recommendations and personalization.\n    \n- **Why it mattered:** Addressed online learning and exploration, A/B testing, and serving-time decision-making (not just offline prediction).\n    \n- **Representative reading:** Surveys and applied papers in online learning for recommender systems (see contextual bandits literature; e.g., work by Li et al. on contextual bandits for news/article recommendation).",
+			"styleAttributes":{},
+			"x":-200,
+			"y":1404,
+			"width":680,
+			"height":340
+		},
+		{
+			"id":"9d421f295549f8ff",
+			"type":"text",
+			"text":"# Hybrid/feature-rich models and factorization machines\n### late 2000s – 2010s\n\n- **What happened:** Methods that combine collaborative signals with side features (metadata, text, context, user attributes) became standard. Factorization Machines and field-aware variants let practitioners model sparse feature interactions.\n    \n- **Why it mattered:** Made recommenders more flexible for heterogeneous data (ads, content, e-commerce).\n    \n- **Representative pointers:** FM / xDeepFM lines of work (see original FM papers and follow-on deep+FM models).",
+			"styleAttributes":{},
+			"x":-200,
+			"y":1900,
+			"width":680,
+			"height":340
+		},
+		{
+			"id":"6055c2bc87d8d415",
+			"type":"text",
+			"text":"# Deep learning enters recommender systems \n### mid 2010s\n\n- **What happened:** Deep neural nets began to be used to learn rich item/user representations and to model complex user–item interaction functions (beyond inner products).\n    \n- **Why it mattered:** Allowed modeling non-linear interactions, incorporate text/audio/image encoders, and jointly learn feature representations; kicked open a large research area.\n    \n- **Representative work:** _Neural Collaborative Filtering_ (He et al., 2017) — replaced MF inner product with neural architectures (NCF). Xiangnan He.",
+			"styleAttributes":{},
+			"x":-200,
+			"y":2400,
+			"width":680,
+			"height":340
+		},
+		{
+			"id":"aa781a9fb963e6f2",
+			"type":"text",
+			"text":"# Session-based & sequential recommendation with RNNs\n# mid 2010s\n\n- **What happened:** To model the sequential nature of sessions (short-term intent), RNNs (and CNNs) were applied to session or sequence data for next-item prediction.\n    \n- **Why it mattered:** Captured short-term intent and temporal dynamics better than static models.\n    \n- **Representative work:** Hidasi et al. (2015) for session-based RNN recommenders (widely cited in the sequence-modeling line).",
+			"styleAttributes":{},
+			"x":-200,
+			"y":2900,
+			"width":680,
+			"height":340
+		},
+		{
+			"id":"83224b952e5ca8c0",
+			"type":"text",
+			"text":"# Attention & transformer-based sequential recommenders\n### late 2010s\n\n- **What happened:** Transformer/self-attention architectures (successful in NLP) were adapted to sequence recommendation; they model long-range dependencies and do so efficiently.\n    \n- **Why it mattered:** Significant accuracy gains for sequential tasks and better interpretability via attention weights.\n    \n- **Representative work:** SASRec — _Self-Attentive Sequential Recommendation_ (Kang & McAuley, 2018). Wang‑Cheng Kang.  \n    Also **BERT4Rec** (Sun et al., 2019) uses bidirectional self-attention with masked-item (cloze) objectives.",
+			"styleAttributes":{},
+			"x":-200,
+			"y":3400,
+			"width":680,
+			"height":340
+		},
+		{
+			"id":"f9e22aeed630f4be",
+			"type":"text",
+			"text":"# Graph neural networks (GNNs) for recommendations \n### late 2010s\n\n- **What happened:** Interaction data treated as graphs (users↔items, item–item relations). GNNs enabled propagation of signals over these graphs to create context-aware embeddings.\n    \n- **Why it mattered:** Natural fit for relational data and allowed web-scale graph learning when adapted carefully.\n    \n- **Representative work / deployed system:** **PinSage** (Ying et al., Pinterest, 2018) — a graph convolution approach scaled to billions of nodes; major practical milestone. Pinterest.",
+			"styleAttributes":{},
+			"x":-200,
+			"y":3900,
+			"width":680,
+			"height":340
+		},
+		{
+			"id":"da798ba867bcadcb",
+			"type":"text",
+			"text":"# Self-supervised & contrastive learning applied to recommendations \n### 2020\n\n- **What happened:** Self-supervised learning (SSL) — developing auxiliary tasks and contrastive objectives — began producing stronger, more robust item/user representations from sparse/noisy logs without extra labels.\n    \n- **Why it mattered:** Solved data sparsity and cold-start issues, improved pretraining for downstream recommendation tasks.\n    \n- **Representative work:** **CL4SRec** — _Contrastive Learning for Sequential Recommendation_ (Xie et al., 2020).",
+			"styleAttributes":{},
+			"x":-200,
+			"y":4400,
+			"width":680,
+			"height":340
+		},
+		{
+			"id":"ec73b94b412112a7",
+			"type":"text",
+			"text":"# Causal, debiasing, fairness, and robustness approaches \n### late 2010s \n\n- **What happened:** Researchers recognized that logged data contain exposure/popularity biases and confounders; causal methods, IPS / debiasing, and fairness-aware training were introduced to produce _less biased_ recommendations and more reliable offline evaluation.\n    \n- **Why it mattered:** Important for real-world fairness, regulatory concerns, and reliability of offline evaluation.\n    \n- **Representative pointers:** Work on IPS/unbiased learning, causal recommendation surveys and practical debiasing papers (e.g., IPS, doubly-robust estimators, and causal inference frameworks applied to recsys).",
+			"styleAttributes":{},
+			"x":-200,
+			"y":4880,
+			"width":680,
+			"height":380
+		},
+		{
+			"id":"59ec39f6f923e67a",
+			"type":"text",
+			"text":"# Large models, pretraining, multimodality & industry scale\n### 2020s\n\n- **What happened:** Pretraining large models on interaction + content (text, images, video) and fine-tuning for personalization; multimodal encoders are used for item understanding; production systems combine retrieval + re-ranking with large neural models.\n    \n- **Why it mattered:** Improved quality for cold start and content-centric domains (news, media), and enabled end-to-end deep pipelines in industry.\n    \n- **Representative work / trends:** Research and engineering at major companies (Netflix, Amazon, YouTube, Pinterest) combining retrieval, candidate generation (approx nearest neighbors / embeddings), and neural re-ranking.",
+			"styleAttributes":{},
+			"x":-200,
+			"y":5380,
+			"width":680,
+			"height":380
+		},
+		{
+			"id":"3a34e6fdf4716d56",
+			"type":"text",
+			"text":"# Current frontiers: what researchers are actively pursuing\n### 2022 Onwards\n\n- **Self-supervised pretraining** for long-term/user representations (contrastive, masked modeling).\n    \n- **Multi-intent and disentangled representations** (modeling multiple simultaneous tastes).\n    \n- **Causal and counterfactual learning** for unbiased recommendations and robust evaluation.\n    \n- **Graph + sequential hybrids** (dynamic graphs, temporal GNNs).\n    \n- **Explainability & controllability** (counterfactual explanations, human-in-the-loop constraints).\n    \n- **Multi-objective optimization**: balancing accuracy, diversity, novelty, exposure fairness, and business metrics.\n    \n- **Retrieval + LLMs**: using large language models to interpret user intent and generate candidate descriptions or explanations (emerging area).",
+			"styleAttributes":{},
+			"x":-240,
+			"y":5880,
+			"width":761,
+			"height":400
+		}
+	],
+	"edges":[
+		{
+			"id":"846f946c093718d5",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"07015ba17c813aff",
+			"fromSide":"bottom",
+			"toNode":"761a5a8391e31777",
+			"toSide":"top"
+		},
+		{
+			"id":"8e2a378d0e4bbc03",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"761a5a8391e31777",
+			"fromSide":"bottom",
+			"toNode":"1a8606783eb59df3",
+			"toSide":"top"
+		},
+		{
+			"id":"5455b55e477dcfa5",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"1a8606783eb59df3",
+			"fromSide":"bottom",
+			"toNode":"b28f190775faa30d",
+			"toSide":"top"
+		},
+		{
+			"id":"e0f6b44dd445907f",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"0c00bb96c0386b2b",
+			"fromSide":"bottom",
+			"toNode":"714d3741ea3fc60b",
+			"toSide":"top"
+		},
+		{
+			"id":"3b6d113037918692",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"b28f190775faa30d",
+			"fromSide":"bottom",
+			"toNode":"0c00bb96c0386b2b",
+			"toSide":"top"
+		},
+		{
+			"id":"ce692596e81b5b9c",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"714d3741ea3fc60b",
+			"fromSide":"bottom",
+			"toNode":"b350daf81bec9d2d",
+			"toSide":"top"
+		},
+		{
+			"id":"f76f2dc9b6c1a7eb",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"b350daf81bec9d2d",
+			"fromSide":"bottom",
+			"toNode":"ce82d1973b960243",
+			"toSide":"top"
+		},
+		{
+			"id":"b06e045f8c1fe665",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"ce82d1973b960243",
+			"fromSide":"bottom",
+			"toNode":"3204119b5afb9959",
+			"toSide":"top"
+		},
+		{
+			"id":"e1676c3a252162bd",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"3204119b5afb9959",
+			"fromSide":"bottom",
+			"toNode":"4a668732056aba9c",
+			"toSide":"top"
+		},
+		{
+			"id":"753609e5a1ad2b98",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"4a668732056aba9c",
+			"fromSide":"bottom",
+			"toNode":"49e37e7c149c0dac",
+			"toSide":"top"
+		},
+		{
+			"id":"36f1169b5c2c0842",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"49e37e7c149c0dac",
+			"fromSide":"bottom",
+			"toNode":"ffc0a8c632a659e5",
+			"toSide":"top"
+		},
+		{
+			"id":"fd5b5606114ee765",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"ffc0a8c632a659e5",
+			"fromSide":"bottom",
+			"toNode":"2fe9f7b2daf31c1b",
+			"toSide":"top"
+		}
+	],
+	"metadata":{
+		"version":"1.0-1.0",
+		"frontmatter":{},
+		"startNode":"07015ba17c813aff"
+	}
+}

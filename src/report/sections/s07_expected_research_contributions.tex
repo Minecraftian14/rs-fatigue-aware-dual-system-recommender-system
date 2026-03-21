@@ -1,0 +1,60 @@
+\section{Expected Research Contributions}
+
+EVERYTHING IS A I HERE, NEEDS REWRITING
+
+The proposed Dual-System Human-Centric Recommender System (DS-HCRS) introduces several conceptual and methodological contributions to the design of recommender systems.
+While the implementation and empirical evaluation are planned for future work, the proposed framework outlines a structured approach for incorporating cognitive modeling and long-term optimization into recommendation pipelines.
+
+The expected contributions of this work can be summarized as follows.
+
+\subsection{Dual-System Recommendation Architecture}
+
+This work proposes a dual-system recommender architecture inspired by cognitive theories of human decision-making.
+The framework separates recommendation strategies into two complementary components:
+
+\begin{itemize}
+    \item \textbf{System 1}, which captures short-term behavioral preferences and predicts immediate user interactions.
+    \item \textbf{System 2}, which evaluates recommendations using longer-term utility signals and broader contextual information.
+\end{itemize}
+
+By explicitly separating impulsive interaction prediction from reflective optimization, the proposed system introduces a structured way to balance short-term engagement with long-term user outcomes.
+This architectural design provides a flexible framework that can integrate different recommendation models while maintaining a clear conceptual separation of objectives.
+
+\subsection{Fatigue-Aware Recommendation Modeling}
+
+Another key contribution of this work is the introduction of an explicit \textit{user fatigue and cognitive state model} within the recommendation pipeline.
+
+Traditional recommender systems assume that additional user interactions always indicate positive engagement.
+However, prolonged sessions and repeated exposure to similar content may lead to boredom or cognitive overload.
+The proposed fatigue modeling component attempts to estimate this state using observable interaction signals such as repetition, novelty, and session length.
+
+By incorporating fatigue estimates into the recommendation process, the system can adapt its behavior when signs of declining user interest are detected.
+
+\subsection{Adaptive Strategy Selection Through Gating}
+
+The proposed system introduces an adaptive gating mechanism that dynamically determines how recommendations from different components should be combined.
+
+Instead of relying on a single recommendation strategy for all situations, the system adjusts the influence of System 1 and System 2 based on the user's current interaction context.
+This adaptive decision process allows the recommender to maintain efficiency during normal usage while introducing more reflective reasoning when the user's experience begins to deteriorate.
+
+Such adaptive control mechanisms provide a potential pathway toward more context-aware recommender systems.
+
+\subsection{Integration of Long-Term Utility Optimization}
+
+The proposed framework incorporates long-term optimization principles into the recommendation pipeline by modeling recommendations as sequential decisions that influence future user behavior.
+
+By combining short-term engagement signals with longer-term indicators such as retention and fatigue, the framework outlines a multi-objective reward structure that can guide recommendation policies toward more sustainable outcomes.
+
+This integration highlights how reinforcement learning-based ideas can be used to move beyond purely engagement-driven recommendation objectives.
+
+\subsection{Human-Centered Evaluation Perspective}
+
+Finally, this work proposes an evaluation framework that extends beyond traditional recommendation accuracy metrics.
+In addition to standard ranking measures, the evaluation strategy includes metrics related to diversity, novelty, fatigue indicators, and long-term engagement.
+
+This broader evaluation perspective aligns the system with recent research directions in human-centered recommender systems and responsible AI.
+By incorporating metrics related to user experience and cognitive load, the proposed evaluation framework aims to provide a more comprehensive understanding of recommender system behavior.
+
+Overall, the proposed framework contributes a structured approach for combining behavioral prediction, cognitive modeling, and long-term optimization within a single recommender system architecture.
+The design emphasizes adaptability and human-centered objectives while remaining compatible with existing recommendation techniques.
+

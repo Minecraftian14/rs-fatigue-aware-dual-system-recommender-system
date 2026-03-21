@@ -1,0 +1,84 @@
+\documentclass[conference]{IEEEtran}
+% \IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+
+\input{preamble}
+\input{custom_macros}
+\input{custom_formatting}
+
+% updated with editorial comments 8/9/2021
+
+\begin{document}
+
+\title{Dual-System Human-Centric Recommender with Fatigue-Aware Long-Term Optimization (DS-HCRS)
+
+% Small text below title
+% {\footnotesize \textsuperscript{*}Note: Sub-titles are not captured in Xplore and should not be used}
+
+% Small text below first column
+% \thanks{Identify applicable funding agency here. If none, delete this.}
+
+}
+
+\author{
+        \IEEEauthorblockN{1\textsuperscript{st} Anirudh Sharma}
+        \IEEEauthorblockA{
+                \textit{M.Tech. in Artificial Intelligence and Data Science} \\
+                \textit{International Institute of Information Technology}\\
+                Bangalore, India \\
+                % email address or ORCID
+        }
+        \and
+        \IEEEauthorblockN{2\textsuperscript{nd} Shreya Gupta}
+        \IEEEauthorblockA{
+                \textit{M.Tech. in Artificial Intelligence and Data Science} \\
+                \textit{International Institute of Information Technology}\\
+                Bangalore, India \\
+                % email address or ORCID
+        }
+}
+
+\maketitle
+
+\begin{abstract}
+Modern recommender systems are often designed to optimize for short-term engagement metrics such as click-through rates and interaction frequency.
+These signals are easy to measure, but they may not always reflect long-term user satisfaction.
+This can lead to repetitive recommendations, cognitive fatigue, and reduced user interest.
+This work explores the design of a Dual-System Human-Centric Recommender System (DS-HCRS) that balances short-term engagement with long-term user experience.
+The framework combines a fast sequential recommender for immediate relevance 
+with a component that attempts to model long-term user satisfaction.
+In addition, this system will include a fatigue state model estimates when users may experience boredom or repetition,
+allowing the system to change its recommendation strategy through an adaptive gating mechanism.
+% The proposed evaluation framework includes both traditional ranking metrics and additional measures related to diversity, novelty, and user engagement on social media datasets.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Recommender Systems, Long-Term Optimization, User Fatigue,
+Reinforcement Learning, Cognitive State Modeling, Dual-System Theory,
+Adaptive Gating, Sequential Recommendation
+\end{IEEEkeywords}
+
+\input{sections/s01_introduction.tex}
+% \input{sections/s02_foundations_and_background_concepts.tex}
+\input{sections/s03_literature_survey.tex}
+\input{sections/s04_problem_identification.tex}
+\input{sections/s05_proposed_methodology.tex}
+\input{sections/s06_evaluation_design.tex}
+% \input{sections/s07_expected_research_contributions.tex}
+% \input{sections/s08_limitations_and_ethical_considerations.tex}
+% \input{sections/s09_future_research_directions.tex}
+\input{sections/s10_conclusion.tex}
+
+% // TODO: Reformat all tables to TOP or BOTTOM and reference them in their appropriate location.
+% // TODO: Add captions and labels to all tables and then reference them properly.
+% // TODO: Basically, read the conference_101719 format and hot-to properly, and comply.
+
+% \bibliographystyle{IEEEtran}
+\bibliographystyle{plain}
+\bibliography{references}
+
+\vfill
+
+\end{document}
+
+

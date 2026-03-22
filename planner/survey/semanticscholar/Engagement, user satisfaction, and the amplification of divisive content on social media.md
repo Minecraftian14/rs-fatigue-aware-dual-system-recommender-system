@@ -6,6 +6,6 @@ tags:
 status: Strong Citation
 file: "[[Engagement, user satisfaction, and the amplification of divisive content on social media.pdf]]"
 ---
-#research  
+#research  #fatigue_or_addiction
 
 

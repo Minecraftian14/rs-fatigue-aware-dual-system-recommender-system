@@ -21,3 +21,15 @@ src/report/references.bib
 
 # Temporary files, not to be commited
 **/secret*.*
+
+# Internal usage (uv pip redirect)
+src/scripts/pip.cmd
+
+# Python module stuff
+*.egg-info
+
+# Datasets
+data/
+
+# UV Stuff
+uv.lock

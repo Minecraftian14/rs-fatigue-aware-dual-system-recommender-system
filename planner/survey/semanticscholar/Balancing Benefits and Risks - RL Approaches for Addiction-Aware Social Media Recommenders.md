@@ -4,6 +4,6 @@ from: "[[System-2 Recommenders - Disentangling Utility and Engagement in Recomme
 status: Strong Citation
 file: "[[Balancing Benefits and Risks - RL Approaches for Addiction-Aware Social Media Recommenders.pdf]]"
 ---
-#research  
+#research  #fatigue_or_addiction
 
 

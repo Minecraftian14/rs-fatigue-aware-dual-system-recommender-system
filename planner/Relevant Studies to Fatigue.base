@@ -1,0 +1,13 @@
+views:
+  - type: table
+    name: Table
+    filters:
+      and:
+        - file.tags.contains("fatigue_or_addiction")
+    order:
+      - file.name
+      - link
+      - status
+    sort:
+      - property: file.name
+        direction: DESC

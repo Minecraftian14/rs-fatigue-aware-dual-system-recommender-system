@@ -4,5 +4,5 @@ tags:
 status: Strong Citation
 file: "[[Rewarding Engagement and Personalization in Popularity-Based Rankings Amplifies Extremism and Polarization.pdf]]"
 ---
-#research 
+#research #fatigue_or_addiction
 

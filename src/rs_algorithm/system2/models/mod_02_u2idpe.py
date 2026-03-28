@@ -2,7 +2,7 @@ import gymnasium as gym
 import torch
 from torch import nn
 
-from .blueprint_model import ModelBlueprint
+from ...models.blueprint_model import ModelFactoryBlueprint
 
 
 class _SuperEmbedding(nn.Module):
@@ -58,7 +58,11 @@ class _NowThatsSomeModel(nn.Module):
         # Expected outputs: return [=] (batch_size, 1)
 
 
-class NowThatsSomeModel(ModelBlueprint):
+class U2IDPEModelFactory(ModelFactoryBlueprint):
+    """
+    User To Item Dot Product Of Embeddings
+    """
+
     def __init__(self, n_users, d_item_feat):
         super().__init__()
         self.n_users = n_users

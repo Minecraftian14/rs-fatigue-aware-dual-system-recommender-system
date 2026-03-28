@@ -1,12 +1,12 @@
-from rs_algorithm.system2.models import ABCNameMeModel
-from rs_algorithm.system2.environments import ABCNameMeEnv
+from rs_algorithm.system2.models import SEWADQNModelFactory
+from rs_algorithm.system2.environments import SEWADQNEnvironment
 
 
 def test_huh():
     print("Testing HUH")
 
-    env = ABCNameMeEnv()
-    factory = ABCNameMeModel()
+    env = SEWADQNEnvironment()
+    factory = SEWADQNModelFactory()
     model = factory.create_model(env)
     model.learn(total_timesteps=100)
 

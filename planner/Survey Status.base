@@ -8,6 +8,7 @@ views:
     order:
       - file.name
       - file.tags
+      - content
       - link
       - status
       - usability
@@ -16,3 +17,6 @@ views:
         direction: ASC
       - property: status
         direction: DESC
+    columnSize:
+      file.tags: 158
+      note.content: 89

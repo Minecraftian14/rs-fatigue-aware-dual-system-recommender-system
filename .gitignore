@@ -27,6 +27,7 @@ src/scripts/pip.cmd
 
 # Python module stuff
 *.egg-info
+**/__pycache__/
 
 # Datasets
 data/

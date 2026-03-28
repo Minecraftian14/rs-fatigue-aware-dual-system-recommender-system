@@ -2,7 +2,12 @@ import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
 
-class ABCNameMeEnv(gym.Env):
+
+class SEWADQNEnvironment(gym.Env):
+    """
+    A Simple Experiment With A DQN Model
+    """
+
     def __init__(self, num_items=100, embedding_dim=10, max_steps=20):
         super().__init__()
 

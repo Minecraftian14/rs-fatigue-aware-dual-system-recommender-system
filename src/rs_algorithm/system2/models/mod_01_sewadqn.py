@@ -1,13 +1,16 @@
 import gymnasium as gym
 from stable_baselines3 import DQN
 
-from .blueprint_model import ModelBlueprint
+from ...models.blueprint_model import ModelFactoryBlueprint
 
 
-class ABCNameMeModel(ModelBlueprint):
+class SEWADQNModelFactory(ModelFactoryBlueprint):
+    """
+    A Simple Experiment With A DQN Model
+    """
 
     def __init__(self):
-        super().__init__('ABCNameMeEnv')
+        super().__init__('SEWADQNEnvironment')
 
     def _create_model(self, env: gym.Env):
         return DQN(

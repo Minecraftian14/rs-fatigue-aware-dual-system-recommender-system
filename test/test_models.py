@@ -2,7 +2,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-from rs_algorithm.models import GenericRepresentation
+from rs_algorithm.models import GenericRepresentation, AdaptiveRepresentation
 
 
 def test_generic_representation():
@@ -20,3 +20,23 @@ def test_generic_representation():
     both = GenericRepresentation(use_ids=True, use_feats=True, n_entities=100, d_feat=10)
     user_repr = both((user_ids, user_feats))
     assert user_repr.shape == (100, 256)
+
+
+def test_adaptive_representation():
+    user_ids = torch.randint(0, 100, (100,), dtype=torch.long)
+    user_feats = torch.randn(100, 10)
+
+    representation = AdaptiveRepresentation(n_entities=100, d_feat=10)
+
+    user_repr, user_bias = representation(user_ids, user_feats)
+    assert user_repr.shape == (100, 64)
+    assert user_bias.shape == (100,)
+
+    user_repr, user_bias = representation(None, user_feats)
+    assert user_repr.shape == (100, 64)
+    assert user_bias is None
+
+    representation.training = True
+    user_repr, user_bias = representation.forward(user_ids, user_feats, drop_id_prob=0.5)
+    assert user_repr.shape == (100, 64)
+    assert user_bias.shape == (100,)

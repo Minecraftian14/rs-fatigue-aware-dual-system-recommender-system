@@ -38,11 +38,11 @@ def smart_encode(df: pd.DataFrame, ignore_cols: set[str] = None, force_ohe: set[
     return result
 
 
-def balanced_subset(df: pd.DataFrame, target_size: int, seed: int = 42):
+def balanced_subset(df: pd.DataFrame, target_size: int, user_id='user_id', item_id='item_id', seed: int = 42):
     np.random.seed(seed)
 
-    users = df['user_id'].unique()
-    items = df['video_id'].unique()
+    users = df[user_id].unique()
+    items = df[item_id].unique()
 
     U = len(users)
     I = len(items)
@@ -60,8 +60,8 @@ def balanced_subset(df: pd.DataFrame, target_size: int, seed: int = 42):
     selected_indices = []
 
     for idx, row in df_shuffled.iterrows():
-        u = row['user_id']
-        i = row['video_id']
+        u = row[user_id]
+        i = row[item_id]
 
         if user_deg[u] < k_u and item_deg[i] < k_i:
             selected_indices.append(idx)
@@ -73,18 +73,18 @@ def balanced_subset(df: pd.DataFrame, target_size: int, seed: int = 42):
 
     subset = df_shuffled.loc[selected_indices].copy()
 
-    missing_users = set(users) - set(subset['user_id'])
+    missing_users = set(users) - set(subset[user_id])
     if missing_users:
         print(f"Fixing {len(missing_users)} missing users")
         for u in missing_users:
-            row = df[df['user_id'] == u].sample(1, random_state=seed)
+            row = df[df[user_id] == u].sample(1, random_state=seed)
             subset = pd.concat([subset, row], ignore_index=True)
 
-    missing_items = set(items) - set(subset['video_id'])
+    missing_items = set(items) - set(subset[item_id])
     if missing_items:
         print(f"Fixing {len(missing_items)} missing items")
         for i in missing_items:
-            row = df[df['video_id'] == i].sample(1, random_state=seed)
+            row = df[df[item_id] == i].sample(1, random_state=seed)
             subset = pd.concat([subset, row], ignore_index=True)
 
     subset = subset.sample(frac=1, random_state=seed).reset_index(drop=True)

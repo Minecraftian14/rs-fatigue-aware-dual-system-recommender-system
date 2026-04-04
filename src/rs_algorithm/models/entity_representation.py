@@ -87,10 +87,15 @@ class AdaptiveRepresentation(nn.Module):
         )
         self.bias = nn.Embedding(n_entities, 1)
 
-    def forward(self, ids, feats, drop_id_prob=0.0):
+    def forward(self, ids, feats, drop_id_prob=0.0, return_id_embeds=False, return_alpha=False):
         feat_embeds = self.adaptor(feats)
 
-        if ids is None: return feat_embeds, None
+        if ids is None:
+            result = [feat_embeds, None]
+            if return_id_embeds: result.append(None)
+            if return_alpha: result.append(None)
+            return tuple(result)
+
         ids = self.lookup[ids]
 
         id_embeds = self.embedder(ids)
@@ -105,4 +110,7 @@ class AdaptiveRepresentation(nn.Module):
         fusion = alpha * id_embeds + (1 - alpha) * feat_embeds
         # fusion = alpha * id_embeds + feat_embeds
 
-        return fusion, id_bias
+        result = [feat_embeds, id_bias]
+        if return_id_embeds: result.append(id_embeds)
+        if return_alpha: result.append(alpha)
+        return tuple(result)

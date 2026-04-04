@@ -4,18 +4,7 @@ import numpy as np
 
 from data_loaders import DataModel
 from .blueprint_user_model import UserModel
-
-
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
-
-
-def lerp(a, b, f):
-    return a + (b - a) * f
-
-
-def clip(a, m=0, M=1):
-    return min(max(a, m), M)
+from miscellaneous import *
 
 
 class DPRUserModel(UserModel):
@@ -54,7 +43,7 @@ class DPRUserModel(UserModel):
         click_probability = lerp(relevance, 0, self.fatigue)
         clicked = random.random() < click_probability
 
-        return clicked.squeeze(), self.fatigue
+        return clicked.squeeze()
 
 
 class DPRIMUserModel(UserModel):

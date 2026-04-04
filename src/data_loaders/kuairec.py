@@ -122,14 +122,22 @@ class KuaiRecData(DataModel):
         extracted_features.to_parquet(cache_file)
         return extracted_features
 
-    def load_specimen(self, initial_specimen):
-        assert initial_specimen in {'big', 'small', 'smaller'}
-        if initial_specimen == 'big':
-            self.ratings = self.big_ratings = self._load_big_ratings()
-        elif initial_specimen == 'small':
-            self.ratings = self.small_ratings = self._load_small_ratings()
-        elif initial_specimen == 'smaller':
-            self.ratings = self.smaller_ratings = self._load_smaller_ratings()
+    def load_specimen(self, specimen):
+        assert specimen in {'big', 'small', 'smaller'}
+        match specimen:
+            case 'big': self.ratings = self.big_ratings = self._load_big_ratings()
+            case 'small': self.ratings = self.small_ratings = self._load_small_ratings()
+            case 'smaller': self.ratings = self.smaller_ratings = self._load_smaller_ratings()
+
+    def subsample_specimen(self, specimen, subsampling):
+        assert specimen in {'big', 'small', 'smaller'}
+        match specimen:
+            case 'big': ratings = self._load_big_ratings()
+            case 'small': ratings = self._load_small_ratings()
+            case 'smaller': ratings = self._load_smaller_ratings()
+        subsample = balanced_subset(ratings, subsampling)
+        del ratings
+        return subsample
 
     def _load_big_ratings(self):
         cache_file = os.path.join(self.data_root, 'big_ratings_processed.parquet')
@@ -173,7 +181,7 @@ class KuaiRecData(DataModel):
         small_matrix = pd.read_csv(os.path.join(self.data_root, 'small_matrix.csv'))
         small_matrix = small_matrix[small_matrix['watch_ratio'] <= 10]
         extracted_features = small_matrix[['user_id', 'video_id', 'watch_ratio', 'time']]
-        smaller_matrix = balanced_subset(extracted_features, 1000000)
+        smaller_matrix = balanced_subset(extracted_features, 1000000, item_id='video_id')
         smaller_matrix.rename(columns={
             'video_id': 'item_id',
             'watch_ratio': 'rating',

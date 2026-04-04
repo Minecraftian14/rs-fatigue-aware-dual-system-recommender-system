@@ -6,6 +6,7 @@ from data_loaders import DataModel
 from ...models.user_models.blueprint_user_model import UserModel
 from ...models.user_models.user_01_dpr import DPRUserModel
 
+from datetime import datetime
 
 class SimpleEnvironment(gym.Env):
     """
@@ -47,7 +48,8 @@ class SimpleEnvironment(gym.Env):
     def step(self, action):
         item = self.item_embeds[action][None, :]
 
-        clicked, fatigue = self.user.react(None, None, item)
+        clicked = self.user.react(datetime.now(), None, item)
+        fatigue = self.user.fatigue
         reward = float(clicked) - fatigue
 
         self.step_count += 1

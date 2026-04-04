@@ -4,6 +4,7 @@ from stable_baselines3.common.env_util import make_vec_env
 
 from data_loaders import SyntheticData
 from rs_algorithm.models.user_models.user_01_dpr import DPRUserModel
+from rs_algorithm.models.user_models.user_02_sim import SimUserModel
 from rs_algorithm.system2.environments.env_03_simple import SimpleEnvironment
 
 
@@ -52,7 +53,7 @@ def test_with_stable_baselines3():
         user.preference = data.get_items_embeds(0)[None, :]
         return user
 
-    env = make_vec_env(lambda: SimpleEnvironment(data, create_user()), n_envs=1)
+    env = make_vec_env(lambda: SimpleEnvironment(data, create_user()), n_envs=8)
 
     # model = sb.DQN("MlpPolicy", env, verbose=1, learning_rate=1e-3, buffer_size=10000, learning_starts=100, batch_size=32, )
     model = sb.PPO("MlpPolicy", env, verbose=1, learning_rate=3e-4, n_steps=1024, batch_size=64, gamma=0.99, ent_coef=0.01)
@@ -63,8 +64,35 @@ def test_with_stable_baselines3():
     obs, _ = env.reset()
 
     for _ in range(20):
-        action = env.action_space.sample()
+        action, _ = model.predict(obs, deterministic=True)
         obs, reward, done, truncated, info = env.step(action)
         print(reward, info)
         if done or truncated:
             break
+
+def test_with_simuser():
+    data = SyntheticData()
+
+    def create_user():
+        user = SimUserModel(data.get_items_embeds(0)[None, :])
+        return user
+
+    env = make_vec_env(lambda: SimpleEnvironment(data, create_user()), n_envs=8)
+
+    # model = sb.DQN("MlpPolicy", env, verbose=1, learning_rate=1e-3, buffer_size=10000, learning_starts=100, batch_size=32, )
+    model = sb.PPO("MlpPolicy", env, verbose=1, learning_rate=3e-4, n_steps=1024, batch_size=64, gamma=0.99, ent_coef=0.01)
+    model.learn(total_timesteps=10000)
+
+    env = SimpleEnvironment(data, create_user())
+
+    obs, _ = env.reset()
+
+    prefs = []
+    for _ in range(20):
+        action, _ = model.predict(obs, deterministic=True)
+        obs, reward, done, truncated, info = env.step(action)
+        print(reward, info)
+        prefs.append(env.user.preference)
+        if done or truncated:
+            break
+    print(prefs)

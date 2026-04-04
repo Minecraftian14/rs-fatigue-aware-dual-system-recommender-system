@@ -77,7 +77,8 @@ class DataModel(ABC):
         pass
 
     def get_bpr_dataset(self, ratings=None):
-        return BPRDataset(self, ratings or self.ratings)
+        if ratings is None: ratings = self.ratings
+        return BPRDataset(self, ratings)
 
     def get_user_features(self, user_idx: int | slice | None = None, use_pd=False):
         if user_idx is None: result = self.user_features

@@ -11,9 +11,9 @@ class RegressionBasedBPEModel(nn.Module):
         self.item_model = item_model
 
     def forward(self, user_ids, user_feats, pos_item_ids, pos_item_feats, neg_item_ids, neg_item_feats):
-        user_emb, user_bias = self.user_model(user_ids, user_feats)
-        pos_item_emb, pos_item_bias = self.item_model(pos_item_ids, pos_item_feats)
-        neg_item_emb, neg_item_bias = self.item_model(neg_item_ids, neg_item_feats)
+        user_emb, user_bias, user_id_embeds = self.user_model(user_ids, user_feats, return_id_embeds=True)
+        pos_item_emb, pos_item_bias, pos_item_id_embeds = self.item_model(pos_item_ids, pos_item_feats, return_id_embeds=True)
+        neg_item_emb, neg_item_bias, neg_item_id_embeds = self.item_model(neg_item_ids, neg_item_feats, return_id_embeds=True)
 
         pos_scores = (user_emb * pos_item_emb).sum(dim=1)
         neg_scores = (user_emb * neg_item_emb).sum(dim=1)
@@ -25,4 +25,4 @@ class RegressionBasedBPEModel(nn.Module):
             pos_scores += pos_item_bias
             neg_scores += neg_item_bias
 
-        return pos_scores, neg_scores
+        return pos_scores, neg_scores, (user_id_embeds, pos_item_id_embeds, neg_item_id_embeds)

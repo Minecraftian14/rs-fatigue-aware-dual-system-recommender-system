@@ -22,6 +22,8 @@ src/report/references.bib
 # Temporary files, not to be commited
 **/secret*.*
 **/secret*/
+planner/
+.env
 
 # Internal usage (uv pip redirect)
 src/scripts/pip.cmd

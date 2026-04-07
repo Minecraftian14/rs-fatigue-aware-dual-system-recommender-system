@@ -3,6 +3,7 @@ name = "RSProject"
 version = "0.1"
 dependencies = [
     "ipykernel>=7.2.0",
+    "pytest>=9.0.2",
 ]
 
 [tool.setuptools]

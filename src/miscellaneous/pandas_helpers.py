@@ -1,3 +1,4 @@
+import os
 from collections import defaultdict
 
 import numpy as np
@@ -90,3 +91,11 @@ def balanced_subset(df: pd.DataFrame, target_size: int, user_id='user_id', item_
     subset = subset.sample(frac=1, random_state=seed).reset_index(drop=True)
 
     return subset
+
+
+def keyed_cache(name, fn):
+    file = os.path.join('temp', 'keyed_cache', f"{name}.parquet")
+    if os.path.exists(file): return pd.read_parquet(file)
+    result = fn()
+    result.to_parquet(file)
+    return result

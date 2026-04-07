@@ -27,7 +27,7 @@ class DataConfig:
 
 
 class KuaiRecData(DataModel):
-    def __init__(self, root='data/KuaiRec2.0', initial_specimen='small'):
+    def __init__(self, root=os.path.join('data','KuaiRec2.0'), initial_specimen='small'):
         self.root = root
         self.data_root = os.path.join(self.root, 'data')
 

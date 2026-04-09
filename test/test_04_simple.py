@@ -111,7 +111,7 @@ def test_with_stable_baselines3():
     # model = sb.DQN("MlpPolicy", env, verbose=1, learning_rate=1e-3, buffer_size=10000, learning_starts=100, batch_size=32, )
     model = sb.PPO("MlpPolicy", env, verbose=1, learning_rate=3e-4, n_steps=1024, batch_size=64, gamma=0.99, ent_coef=0.01)
     model.learn(total_timesteps=300000)
-    model.save("model_04_simple_sb3")
+    model.save("temp/model_04_simple_sb3")
 
     env = SimpleEnvironment(data, create_user(), max_steps=1000)
 

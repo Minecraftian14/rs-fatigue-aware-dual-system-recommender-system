@@ -50,13 +50,17 @@ class ThreeTowerRecommender(nn.Module):
         )
 
     def forward(self, user_ids, user_feats, item_hist_ids, item_hist_feats, mask):
-        # TODO Use the bias
-        user_emb, _ = self.user_model(user_ids, user_feats)
-        hist_feat_shape = item_hist_feats.shape
+        user_emb, user_bias = self.user_model(user_ids, user_feats)
+
         if len(item_hist_feats.shape) == 3:
             item_hist_ids, item_hist_feats = item_hist_ids.flatten(), item_hist_feats.flatten(0, 1)
-        hist_embs, _ = self.item_model(item_hist_ids, item_hist_feats)
+        hist_embs, hist_biases = self.item_model(item_hist_ids, item_hist_feats)
+
         hist_embs = hist_embs.reshape((mask.shape[0], -1, hist_embs.shape[-1]))
+        hist_bias = hist_biases.reshape((mask.shape[0], -1, 1))
+
         hist_emb = self.history_model(hist_embs, mask)
+
         alpha = self.alpha(user_emb)
-        return alpha * user_emb + (1 - alpha) * hist_emb
+
+        return alpha * user_emb + (1 - alpha) * hist_emb, (user_bias, hist_bias)

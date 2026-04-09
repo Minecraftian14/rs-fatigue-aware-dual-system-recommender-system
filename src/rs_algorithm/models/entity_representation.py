@@ -122,7 +122,10 @@ class AdaptiveRepresentation(EntityEmbedding):
 
         alpha = self.alpha(feats)
         fusion = alpha * id_embeds + (1 - alpha) * feat_embeds
+        id_bias = alpha.squeeze(-1) * id_bias
         # fusion = alpha * id_embeds + feat_embeds
+        # fusion = alpha * (id_embeds + id_bias) + (1 - alpha) * feat_embeds
+        # fusion = alpha * (id_embeds + id_bias) + feat_embeds
 
         result = [fusion, id_bias]
         if return_id_embeds: result.append(alpha * id_embeds)

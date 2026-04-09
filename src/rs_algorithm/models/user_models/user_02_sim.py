@@ -21,25 +21,27 @@ class DynamicPreferenceUserModel(UserModel):
     def __init__(self,
                  preference,
                  preference_volatility=0.001854,
+
+                 preference_function=lambda preference, item, *a: cosine_similarity(preference, item).squeeze(),
                  ):
         self._state_vector = {'preference': preference, 'preference_volatility': preference_volatility}
         self.preference = preference
         self.preference_volatility = preference_volatility
+        self.preference_function = preference_function
         self._relevance = None
 
     def reset(self, seed=None):
         for k, v in self._state_vector.items():
             setattr(self, k, v)
 
-    def react(self, time_step: datetime, device, item):
-        #
-        self._relevance = relevance = self._get_relevance(time_step, device, item)
+    def react(self, time_step: datetime, device, item, *args):
+        self._relevance = relevance = self._get_relevance(time_step, device, item, *args)
         did_i_click = True if random.random() < relevance else False
         if did_i_click: self._update_preference(time_step, device, item)
         return did_i_click
 
-    def _get_relevance(self, time_step: datetime, device, item):
-        relevance = cosine_similarity(self.preference, item).squeeze()
+    def _get_relevance(self, time_step: datetime, device, item, *args):
+        relevance = self.preference_function(self.preference, item, *args)
         self._relevance = relevance = relevance / 2.0 + 0.5
         return relevance
 

@@ -101,10 +101,10 @@ class AdaptiveRepresentation(EntityEmbedding):
         )
         self.bias = nn.Embedding(n_entities, 1)
 
-    def forward(self, ids, feats, drop_id_prob=0.0, return_id_embeds=False, return_alpha=False):
+    def forward(self, ids, feats, drop_id_prob=0.0, use_bias=True, return_id_embeds=False, return_alpha=False):
         feat_embeds = self.adaptor(feats)
 
-        if ids is None:
+        if not use_bias or ids is None:
             result = [feat_embeds, None]
             if return_id_embeds: result.append(None)
             if return_alpha: result.append(None)
@@ -113,16 +113,16 @@ class AdaptiveRepresentation(EntityEmbedding):
         ids = self.lookup[ids]
 
         id_embeds = self.embedder(ids)
-        id_bias = self.bias(ids).squeeze(-1)
+        id_bias = self.bias(ids).squeeze(-1) if use_bias else None
 
         if self.training and drop_id_prob > 0:
             mask = (torch.rand(ids.shape[0], device=ids.device) > drop_id_prob).float().unsqueeze(1)
             id_embeds = id_embeds * mask
-            id_bias = id_bias * mask
+            if use_bias: id_bias = id_bias * mask
 
         alpha = self.alpha(feats)
         fusion = alpha * id_embeds + (1 - alpha) * feat_embeds
-        id_bias = alpha.squeeze(-1) * id_bias
+        if use_bias: id_bias = alpha.squeeze(-1) * id_bias
         # fusion = alpha * id_embeds + feat_embeds
         # fusion = alpha * (id_embeds + id_bias) + (1 - alpha) * feat_embeds
         # fusion = alpha * (id_embeds + id_bias) + feat_embeds
@@ -181,20 +181,21 @@ class AttentionRepresentation(nn.Module):
     def __init__(self, d_embed_in, d_embed_out):
         super(AttentionRepresentation, self).__init__()
         self.encoder = nn.TransformerEncoderLayer(d_model=d_embed_in, nhead=1, dim_feedforward=d_embed_out, batch_first=True)
+        self.proj = nn.Linear(d_embed_in, d_embed_out)
         self.pool = AttentionPooling(d_embed_out)
         self.norm = nn.LayerNorm(d_embed_out)
 
     def forward(self, x, mask):
         key_padding_mask = (mask == 0)  # [B, T]
-        print(key_padding_mask.shape)
         x = self.encoder(x, src_key_padding_mask=key_padding_mask)
-        return self.norm(self.pool(x, mask))
+        return self.norm(self.pool(self.proj(x), mask))
 
 
 class MeanRepresentation(nn.Module):
     def __init__(self, d_embed_in, d_embed_out):
         super(MeanRepresentation, self).__init__()
-        self.norm = nn.LayerNorm(d_embed_out)
+        self.norm = nn.LayerNorm(d_embed_in)
+        self.d_embed_out = d_embed_out
 
     def forward(self, x, mask):
         mask = mask.unsqueeze(-1)  # [Batch Size, Seq Lens, 1]
@@ -202,7 +203,7 @@ class MeanRepresentation(nn.Module):
         sum_x = x_masked.sum(dim=1)  # [B, D]
         lengths = mask.sum(dim=1)  # [B, 1]
         mean_x = sum_x / lengths.clamp(min=1e-6)
-        return self.norm(mean_x)
+        return self.norm(mean_x)[:, :self.d_embed_out]
 
 
 class SequenceRepresentation(SequenceEmbedding):
@@ -230,3 +231,26 @@ class SequenceRepresentation(SequenceEmbedding):
 
     def _get_name(self):
         return self.name
+
+
+class InteractionHistoryRepresentation(nn.Module):
+    def __init__(self,
+                 hem_embed: SequenceEmbedding,
+                 hbs_embed: SequenceEmbedding,
+                 ):
+        super(InteractionHistoryRepresentation, self).__init__()
+        self.hem_embed = hem_embed
+        self.hbs_embed = hbs_embed
+        self.hcl_reweight = nn.GRU(input_size=1, hidden_size=16, num_layers=1, batch_first=True)
+        self.hcl_linear = nn.Linear(16, 1)
+
+    def forward(self, hes, hbs, hcs, mask):
+        # print('hes', hes.shape, 'hbs', hbs.shape, 'hcs', hcs.shape, 'mask', mask.shape)
+        lengths = mask.sum(dim=1).cpu()
+        packed = nn.utils.rnn.pack_padded_sequence(hcs.unsqueeze(-1), lengths, batch_first=True, enforce_sorted=False)
+        outputs, _ = self.hcl_reweight(packed)
+        outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs, batch_first=True)
+        weights = F.sigmoid(self.hcl_linear(outputs))
+        hem = self.hem_embed(hes * weights, mask)
+        hbs = self.hbs_embed(hbs.unsqueeze(-1) * weights, mask)
+        return hem, hbs

@@ -2,32 +2,46 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
+from . import InteractionHistoryRepresentation
 from .entity_representation import EntityEmbedding, SequenceEmbedding
 
 
-class RegressionBasedBPEModel(nn.Module):
+class TwoTowerRecommender(nn.Module):
 
     def __init__(self, user_model: EntityEmbedding, item_model: EntityEmbedding):
         super().__init__()
         self.user_model = user_model
         self.item_model = item_model
+        self.use_bias = True
 
-    def forward(self, user_ids, user_feats, pos_item_ids, pos_item_feats, neg_item_ids, neg_item_feats):
-        user_emb, user_bias, user_id_embeds = self.user_model(user_ids, user_feats, return_alpha=True)
-        pos_item_emb, pos_item_bias, pos_item_id_embeds = self.item_model(pos_item_ids, pos_item_feats, return_alpha=True)
-        neg_item_emb, neg_item_bias, neg_item_id_embeds = self.item_model(neg_item_ids, neg_item_feats, return_alpha=True)
+    def prepare_for_feature_based_embeds_training(self):
+        self.use_bias = False
+        # TODO: Assuming that the models are AdaptiveRepresentation
+        for param in self.user_model.adaptor.parameters(): param.requires_grad = True
+        for param in self.item_model.adaptor.parameters(): param.requires_grad = True
 
+    def prepare_for_id_based_embeds_training(self):
+        self.use_bias = True
+        # TODO: Assuming that the models are AdaptiveRepresentation
+        for param in self.user_model.adaptor.parameters(): param.requires_grad = False
+        for param in self.item_model.adaptor.parameters(): param.requires_grad = False
+
+
+    def forward(self, user_ids, user_feats, pos_item_ids, pos_item_feats, neg_item_ids=None, neg_item_feats=None):
+        user_emb, user_bias, *user_extras = self.user_model(user_ids, user_feats, use_bias=self.use_bias, return_alpha=True)
+
+        pos_item_emb, pos_item_bias, *pos_item_extras = self.item_model(pos_item_ids, pos_item_feats, use_bias=self.use_bias, return_alpha=True)
         pos_scores = (user_emb * pos_item_emb).sum(dim=1)
+        if self.use_bias: pos_scores = pos_scores + user_bias + pos_item_bias
+
+        if neg_item_ids is None:
+            return pos_scores, tuple(zip(user_extras, pos_item_extras))
+
+        neg_item_emb, neg_item_bias, *neg_item_extras = self.item_model(neg_item_ids, neg_item_feats, use_bias=self.use_bias, return_alpha=True)
         neg_scores = (user_emb * neg_item_emb).sum(dim=1)
+        if self.use_bias: neg_scores = neg_scores + user_bias + neg_item_bias
 
-        if user_bias is not None:
-            pos_scores += user_bias
-            neg_scores += user_bias
-        if pos_item_bias is not None:
-            pos_scores += pos_item_bias
-            neg_scores += neg_item_bias
-
-        return pos_scores, neg_scores, (user_id_embeds, pos_item_id_embeds, neg_item_id_embeds)
+        return pos_scores, neg_scores, tuple(zip(user_extras, pos_item_extras, neg_item_extras))
 
 
 class ThreeTowerRecommender(nn.Module):
@@ -38,7 +52,7 @@ class ThreeTowerRecommender(nn.Module):
     def __init__(self, d_embed,
                  user_model: EntityEmbedding,
                  item_model: EntityEmbedding,
-                 history_model: SequenceEmbedding,
+                 history_model: InteractionHistoryRepresentation,
                  ):
         super().__init__()
         self.user_model = user_model
@@ -49,7 +63,7 @@ class ThreeTowerRecommender(nn.Module):
             nn.Sigmoid(),
         )
 
-    def forward(self, user_ids, user_feats, item_hist_ids, item_hist_feats, mask):
+    def forward(self, user_ids, user_feats, item_hist_ids, item_hist_feats, item_hist_clks, mask):
         user_emb, user_bias = self.user_model(user_ids, user_feats)
 
         if len(item_hist_feats.shape) == 3:
@@ -57,10 +71,11 @@ class ThreeTowerRecommender(nn.Module):
         hist_embs, hist_biases = self.item_model(item_hist_ids, item_hist_feats)
 
         hist_embs = hist_embs.reshape((mask.shape[0], -1, hist_embs.shape[-1]))
+        # hist_embs = torch.cat((hist_embs, item_hist_clks.unsqueeze(-1)), dim=-1)
         hist_bias = hist_biases.reshape((mask.shape[0], -1, 1))
 
-        hist_emb = self.history_model(hist_embs, mask)
+        hist_embs, hist_bias = self.history_model(hist_embs, hist_bias, item_hist_clks, mask)
 
         alpha = self.alpha(user_emb)
 
-        return alpha * user_emb + (1 - alpha) * hist_emb, (user_bias, hist_bias)
+        return alpha * user_emb + (1 - alpha) * hist_embs, (user_bias, hist_bias)

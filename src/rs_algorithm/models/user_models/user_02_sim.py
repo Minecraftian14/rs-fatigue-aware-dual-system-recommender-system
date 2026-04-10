@@ -22,7 +22,7 @@ class DynamicPreferenceUserModel(UserModel):
                  preference,
                  preference_volatility=0.001854,
 
-                 preference_function=lambda preference, item, *a: cosine_similarity(preference, item).squeeze(),
+                 preference_function=lambda preference, item, *a: cosine_similarity(preference, item).squeeze() / 2.0 + 0.5,
                  ):
         self._state_vector = {'preference': preference, 'preference_volatility': preference_volatility}
         self.preference = preference
@@ -41,8 +41,7 @@ class DynamicPreferenceUserModel(UserModel):
         return did_i_click
 
     def _get_relevance(self, time_step: datetime, device, item, *args):
-        relevance = self.preference_function(self.preference, item, *args)
-        self._relevance = relevance = relevance / 2.0 + 0.5
+        self._relevance = relevance = self.preference_function(self.preference, item, *args)
         return relevance
 
     def _update_preference(self, time_step: datetime, device, item):

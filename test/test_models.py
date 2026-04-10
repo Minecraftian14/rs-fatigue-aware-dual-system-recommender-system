@@ -56,11 +56,11 @@ def test_attention_pooling():
 
 
 def test_sequence_representation():
-    sequence = torch.randn(100, 18, 64)  # (batch, seq_len, d_feat)
+    sequence = torch.randn(100, 18, 65)  # (batch, seq_len, d_feat)
     mask = torch.ones(100, 18)
 
-    for model in ('lstm', 'gru', 'attention', 'mean'):
-        representation = SequenceRepresentation(model)
+    for model in ('mean', 'gru', 'lstm', 'attention'):
+        representation = SequenceRepresentation(model, d_embed_in=65)
         with torch.no_grad():
             output = representation(sequence, mask)
             assert output.shape == (100, 64)

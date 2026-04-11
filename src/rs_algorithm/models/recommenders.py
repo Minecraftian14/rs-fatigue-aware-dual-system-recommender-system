@@ -17,12 +17,16 @@ class TwoTowerRecommender(nn.Module):
     def prepare_for_feature_based_embeds_training(self):
         self.use_bias = False
         # TODO: Assuming that the models are AdaptiveRepresentation
+        self.user_model.adaptor[2].p = 0.2
+        self.item_model.adaptor[2].p = 0.2
         for param in self.user_model.adaptor.parameters(): param.requires_grad = True
         for param in self.item_model.adaptor.parameters(): param.requires_grad = True
 
     def prepare_for_id_based_embeds_training(self):
         self.use_bias = True
         # TODO: Assuming that the models are AdaptiveRepresentation
+        self.user_model.adaptor[2].p = 0.0
+        self.item_model.adaptor[2].p = 0.0
         for param in self.user_model.adaptor.parameters(): param.requires_grad = False
         for param in self.item_model.adaptor.parameters(): param.requires_grad = False
 

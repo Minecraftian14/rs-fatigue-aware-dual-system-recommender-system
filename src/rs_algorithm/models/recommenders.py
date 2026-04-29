@@ -108,7 +108,6 @@ class ThreeTowerRecommender(nn.Module):
         return alpha * user_emb + (1 - alpha) * hist_embs, (user_bias, hist_bias)
 
 
-
 class ThreeTowerRecommenderV2(nn.Module):
     """
     A recommender based on user embeddings and item history
@@ -134,6 +133,9 @@ class ThreeTowerRecommenderV2(nn.Module):
         if user_ids.ndim == 2: user_ids = user_ids.squeeze(-1)
         user_emb, user_bias = self.user_model(user_ids, user_feats)
         # print("user_emb, user_bias", user_emb.shape, user_bias.shape)
+
+        if item_hist_ids.shape[1] == 0:
+            return user_emb, (user_bias, user_bias)
 
         if len(item_hist_feats.shape) == 3:
             item_hist_ids, item_hist_feats = item_hist_ids.flatten(), item_hist_feats.flatten(0, 1)

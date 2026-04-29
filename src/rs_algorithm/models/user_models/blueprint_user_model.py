@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
 
 
 class UserModel(ABC):
-    def react(self, time_step, device, item, item_bias):
+    def react(self, time_step:datetime, device, item, item_bias):
         pass
 
     def reset(self, seed=None):
@@ -16,7 +17,7 @@ class UserModel(ABC):
         """
 
     @abstractmethod
-    def can_interact_today(self): """Is user not coming today to use our platform?"""
+    def can_interact_today(self, today: datetime): """Is user not coming today to use our platform?"""
 
     @abstractmethod
     def is_gone_for_good(self): """Is user never going to come back?"""

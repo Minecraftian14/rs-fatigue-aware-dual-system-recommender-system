@@ -9,30 +9,51 @@ from miscellaneous import clip, lerp
 from .blueprint_user_model import UserModel
 
 
-def default_cosine_based_relavance_calculation(pref, pref_bias, item, item_bias):
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+
+def cosine_based_relavance_calculation(pref, pref_bias, item, item_bias):
     relevance = cosine_similarity(pref, item).squeeze() / 2.0 + 0.5
     if pref_bias is not None: relevance += pref_bias
     if item_bias is not None: relevance += item_bias
     return relevance
 
 
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
-
-
-def default_dot_product_based_relavance_calculation(pref, pref_bias, item, item_bias):
+def dot_product_based_relavance_calculation(pref, pref_bias, item, item_bias):
     relevance = (pref * item).sum()
-    if pref_bias is not None: relevance += pref_bias
-    if item_bias is not None: relevance += item_bias
+    if pref_bias is not None: relevance = relevance + pref_bias
+    if item_bias is not None: relevance = relevance + item_bias
     relevance = sigmoid(relevance).squeeze()
     # relevance = sigmoid(relevance / 0.62 * 60)
     return relevance
 
 
-def default_norm_dot_product_based_relavance_calculation(pref, pref_bias, item, item_bias):
+def norm_dot_product_based_relavance_calculation(pref, pref_bias, item, item_bias):
     pref = pref / np.linalg.norm(pref, axis=1, keepdims=True)
     item = item / np.linalg.norm(item, axis=1, keepdims=True)
-    return default_dot_product_based_relavance_calculation(pref, pref_bias, item, item_bias)
+    return dot_product_based_relavance_calculation(pref, pref_bias, item, item_bias)
+
+
+def identity_preference_update_manager(preference):
+    return preference
+
+
+def norm_preference_update_manager(preference, target_std=1, target_mean=0):
+    preference = (preference - preference.mean()) / preference.std()
+    return preference * target_std + target_mean
+
+
+def linearly_probabilistic_click_calculator(relevance):
+    return random.random() < relevance
+
+
+def power_scaled_probabilistic_click_calculator(relevance, power=0.5):
+    return random.random() < relevance ** power
+
+
+def linear_click_calculator(relevance):
+    return relevance > 0.5
 
 
 class DynamicPreferenceUserModel(UserModel):
@@ -52,9 +73,9 @@ class DynamicPreferenceUserModel(UserModel):
                  preference_bias=None,
                  preference_volatility=0.001854,
 
-                 relevance_calculator=default_cosine_based_relavance_calculation,
-                 preference_update_manager=lambda preference: preference,
-                 click_calculator=lambda relevance: random.random() < relevance,
+                 relevance_calculator=cosine_based_relavance_calculation,
+                 preference_update_manager=identity_preference_update_manager,
+                 click_calculator=linearly_probabilistic_click_calculator,
                  ):
         self._state_vector = {'preference': preference, 'preference_bias': preference_bias, 'preference_volatility': preference_volatility}
         self.preference = preference
@@ -88,7 +109,7 @@ class DynamicPreferenceUserModel(UserModel):
 
     def get_internal_representation(self): return {'preference': self.preference, 'preference_bias': self.preference_bias}
 
-    def can_interact_today(self): return True
+    def can_interact_today(self, today: datetime): return True
 
     def is_gone_for_good(self): return False
 
@@ -115,6 +136,7 @@ class SimUserModel(DynamicPreferenceUserModel):
     def __init__(self,
 
                  preference,
+                 preference_bias=None,
                  preference_volatility=0.001854,
 
                  fatigue=0.0,
@@ -131,8 +153,12 @@ class SimUserModel(DynamicPreferenceUserModel):
 
                  last_interaction_day=0,
 
+                 relevance_calculator=cosine_based_relavance_calculation,
+                 preference_update_manager=identity_preference_update_manager,
+                 click_calculator=linearly_probabilistic_click_calculator,
+
                  ):
-        super().__init__(preference, preference_volatility)
+        super().__init__(preference, preference_bias, preference_volatility, relevance_calculator, preference_update_manager, click_calculator)
         self._state_vector.update({'fatigue': fatigue, 'good_item_fatigue_weight': good_item_fatigue_weight, 'bad_item_fatigue_weight': bad_item_fatigue_weight, 'is_fatigued': is_fatigued,
                                    'fatigue_overload_cooldown_factor': fatigue_overload_cooldown_factor, 'fatigue_timeout_days': fatigue_timeout_days, 'discontent': discontent, 'good_item_discontent_weight': good_item_discontent_weight,
                                    'bad_item_discontent_weight': bad_item_discontent_weight, 'is_discontent': is_discontent, 'last_interaction_day': last_interaction_day})
@@ -152,7 +178,7 @@ class SimUserModel(DynamicPreferenceUserModel):
         for k, v in self._state_vector.items():
             setattr(self, k, v)
 
-    def react(self, time_step: datetime, device, item):
+    def react(self, time_step: datetime, device, item, item_bias):
         #
         if self.is_discontent:
             raise Exception("User is discontent with the platform, and refuses to interact further.")
@@ -167,9 +193,9 @@ class SimUserModel(DynamicPreferenceUserModel):
         relevance = self._get_relevance(time_step, device, item)
 
         probability = lerp(relevance, 0, self.fatigue)
-        did_i_click = True if random.random() < probability else False
+        did_i_click = self.click_calculator(probability)
 
-        if did_i_click: self.preference = lerp(self.preference, item, self.preference_volatility)
+        if did_i_click: self._update_preference(time_step, device, item, item_bias)
 
         if relevance > 0.5:
             self.fatigue += self.good_item_fatigue_weight
@@ -187,10 +213,15 @@ class SimUserModel(DynamicPreferenceUserModel):
         return did_i_click
 
     def get_internal_representation(self):
-        return {'preference': self.preference, 'fatigue': self.fatigue, 'is_fatigued': self.is_fatigued, 'discontent': self.discontent, 'is_discontent': self.is_discontent}
+        drepr = super().get_internal_representation()
+        drepr.update({'fatigue': self.fatigue, 'is_fatigued': self.is_fatigued, 'discontent': self.discontent, 'is_discontent': self.is_discontent})
+        return drepr
 
-    def can_interact_today(self):
-        return not self.is_fatigued and not self.is_discontent
+    def can_interact_today(self, today: datetime):
+        if self.is_discontent: return False
+        if self.is_fatigued:
+            return today.day >= self.last_interaction_day + self.fatigue_timeout_days
+        return True
 
     def is_gone_for_good(self):
         return self.is_discontent

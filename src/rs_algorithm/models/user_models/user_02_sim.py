@@ -1,9 +1,38 @@
 import random
+from datetime import datetime
+
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+
+from miscellaneous import clip, lerp
 
 from .blueprint_user_model import UserModel
-from datetime import datetime
-from sklearn.metrics.pairwise import cosine_similarity
-from miscellaneous import clip, lerp
+
+
+def default_cosine_based_relavance_calculation(pref, pref_bias, item, item_bias):
+    relevance = cosine_similarity(pref, item).squeeze() / 2.0 + 0.5
+    if pref_bias is not None: relevance += pref_bias
+    if item_bias is not None: relevance += item_bias
+    return relevance
+
+
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+
+def default_dot_product_based_relavance_calculation(pref, pref_bias, item, item_bias):
+    relevance = (pref * item).sum()
+    if pref_bias is not None: relevance += pref_bias
+    if item_bias is not None: relevance += item_bias
+    relevance = sigmoid(relevance).squeeze()
+    # relevance = sigmoid(relevance / 0.62 * 60)
+    return relevance
+
+
+def default_norm_dot_product_based_relavance_calculation(pref, pref_bias, item, item_bias):
+    pref = pref / np.linalg.norm(pref, axis=1, keepdims=True)
+    item = item / np.linalg.norm(item, axis=1, keepdims=True)
+    return default_dot_product_based_relavance_calculation(pref, pref_bias, item, item_bias)
 
 
 class DynamicPreferenceUserModel(UserModel):
@@ -20,36 +49,44 @@ class DynamicPreferenceUserModel(UserModel):
 
     def __init__(self,
                  preference,
+                 preference_bias=None,
                  preference_volatility=0.001854,
 
-                 preference_function=lambda preference, item, *a: cosine_similarity(preference, item).squeeze() / 2.0 + 0.5,
+                 relevance_calculator=default_cosine_based_relavance_calculation,
+                 preference_update_manager=lambda preference: preference,
+                 click_calculator=lambda relevance: random.random() < relevance,
                  ):
-        self._state_vector = {'preference': preference, 'preference_volatility': preference_volatility}
+        self._state_vector = {'preference': preference, 'preference_bias': preference_bias, 'preference_volatility': preference_volatility}
         self.preference = preference
+        self.preference_bias = preference_bias
         self.preference_volatility = preference_volatility
-        self.preference_function = preference_function
+
+        self.relevance_calculator = relevance_calculator
+        self.preference_update_manager = preference_update_manager
+        self.click_calculator = click_calculator
+
         self._relevance = None
 
     def reset(self, seed=None):
         for k, v in self._state_vector.items():
             setattr(self, k, v)
 
-    def react(self, time_step: datetime, device, item, *args):
-        self._relevance = relevance = self._get_relevance(time_step, device, item, *args)
-        did_i_click = True if random.random() < relevance else False
-        if did_i_click: self._update_preference(time_step, device, item)
+    def react(self, time_step: datetime, device, item, item_bias):
+        self._relevance = self._get_relevance(time_step, device, item, item_bias)
+        did_i_click = self.click_calculator(self._relevance)
+        if did_i_click: self._update_preference(time_step, device, item, item_bias)
         return did_i_click
 
-    def _get_relevance(self, time_step: datetime, device, item, *args):
-        self._relevance = relevance = self.preference_function(self.preference, item, *args)
-        return relevance
+    def _get_relevance(self, time_step: datetime, device, item, item_bias=None):
+        self._relevance = self.relevance_calculator(self.preference, self.preference_bias, item, item_bias)
+        return self._relevance
 
-    def _update_preference(self, time_step: datetime, device, item):
+    def _update_preference(self, time_step: datetime, device, item, item_bias):
         # TODO: Delta Time normalize the factor
         #  factor = self.preference_volatility / (Expected Delta) * (Actual Delta)
-        self.preference = lerp(self.preference, item, self.preference_volatility)
+        self.preference = self.preference_update_manager(lerp(self.preference, item, self.preference_volatility))
 
-    def get_internal_representation(self): return {'preference': self.preference}
+    def get_internal_representation(self): return {'preference': self.preference, 'preference_bias': self.preference_bias}
 
     def can_interact_today(self): return True
 

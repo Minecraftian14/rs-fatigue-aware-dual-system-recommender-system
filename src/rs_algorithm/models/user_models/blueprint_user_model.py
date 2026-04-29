@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 
 class UserModel(ABC):
-    def react(self, time_step, device, item):
+    def react(self, time_step, device, item, item_bias):
         pass
 
     def reset(self, seed=None):

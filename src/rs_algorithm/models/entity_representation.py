@@ -1,8 +1,6 @@
-from typing import Union
-
 import torch
-from torch import nn, Tensor
 import torch.nn.functional as F
+from torch import nn
 
 from .other_models import AttentionPooling
 
@@ -86,14 +84,18 @@ class AdaptiveRepresentation(EntityEmbedding):
         self.embedder = nn.Sequential(
             nn.Embedding(num_embeddings=n_entities, embedding_dim=d_embed),
             nn.Flatten(),
-            nn.LayerNorm(d_embed),
+            # nn.LayerNorm(d_embed),
         )
         self.adaptor = nn.Sequential(
             nn.Linear(d_feat, d_hidden),
             nn.ReLU(),
+            nn.Linear(d_hidden, d_hidden),
+            nn.ReLU(),
+            nn.Linear(d_hidden, d_hidden),
+            nn.ReLU(),
             nn.Dropout(dropout),
             nn.Linear(d_hidden, d_embed),
-            nn.LayerNorm(d_embed),
+            # nn.LayerNorm(d_embed),
         )
         self.alpha = nn.Sequential(
             nn.Linear(d_feat, 1),
@@ -101,8 +103,13 @@ class AdaptiveRepresentation(EntityEmbedding):
         )
         self.bias = nn.Embedding(n_entities, 1)
 
+    def to(self, *args):
+        self.lookup = self.lookup.to(*args)
+        return super().to(*args)
+
     def forward(self, ids, feats, drop_id_prob=0.0, use_bias=True, return_id_embeds=False, return_alpha=False):
         feat_embeds = self.adaptor(feats)
+        if feat_embeds.ndim == 1: feat_embeds = feat_embeds.unsqueeze(0)
 
         if not use_bias or ids is None:
             result = [feat_embeds, None]
@@ -110,7 +117,7 @@ class AdaptiveRepresentation(EntityEmbedding):
             if return_alpha: result.append(None)
             return tuple(result)
 
-        ids = self.lookup[ids]
+        ids = self.lookup[ids.cpu()]
 
         id_embeds = self.embedder(ids)
         id_bias = self.bias(ids).squeeze(-1) if use_bias else None
@@ -249,8 +256,60 @@ class InteractionHistoryRepresentation(nn.Module):
         lengths = mask.sum(dim=1).cpu()
         packed = nn.utils.rnn.pack_padded_sequence(hcs.unsqueeze(-1), lengths, batch_first=True, enforce_sorted=False)
         outputs, _ = self.hcl_reweight(packed)
-        outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs, batch_first=True)
+        outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs, batch_first=True, total_length=hes.shape[1])
         weights = F.sigmoid(self.hcl_linear(outputs))
         hem = self.hem_embed(hes * weights, mask)
-        hbs = self.hbs_embed(hbs.unsqueeze(-1) * weights, mask)
+        hbs = self.hbs_embed(hbs.unsqueeze(-1), mask)
+        # hbs = self.hbs_embed(hbs.unsqueeze(-1) * weights, mask)
         return hem, hbs
+
+
+class ConcatInteractionHistoryRepresentation(nn.Module):
+    def __init__(self, d_embed: int):
+        super(ConcatInteractionHistoryRepresentation, self).__init__()
+        self.d_embed = d_embed
+        self.contraction = nn.GRU(
+            input_size=d_embed + 1 + 1,  # d_embed for embeddings, 1 for bias and 1 for click history
+            hidden_size=d_embed, num_layers=1, batch_first=True)
+
+    def forward(self, hes, hbs, hcs, mask, lengths):
+        # print('hes', hes.shape, 'hbs', hbs.shape, 'hcs', hcs.shape, 'mask', mask.shape)
+        # hes torch.Size([1, 3, 1024]) hbs torch.Size([1, 3]) hcs torch.Size([1, 3]) mask torch.Size([1, 3])
+        if hbs is None: hbs = torch.zeros_like(hcs)
+        agg_data = torch.cat([hes, hbs.unsqueeze(-1), hcs.unsqueeze(-1)], dim=2)
+        packed = nn.utils.rnn.pack_padded_sequence(agg_data, lengths, enforce_sorted=False, batch_first=True)
+        _, hidden = self.contraction(packed)
+        return hidden.squeeze(0), None
+
+
+class ConcatInteractionHistoryRepresentationWithUserEmbedInitialization(nn.Module):
+    def __init__(self, d_embed: int, d_hidden: int):
+        super(ConcatInteractionHistoryRepresentationWithUserEmbedInitialization, self).__init__()
+        self.d_embed = d_embed
+        self.d_hidden = d_hidden
+        self.hidden = nn.Linear(d_embed + 1, d_hidden)
+        self.state = nn.Linear(d_embed + 1, d_hidden)
+        self.contraction = nn.LSTM(
+            input_size=d_embed + 1 + 1,  # d_embed for embeddings, 1 for bias and 1 for click history
+            hidden_size=d_hidden, num_layers=1, batch_first=True)
+        self.proj = nn.Linear(d_hidden, d_embed + 1)
+
+    def forward(self, uem, ubs, hes, hbs, hcs, mask, lengths):
+        # print('hes', hes.shape, 'hbs', hbs.shape, 'hcs', hcs.shape, 'mask', mask.shape)
+        # hes torch.Size([1, 3, 1024]) hbs torch.Size([1, 3]) hcs torch.Size([1, 3]) mask torch.Size([1, 3])
+        if ubs is None: ubs = torch.zeros_like(hcs)
+        if hbs is None: hbs = torch.zeros_like(hcs)
+
+        user_repr = torch.cat([uem, ubs.unsqueeze(-1)], dim=1)
+        h0, c0 = self.hidden(user_repr), self.state(user_repr)
+        h0, c0 = h0.unsqueeze(0).repeat(self.contraction.num_layers, 1, 1), c0.unsqueeze(0).repeat(self.contraction.num_layers, 1, 1)
+
+        iih_repr = torch.cat([hes, hbs.unsqueeze(-1), hcs.unsqueeze(-1)], dim=2)
+        packed = nn.utils.rnn.pack_padded_sequence(iih_repr, lengths.cpu(), enforce_sorted=False, batch_first=True)
+
+        _, hidden = self.contraction(packed, (h0, c0))
+
+        pref_repr = self.proj(hidden[0].squeeze(0))
+        pem, pbs = pref_repr[:, :-1], pref_repr[:, -1]
+
+        return pem, pbs

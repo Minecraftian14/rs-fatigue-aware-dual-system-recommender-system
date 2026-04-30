@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.sparse as sp
 
 
 def sigmoid(x):
@@ -40,3 +41,11 @@ def random_axis(dims, count):
         vectors.append(v)
 
     return vectors
+
+
+def build_sparse_matrix(position_x, position_y, values, size_x, size_y):
+    return sp.csr_matrix(
+        (values, (position_x, position_y)),
+        shape=(size_x, size_y),
+        dtype=np.float32
+    )

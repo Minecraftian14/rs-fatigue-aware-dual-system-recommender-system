@@ -334,6 +334,12 @@ class BPRDataset(Dataset):
                 (pos_rating, neg_rating))
 
 
+class NegativeSamplingDataset(Dataset):
+    def __init__(self, data_model: 'DataModel', num_negatives=4):
+        self.data_model = data_model
+
+
+
 class DataModel(ABC):
 
     def __init__(self):

@@ -1,4 +1,4 @@
-from typing import overload, Self
+import numpy as np
 
 import torch
 from torch import nn, dtype, Tensor
@@ -7,6 +7,33 @@ from torch._prims_common import DeviceLikeType
 
 from . import InteractionHistoryRepresentation
 from .entity_representation import EntityEmbedding, SequenceEmbedding
+
+
+class NeuralCollaborativeFiltering(nn.Module):
+    def __init__(self, num_users, num_items, embedding_dim=128):
+        super().__init__()
+
+        self.user_embedding = nn.Embedding(num_users, embedding_dim)
+        self.item_embedding = nn.Embedding(num_items, embedding_dim)
+
+        self.mlp = nn.Sequential(
+            nn.Linear(embedding_dim * 2, 128),
+            nn.ReLU(),
+            nn.Linear(128, 64),
+            nn.ReLU(),
+            nn.Linear(64, 1)
+        )
+
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, user, item):
+        u_emb = self.user_embedding(user)
+        i_emb = self.item_embedding(item)
+
+        x = torch.cat([u_emb, i_emb], dim=-1)
+        x = self.mlp(x)
+
+        return self.sigmoid(x).squeeze()
 
 
 class TwoTowerRecommender(nn.Module):
@@ -152,3 +179,18 @@ class ThreeTowerRecommenderV2(nn.Module):
         # return alpha * user_emb + (1 - alpha) * hist_embs, (user_bias, hist_bias)
 
         return hist_embs, (user_bias, hist_bias)
+
+    @torch.no_grad()
+    def embed(self, uid, uft, hid, hft, hcl):
+        self.eval()
+        device = next(self.parameters()).device
+        uid = torch.tensor(uid, dtype=torch.int64, device=device)
+        ift = torch.tensor(uft, dtype=torch.float32, device=device)
+        max_len = max(map(len, hid))
+        lens = torch.tensor(np.asarray(list(map(len, hid))), dtype=torch.int64, device=device)
+        mask = torch.tensor(np.asarray([[y < len(x) for y in range(max_len)] for x in hid]), dtype=torch.int64, device=device)
+        hid = torch.tensor(np.asarray([x + [0] * (max_len - len(x)) for x in hid]), dtype=torch.int64, device=device)
+        hcl = torch.tensor(np.asarray([x + [0] * (max_len - len(x)) for x in hcl]), dtype=torch.int64, device=device)
+        hft = torch.tensor(np.asarray([np.concat([x, np.zeros((max_len - x.shape[0], x.shape[1]))]) for x in hft]), dtype=torch.float32, device=device)
+        hem, (ubs, hbs) = self.forward(uid, ift, hid, hft, hcl, mask, lens)
+        return hem.cpu().numpy(), (ubs.cpu().numpy(), hbs.cpu().numpy())

@@ -139,6 +139,16 @@ class AdaptiveRepresentation(EntityEmbedding):
         if return_alpha: result.append(alpha)
         return tuple(result)
 
+    @torch.no_grad()
+    def embed(self, ids, feats):
+        self.eval()
+        if ids is not None and not hasattr(ids, '__len__'): ids = [ids]
+        device = next(self.parameters()).device
+        iem, ibs = self.forward(
+            torch.tensor(ids, dtype=torch.int64, device=device),
+            torch.tensor(feats, dtype=torch.float32, device=device))
+        return iem.cpu().numpy(), ibs.cpu().numpy()
+
 
 class LSTMRepresentation(nn.Module):
     def __init__(self, d_embed_in, d_embed_out):

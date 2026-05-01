@@ -1,5 +1,5 @@
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
@@ -147,14 +147,14 @@ class SimUserModel(DynamicPreferenceUserModel):
                  bad_item_fatigue_weight=0.1,
                  is_fatigued=False,
                  fatigue_overload_cooldown_factor=0.7,
-                 fatigue_timeout_days=1,
+                 fatigue_timeout_days=timedelta(days=1),
 
                  discontent=0.0,
                  good_item_discontent_weight=0.04,
                  bad_item_discontent_weight=0.05,
                  is_discontent=False,
 
-                 last_interaction_day=0,
+                 last_interaction_day=datetime.now(),
 
                  relevance_calculator=cosine_based_relavance_calculation,
                  preference_update_manager=identity_preference_update_manager,
@@ -175,7 +175,7 @@ class SimUserModel(DynamicPreferenceUserModel):
         self.good_item_discontent_weight = good_item_discontent_weight
         self.bad_item_discontent_weight = bad_item_discontent_weight
         self.is_discontent = is_discontent
-        self.last_interaction_day = last_interaction_day
+        self.last_interaction_date = last_interaction_day
 
     def reset(self, seed=None):
         for k, v in self._state_vector.items():
@@ -187,7 +187,7 @@ class SimUserModel(DynamicPreferenceUserModel):
             raise Exception("User is discontent with the platform, and refuses to interact further.")
 
         if self.is_fatigued:
-            if time_step.day >= self.last_interaction_day + self.fatigue_timeout_days:
+            if time_step >= self.last_interaction_date + self.fatigue_timeout_days:
                 self.fatigue *= self.fatigue_overload_cooldown_factor
                 self.is_fatigued = False
             else:
@@ -211,7 +211,7 @@ class SimUserModel(DynamicPreferenceUserModel):
         if self.discontent >= 1: self.is_discontent = True
 
         self.fatigue, self.discontent = clip(self.fatigue), clip(self.discontent)
-        self.last_interaction_day = time_step.day
+        self.last_interaction_date = time_step
 
         return did_i_click
 
@@ -223,7 +223,7 @@ class SimUserModel(DynamicPreferenceUserModel):
     def can_interact_today(self, today: datetime):
         if self.is_discontent: return False
         if self.is_fatigued:
-            return today.day >= self.last_interaction_day + self.fatigue_timeout_days
+            return today >= (self.last_interaction_date + self.fatigue_timeout_days)
         return True
 
     def is_gone_for_good(self):

@@ -1,7 +1,21 @@
+import os
+from datetime import datetime, timedelta
+
 import numpy as np
 from collections.abc import Callable
 
+import faiss
+from sklearn.model_selection import train_test_split
+
+import torch
+
+from data_loaders import KuaiRecData
+from dl_trainer import Trainer
+from miscellaneous import get_relevant_items
+from .system2.environments.env_05_almost_everything import create_norm_press_preference
+from .models import AdaptiveRepresentation, TwoTowerRecommender
 from .baselines import Solution
+from .models.user_models.user_02_sim import SimUserModel, norm_dot_product_based_relavance_calculation
 
 
 def aggregate(recs_items: list[list[int]], true_items: list[set[int]], function: Callable[[set[int], set[int]], float]):
@@ -56,7 +70,7 @@ def precision_at_k(recs: list[list[int]], rel: list[set[int]], top_k=10):
 def recall_at_k(recs: list[list[int]], rel: list[set[int]], top_k=10):
     _validate_inputs(recs, rel)
     top_recs = [_sample_top_k_as_set(r, top_k) for r in recs]
-    hits = [len(tr & rl) / len(rl) for tr, rl in zip(top_recs, rel)]
+    hits = [len(tr & rl) / min(top_k, len(rl)) for tr, rl in zip(top_recs, rel)]
     return np.mean(hits)
 
 
@@ -131,3 +145,110 @@ class Evaluator:
                 "mrr_at_k": mrr_at_k(test_recs_items, test_true_items, top_k),
             },
         }
+
+
+class SimulationEvaluator:
+    def __init__(self,
+                 data_model: KuaiRecData, root=os.path.join('temp', 'checkpoints'),
+                 n_sample_users=100, n_time_stamps=20,
+                 top_k=10
+                 ):
+        #
+        self.data_model = data_model
+        self.root = root
+        self.n_sample_users = n_sample_users
+        self.n_time_stamps = n_time_stamps
+        self.top_k = top_k
+
+        self.d_embed = 128
+        self.n_users, self.d_user_feats = data_model.ratings['user_id'].nunique(), data_model.user_features.shape[1]
+        self.n_items, self.d_item_feats = data_model.ratings['item_id'].nunique(), data_model.item_features.shape[1]
+
+        self.uid2idx = {v: i for i, v in enumerate(np.unique(self.data_model.ratings['user_id']))}
+        self.user_model = AdaptiveRepresentation(self.n_users, self.d_user_feats, d_hidden=512, d_embed=self.d_embed, id2idx=self.uid2idx)
+        self.iid2idx = {v: i for i, v in enumerate(np.unique(self.data_model.ratings['item_id']))}
+        self.item_model = AdaptiveRepresentation(self.n_items, self.d_item_feats, d_hidden=512, d_embed=self.d_embed, id2idx=self.iid2idx)
+        dot_embed_model = TwoTowerRecommender(self.user_model, self.item_model)
+        Trainer(dot_embed_model, None, model_dir=self.root).load_model('model_id_trained_embedder_v3_128.pt')
+
+        self.index = faiss.IndexFlatIP(self.d_embed)
+        self.idx2iid = {}
+        with torch.no_grad():
+            for idx, iid in enumerate(self.data_model.ratings['item_id'].unique()):
+                self.item_model.eval()
+                iem, *_ = self.item_model(
+                    torch.tensor([iid], dtype=torch.int64),
+                    torch.tensor(self.data_model.get_item_features(iid)[None, :], dtype=torch.float32))
+                self.index.add(iem.numpy())
+                self.idx2iid[idx] = iid
+
+        self.sample_user_ids = np.random.choice(data_model.ratings['user_id'].unique(), replace=False, size=n_sample_users)
+        self.sample_users = self._build_users(self.sample_user_ids)
+
+    def evaluate_simulation(self, solution: Solution, n_time_stamps=None, top_k=None):
+        n_time_stamps = n_time_stamps or self.n_time_stamps
+        top_k = top_k or self.top_k
+
+        results = []
+
+        solution.reset_for_evaluation()
+        last_item_id = None
+        did_user_click = None
+
+        for uid in self.sample_user_ids:
+            user = self.sample_users[uid]
+            user.reset()  # Safety
+            user_results = {'hit_rate_at_k': [], 'precision_at_k': [], 'recall_at_k': [], 'ndcg_at_k': [], 'mrr_at_k': []}
+
+            for t in range(n_time_stamps):
+                recs = solution.get_recommendations([uid], top_k, last_item_id=[last_item_id], did_user_click=[did_user_click])
+                rel = [self.get_true_items(user)]
+
+                user_results['hit_rate_at_k'].append(hit_rate_at_k(recs, rel, top_k))
+                user_results['precision_at_k'].append(precision_at_k(recs, rel, top_k))
+                user_results['recall_at_k'].append(recall_at_k(recs, rel, top_k))
+                user_results['ndcg_at_k'].append(ndcg_at_k(recs, rel, top_k))
+                user_results['mrr_at_k'].append(mrr_at_k(recs, rel, top_k))
+
+                iid = recs[0][0]
+                with torch.no_grad():
+                    self.item_model.eval()
+                    iem, ibs = self.item_model(
+                        torch.tensor([iid], dtype=torch.int64),
+                        torch.tensor(self.data_model.get_item_features(iid), dtype=torch.float32))
+                    iem, ibs = iem.cpu().numpy(), ibs.cpu().numpy()
+                last_item_id = iid
+                did_user_click = user.react(datetime.now() + timedelta(days=t + 1), None, iem, ibs)
+
+            results.append(user_results)
+
+            user.reset()  # Manners
+
+        return results
+
+    @torch.no_grad()
+    def _build_users(self, user_ids) -> dict[int, SimUserModel]:
+        users: dict[int, SimUserModel] = {}
+
+        norm_press_preference = create_norm_press_preference(self.data_model, self.user_model)
+
+        for uid in user_ids:
+            self.user_model.eval()
+            uem, ubs = self.user_model(
+                torch.tensor([uid], dtype=torch.int64),
+                torch.tensor(self.data_model.get_user_features(uid), dtype=torch.float32), )
+            users[uid] = SimUserModel(
+                uem.cpu().numpy(), ubs.cpu().numpy(),
+                relevance_calculator=norm_dot_product_based_relavance_calculation,
+                preference_update_manager=norm_press_preference,
+                good_item_discontent_weight=0.0,
+                bad_item_discontent_weight=0.0,
+            )
+
+        return users
+
+    def get_true_items(self, user: SimUserModel) -> set[int]:
+        scores, indices = self.index.search(user.preference, 1000)
+        return {self.idx2iid[i] for s, i in zip(scores.flatten(), indices.flatten()) if s > 1000000}  # TUNE THIS
+        # _, indices = self.index.search(user.preference, 1000)
+        # return set(np.vectorize(self.idx2iid.get)(indices[0, :int(len(indices[0]) * 0.1)]))

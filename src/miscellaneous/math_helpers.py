@@ -49,3 +49,13 @@ def build_sparse_matrix(position_x, position_y, values, size_x, size_y):
         shape=(size_x, size_y),
         dtype=np.float32
     )
+
+
+def random_perpendicular(v):
+    shape = v.shape
+    v = v.flatten()
+    v = np.asarray(v)
+    rand = np.random.randn(*v.shape)  # random vector
+    proj = np.dot(rand, v) / np.dot(v, v) * v  # projection of rand onto v
+    perp = rand - proj  # subtract projection → perpendicular component
+    return perp.reshape(shape)

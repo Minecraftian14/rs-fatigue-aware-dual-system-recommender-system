@@ -131,6 +131,9 @@ class SimUserModel(DynamicPreferenceUserModel):
         * If a bad item is shown, discontent increases by a factor of `bad_item_discontent_weight`
         * If discontent reaches 1, the episode ends in failure
 
+    * Deciding a value for preference_volatility
+
+
     """
 
     def __init__(self,

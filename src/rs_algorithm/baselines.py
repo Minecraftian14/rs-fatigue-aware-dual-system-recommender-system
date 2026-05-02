@@ -83,41 +83,17 @@ class ImplicitBaseline(Solution):
         return [self._get_recommendations(u, top_k, filter_already_liked_items) for u in user_ids]
 
 
-class AlternatingLeastSquaresBaseline(Solution):
+class AlternatingLeastSquaresBaseline(ImplicitBaseline):
     def __init__(self, data_model: KuaiRecData, factors=64, regularization=0.01, iterations=15):
-        super().__init__(data_model)
-
-        user_ids = self.train_int['user_id'].to_numpy(dtype=np.int64)
-        item_ids = self.train_int['item_id'].to_numpy(dtype=np.int64)
-        ratings = self.train_int['rating'].to_numpy(dtype=np.float32)
-
-        self.train_data = build_sparse_matrix(user_ids, item_ids, ratings, self.n_users, self.n_items)
-
-        self.model = AlternatingLeastSquares(
+        super().__init__(data_model, AlternatingLeastSquares(
             factors=factors,
             regularization=regularization,
             iterations=iterations
-        )
-        self.model.fit(self.train_data)
-
-    def _get_recommendations(self, user_id: int, top_k, filter_already_liked_items) -> list[int]:
-        user_items = self.train_data[user_id]
-
-        item_ids, scores = self.model.recommend(
-            userid=int(user_id),
-            user_items=user_items,
-            N=top_k,
-            filter_already_liked_items=filter_already_liked_items
-        )
-
-        return item_ids.tolist()
-
-    def get_recommendations(self, user_ids: list[int], top_k=10, filter_already_liked_items=False, last_item_id=None, did_user_click=None) -> list[list[int]]:
-        return [self._get_recommendations(u, top_k, filter_already_liked_items) for u in user_ids]
+        ))
 
 
 class BayesianPersonalizedRankingBaseline(ImplicitBaseline):
-    def __init__(self, data_model: KuaiRecData, factors=64, learning_rate=0.01, regularization=0.01, iterations=50):
+    def __init__(self, data_model: KuaiRecData, factors=128, learning_rate=0.01, regularization=0.001, iterations=100):
         super().__init__(data_model, BayesianPersonalizedRanking(
             factors=factors,
             learning_rate=learning_rate,

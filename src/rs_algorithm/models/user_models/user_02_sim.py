@@ -143,15 +143,15 @@ class SimUserModel(DynamicPreferenceUserModel):
                  preference_volatility=0.001854,
 
                  fatigue=0.0,
-                 good_item_fatigue_weight=0.11,
-                 bad_item_fatigue_weight=0.1,
+                 good_item_fatigue_weight=0.016,
+                 bad_item_fatigue_weight=0.024,
                  is_fatigued=False,
                  fatigue_overload_cooldown_factor=0.7,
                  fatigue_timeout_days=timedelta(days=1),
 
                  discontent=0.0,
-                 good_item_discontent_weight=0.04,
-                 bad_item_discontent_weight=0.05,
+                 good_item_discontent_weight=0.000016,
+                 bad_item_discontent_weight= 0.000012,
                  is_discontent=False,
 
                  last_interaction_day=datetime.now(),
@@ -159,6 +159,8 @@ class SimUserModel(DynamicPreferenceUserModel):
                  relevance_calculator=cosine_based_relavance_calculation,
                  preference_update_manager=identity_preference_update_manager,
                  click_calculator=linearly_probabilistic_click_calculator,
+
+                 is_symbolic=False,
 
                  ):
         super().__init__(preference, preference_bias, preference_volatility, relevance_calculator, preference_update_manager, click_calculator)
@@ -176,6 +178,7 @@ class SimUserModel(DynamicPreferenceUserModel):
         self.bad_item_discontent_weight = bad_item_discontent_weight
         self.is_discontent = is_discontent
         self.last_interaction_date = last_interaction_day
+        self.is_symbolic = is_symbolic
 
     def reset(self, seed=None):
         for k, v in self._state_vector.items():
@@ -183,17 +186,18 @@ class SimUserModel(DynamicPreferenceUserModel):
 
     def react(self, time_step: datetime, device, item, item_bias):
         #
-        if self.is_discontent:
+        if not self.is_symbolic and self.is_discontent:
             raise Exception("User is discontent with the platform, and refuses to interact further.")
 
         if self.is_fatigued:
             if time_step >= self.last_interaction_date + self.fatigue_timeout_days:
                 self.fatigue *= self.fatigue_overload_cooldown_factor
                 self.is_fatigued = False
-            else:
+            elif not self.is_symbolic:
                 raise Exception("User is fatigued with the platform, and refuses to interact today.")
 
         relevance = self._get_relevance(time_step, device, item)
+        # print(relevance)
 
         probability = lerp(relevance, 0, self.fatigue)
         did_i_click = self.click_calculator(probability)
@@ -217,7 +221,11 @@ class SimUserModel(DynamicPreferenceUserModel):
 
     def get_internal_representation(self):
         drepr = super().get_internal_representation()
-        drepr.update({'fatigue': self.fatigue, 'is_fatigued': self.is_fatigued, 'discontent': self.discontent, 'is_discontent': self.is_discontent})
+        drepr.update({
+            'relevance': self._relevance,
+            'fatigue': self.fatigue, 'is_fatigued': self.is_fatigued,
+            'discontent': self.discontent, 'is_discontent': self.is_discontent
+        })
         return drepr
 
     def can_interact_today(self, today: datetime):

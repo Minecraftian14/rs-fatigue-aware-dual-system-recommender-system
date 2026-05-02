@@ -151,7 +151,8 @@ class SimulationEvaluator:
     def __init__(self,
                  data_model: KuaiRecData, root=os.path.join('temp', 'checkpoints'),
                  n_sample_users=100, n_time_stamps=20,
-                 top_k=10
+                 top_k=10,
+                 metrics_window=50,
                  ):
         #
         self.data_model = data_model
@@ -159,6 +160,7 @@ class SimulationEvaluator:
         self.n_sample_users = n_sample_users
         self.n_time_stamps = n_time_stamps
         self.top_k = top_k
+        self.metrics_window = metrics_window
 
         self.d_embed = 128
         self.n_users, self.d_user_feats = data_model.ratings['user_id'].nunique(), data_model.user_features.shape[1]
@@ -198,11 +200,34 @@ class SimulationEvaluator:
         for uid in self.sample_user_ids:
             user = self.sample_users[uid]
             user.reset()  # Safety
-            user_results = {'hit_rate_at_k': [], 'precision_at_k': [], 'recall_at_k': [], 'ndcg_at_k': [], 'mrr_at_k': []}
+            user_results = {
+                # Core Recommendation Accuracy
+                'hit_rate_at_k': [], 'precision_at_k': [], 'recall_at_k': [], 'ndcg_at_k': [], 'mrr_at_k': [],
+                # Long-Term Engagement and User Welfare
+                'session_depth': 0, 'return_rate': 0, 'time_to_boredom': 0, 'time_to_discontent': 0, 'acceptance_rate': 0,
+                # Fatigue and Boredom Metrics
+                'content_repetition_rate': 0, 'novelty': 0, 'intra_list_diversity': 0, 'fatigue_score': 0,
+                # System-1 and System-2 Behavioral Evaluation
+                'switching_effectiveness': 0, 'gating_accuracy': 0, 'recovery_improvement': 0,
+                # Human-Centered Recommendation Metrics
+                'diversity': 0, 'serendipity': 0, 'coverage': 0,
+            }
+
+            _is_fatigued = False
+            time_to_boredom = [0]
+            time_to_discontent = [0]
+            iem_history = []
+            novelty_bits = []
+            intra_list_diversity = []
+            recs_history = set()
+            rel_history = set()
 
             for t in range(n_time_stamps):
                 recs = solution.get_recommendations([uid], top_k, last_item_id=[last_item_id], did_user_click=[did_user_click])
                 rel = [self.get_true_items(user)]
+
+                recs_history.update(recs[0])
+                rel_history.update(rel[0])
 
                 user_results['hit_rate_at_k'].append(hit_rate_at_k(recs, rel, top_k))
                 user_results['precision_at_k'].append(precision_at_k(recs, rel, top_k))
@@ -219,6 +244,44 @@ class SimulationEvaluator:
                     iem, ibs = iem.cpu().numpy(), ibs.cpu().numpy()
                 last_item_id = iid
                 did_user_click = user.react(datetime.now() + timedelta(days=t + 1), None, iem, ibs)
+
+                if not user.is_fatigued:
+                    user_results['session_depth'] += 1
+                    time_to_boredom[-1] += 1
+                    if _is_fatigued:
+                        user_results['return_rate'] += 1
+                        _is_fatigued = False
+                else:
+                    time_to_boredom.append(0)
+                    _is_fatigued = True
+
+                if not user.is_discontent:
+                    time_to_discontent[-1] += 1
+                else:
+                    time_to_discontent.append(0)
+
+                if did_user_click:
+                    user_results['acceptance_rate'] += 1 / n_time_stamps
+
+                iem_history.append(iem.flatten() / np.linalg.norm(iem))
+
+                # novelty_bits.append(np.dot(iem_history[:-1], iem_history[-1]).mean())
+                if len(iem_history) >= 2:
+                    novelty_bits.append(1 - np.multiply(iem_history[-self.metrics_window:-1], iem_history[-1]).sum(axis=1).mean())
+
+                    window = np.stack(iem_history[-self.metrics_window:])
+                    gram_matrix = window @ window.T
+                    intra_list_diversity.append(((gram_matrix.sum() - np.trace(gram_matrix)) / (gram_matrix.shape[0] * (gram_matrix.shape[0] - 1))))
+
+            user_results['time_to_boredom'] = np.mean(time_to_boredom[:-1]) if len(time_to_boredom) > 1 else time_to_boredom[0]
+            user_results['time_to_discontent'] = np.mean(time_to_discontent[:-1]) if len(time_to_discontent) > 1 else time_to_discontent[0]
+            user_results['content_repetition_rate'] = np.multiply(iem_history[:-1], iem_history[1:]).sum(axis=1).mean()
+            user_results['novelty'] = np.mean(novelty_bits)
+            user_results['intra_list_diversity'] = 1 + 1e-5 - np.mean(intra_list_diversity)
+            user_results['fatigue_score'] = user_results['time_to_boredom'] - user_results['novelty'] - user_results['intra_list_diversity']
+            user_results['diversity'] = user_results['intra_list_diversity']
+            user_results['serendipity'] = user_results['novelty'] + user_results['content_repetition_rate']
+            user_results['coverage'] = len(recs_history) / len(rel_history)
 
             results.append(user_results)
 
@@ -241,14 +304,14 @@ class SimulationEvaluator:
                 uem.cpu().numpy(), ubs.cpu().numpy(),
                 relevance_calculator=norm_dot_product_based_relavance_calculation,
                 preference_update_manager=norm_press_preference,
-                good_item_discontent_weight=0.0,
-                bad_item_discontent_weight=0.0,
+                is_symbolic=True,
             )
 
         return users
 
     def get_true_items(self, user: SimUserModel) -> set[int]:
         scores, indices = self.index.search(user.preference, 1000)
+        # TODO: Maybe s > 80% of scores[0]?
         return {self.idx2iid[i] for s, i in zip(scores.flatten(), indices.flatten()) if s > 1000000}  # TUNE THIS
         # _, indices = self.index.search(user.preference, 1000)
         # return set(np.vectorize(self.idx2iid.get)(indices[0, :int(len(indices[0]) * 0.1)]))

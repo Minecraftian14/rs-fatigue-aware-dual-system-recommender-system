@@ -49,9 +49,9 @@ class SSREnvironment(gym.Env):
                  user_id=None,
 
                  n_action=(70, 20, 10),
-                 max_steps=500,
+                 max_steps=1000,
                  max_history_len=100,
-                 metrics_window=10
+                 metrics_window=20
 
                  ):
         """
@@ -162,10 +162,11 @@ class SSREnvironment(gym.Env):
 
         reward = (
                 float(did_i_click)
-                - 2 * (not self.user.can_interact_today(self.today))
-                - 10 * self.user.is_gone_for_good()
-                - 0.05 * self.user.fatigue
-                - 0.05 * self.user.discontent
+                - 10 * (not self.user.can_interact_today(self.today))
+                - 30 * self.user.is_gone_for_good()
+                - 0.75 * self.user.fatigue
+                - 0.25 * self.user.discontent
+                - 0.5 * self.similarity_of_recent_items
         )
         # TODO: Add another penalty if the user is fatigued
         # TODO: Add another reward for diversity
@@ -185,13 +186,15 @@ class SSREnvironment(gym.Env):
         terminated = self.user.is_gone_for_good()
         truncated = self.step_count >= self.max_steps
 
-        return self._get_obs(), reward, terminated, truncated, self.get_internal_representation(iem, ibs)
+        return self._get_obs(pem, pbs), reward, terminated, truncated, self.get_internal_representation(iem, ibs)
 
-    def _get_obs(self):
+    def _get_obs(self, pem=None, pbs=None):
+        if pem is None: pem = self.user._state_vector['preference']
+        if pbs is None: pbs = self.user._state_vector['preference_bias']
         return np.hstack([
-            self.user._state_vector['preference'].flatten(),
+            pem.flatten(),
             np.asarray([
-                (self.user._state_vector['preference_bias'] or [0.0])[0],
+                (pbs or [0.0])[0],
                 self.recent_click_rate,
                 self.similarity_of_recent_items,
                 self.diversity_score,
@@ -205,5 +208,9 @@ class SSREnvironment(gym.Env):
             'step_state': {
                 'iem': iem,
                 'ibs': ibs,
+                'recent_click_rate': self.recent_click_rate,
+                'similarity_of_recent_items': self.similarity_of_recent_items,
+                'diversity_score': self.diversity_score,
+                'session_length': self.session_length,
             },
         }

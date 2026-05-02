@@ -12,6 +12,7 @@ def plot_data(
         title=None,
         xlabel=None, ylabel=None,
         xlim=None, ylim=None,
+        legend=None,
         dat_fn=lambda ax, dat: ax.plot(dat),
         ax_fn=lambda ax: ax,
         plt_fn=lambda plt: plt.tight_layout(),
@@ -23,5 +24,6 @@ def plot_data(
     call_data(_ax.set_title, title)
     call_data(_ax.set_xlabel, xlabel), call_data(_ax.set_ylabel, ylabel)
     call_data(_ax.set_xlim, xlim), call_data(_ax.set_ylim, ylim)
+    call_data(_ax.legend, legend)
     call_data(ax_fn, ax), call_data(plt_fn, plt)
     if ax is None: plt.show()

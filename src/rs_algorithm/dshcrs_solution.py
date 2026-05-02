@@ -108,6 +108,7 @@ class HistoryModelS1Solution(EmbedDotSolution):
                 self.history_state[uid] = {
                     'hid': [],
                     'hcl': [],
+                    'hem': [],
                     'recent_click_rate': 0.0,
                     'similarity_of_recent_items': 0.0,
                     'diversity_score': 1.0,
@@ -125,12 +126,15 @@ class HistoryModelS1Solution(EmbedDotSolution):
 
         return hid, hcl
 
-    def _update_history_state(self, user_ids: list[int], hem: np.ndarray):
-        for uid in user_ids:
+    def _update_history_state(self, user_ids: list[int], hem:np.ndarray):
+        for idx, uid in enumerate(user_ids):
             history_state = self.history_state[uid]
+            history_state['hem'].append(hem[idx])
+            pem = history_state['hem']
 
             history_state['recent_click_rate'] = np.mean(history_state['hcl'][-self.metrics_window:]) if len(history_state['hcl']) > 0 else 0.0
-            history_state['similarity_of_recent_items'] = ((hem[:-1] / np.linalg.norm(hem[:-1], axis=1, keepdims=True)) * (hem[1:] / np.linalg.norm(hem[1:], axis=1, keepdims=True))).sum(axis=1).mean() if len(history_state['hcl']) >= 2 else 0.0
+            # TODO: Debug empty slice with mean issue
+            history_state['similarity_of_recent_items'] = ((pem[:-1] / np.linalg.norm(pem[:-1], axis=1, keepdims=True)) * (pem[1:] / np.linalg.norm(pem[1:], axis=1, keepdims=True))).sum(axis=1).mean() if len(pem) >= 2 else 0.0
             history_state['diversity_score'] = 1.0 - history_state['similarity_of_recent_items']
             history_state['session_length'] = 1.0 + history_state['session_length']
 
@@ -149,7 +153,7 @@ class RLModelS2Solution(HistoryModelS1Solution):
 
                  embed_model_name='model_id_trained_embedder_v3_128.pt',
                  s1_model_name='model_recommender_v6.pt',
-                 s2_model_name='dqn_system_2',
+                 s2_model_name='ppo_system_2_v3',
 
                  ):
         super().__init__(data_model, root, d_embed, d_hidden, metrics_window, embed_model_name, s1_model_name)
@@ -161,7 +165,8 @@ class RLModelS2Solution(HistoryModelS1Solution):
         def create_env(user_id=None):
             return SSREnvironment(self.data_model, d_embed, self.user_model, self.item_model, self.s1recommender, self.index, self.idx2iid, norm_press_preference, user_id)
 
-        s2recommender = sb.DQN.load(os.path.join(self.root, s2_model_name), make_vec_env(create_env, n_envs=8))
+        # s2recommender = sb.DQN.load(os.path.join(self.root, s2_model_name), make_vec_env(create_env, n_envs=8))
+        s2recommender = sb.PPO.load(os.path.join(self.root, s2_model_name), make_vec_env(create_env, n_envs=8))
 
         self.norm_press_preference, self.create_env, self.s2recommender = norm_press_preference, create_env, s2recommender
 
@@ -178,22 +183,31 @@ class RLModelS2Solution(HistoryModelS1Solution):
         random_item_ids = get_random_items(self.n_items, self.idx2iid, n_random_item_ids)
         item_ids = np.concatenate((relevant_item_ids, semi_relevant_item_ids, random_item_ids))
 
-        obses = self._create_obses(uid)
-        actions = [self.s2recommender.predict(obs, deterministic=True) for obs in obses]
+        obses = self._create_obses(uid, hem, hbs)
+
+        try:
+            actions = [self.s2recommender.predict(obs, deterministic=True) for obs in obses]
+        except Exception as e:
+            raise e
+
         iid = [item_ids[action[0]] for action in actions]
         iem, _ = self.item_model.embed(iid, self.data_model.get_item_features(iid))
 
         return get_relevant_items(self.index, self.idx2iid, iem, top_k).reshape(len(user_ids), top_k).tolist()
 
-    def _create_obses(self, user_ids: list[int]):
+    def _create_obses(self, user_ids: list[int], hem, hbs):
+
         obs = []
-        for uid in user_ids:
-            uem, ubs = self.user_model.embed(uid, self.data_model.get_user_features(uid))
+        for idx, uid in enumerate(user_ids):
+            if hem.shape[1] == 0:
+                pem, pbs = self.user_model.embed(uid, self.data_model.get_user_features(uid))
+            else:
+                pem, pbs = hem[idx], hbs[idx]
             hs = self.history_state[uid]
             obs.append(np.hstack([
-                uem.flatten(),
+                pem.flatten(),
                 np.asarray([
-                    ubs.flatten()[0],
+                    pbs.flatten()[0],
                     hs['recent_click_rate'],
                     hs['similarity_of_recent_items'],
                     hs['diversity_score'],

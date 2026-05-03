@@ -161,12 +161,12 @@ class SSREnvironment(gym.Env):
             self.history_state['hcl'].pop(0)
 
         reward = (
-                float(did_i_click)
-                - 10 * (not self.user.can_interact_today(self.today))
-                - 30 * self.user.is_gone_for_good()
-                - 0.75 * self.user.fatigue
-                - 0.25 * self.user.discontent
-                - 0.5 * self.similarity_of_recent_items
+                + 2 * float(did_i_click)
+                - 8 * (not self.user.can_interact_today(self.today))
+                - 100 * self.user.is_gone_for_good()
+                - 6 * self.user.fatigue ** 0.25
+                - 2 * self.user.discontent ** 0.25
+                # - 0.5 * self.similarity_of_recent_items
         )
         # TODO: Add another penalty if the user is fatigued
         # TODO: Add another reward for diversity

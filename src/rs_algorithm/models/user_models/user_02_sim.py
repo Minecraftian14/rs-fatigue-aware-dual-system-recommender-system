@@ -144,14 +144,14 @@ class SimUserModel(DynamicPreferenceUserModel):
 
                  fatigue=0.0,
                  good_item_fatigue_weight=0.016,
-                 bad_item_fatigue_weight=0.024,
+                 bad_item_fatigue_weight=0.032,
                  is_fatigued=False,
                  fatigue_overload_cooldown_factor=0.7,
                  fatigue_timeout_days=timedelta(days=1),
 
                  discontent=0.0,
-                 good_item_discontent_weight=0.000016,
-                 bad_item_discontent_weight= 0.000012,
+                 good_item_discontent_weight=0.0024,
+                 bad_item_discontent_weight= 0.0012,
                  is_discontent=False,
 
                  last_interaction_day=datetime.now(),

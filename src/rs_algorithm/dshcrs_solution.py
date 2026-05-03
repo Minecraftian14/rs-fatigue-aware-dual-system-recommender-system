@@ -153,7 +153,7 @@ class RLModelS2Solution(HistoryModelS1Solution):
 
                  embed_model_name='model_id_trained_embedder_v3_128.pt',
                  s1_model_name='model_recommender_v6.pt',
-                 s2_model_name='ppo_system_2_v3',
+                 s2_model_name='ppo_system_2_v4',
 
                  ):
         super().__init__(data_model, root, d_embed, d_hidden, metrics_window, embed_model_name, s1_model_name)

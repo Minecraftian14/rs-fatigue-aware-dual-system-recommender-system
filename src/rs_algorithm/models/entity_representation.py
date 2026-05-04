@@ -149,6 +149,26 @@ class AdaptiveRepresentation(EntityEmbedding):
             torch.tensor(feats, dtype=torch.float32, device=device))
         return iem.cpu().numpy(), ibs.cpu().numpy()
 
+    @torch.no_grad()
+    def update_embeds(self, uid, uft, new_uem, new_ubs):
+        self.eval()
+        if uid is not None and not hasattr(uid, '__len__'): uid = [uid]
+
+        device = next(self.parameters()).device
+        uid, uft = (torch.tensor(uid, dtype=torch.int64, device=device),
+                    torch.tensor(uft, dtype=torch.float32, device=device))
+        new_uem, new_ubs = (torch.tensor(new_uem, dtype=torch.float32, device=device),
+                            torch.tensor(new_ubs, dtype=torch.float32, device=device))
+
+        uem_f = self.adaptor(uft)
+        if uem_f.ndim == 1: uem_f = uem_f.unsqueeze(0)
+
+        uid = self.lookup[uid.cpu()]
+        alpha = self.alpha(uft)
+
+        self.embedder[0].weight[uid] = (new_uem - (1 - alpha) * uem_f) / alpha
+        self.bias.weight[uid] = new_ubs.unsqueeze(1) / alpha
+
 
 class LSTMRepresentation(nn.Module):
     def __init__(self, d_embed_in, d_embed_out):

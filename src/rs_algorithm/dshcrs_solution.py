@@ -26,7 +26,7 @@ class EmbedDotSolution(Solution):
                  d_embed=128,
                  d_hidden=512,
 
-                 embed_model_name='model_id_trained_embedder_v3_128.pt',
+                 s1_model_name='model_id_trained_embedder_v3_128.pt',
 
                  ):
         super().__init__(data_model)
@@ -41,8 +41,8 @@ class EmbedDotSolution(Solution):
         user_model = AdaptiveRepresentation(n_users, d_user_feats, d_hidden=d_hidden, d_embed=d_embed, id2idx=uid2idx)
         iid2idx = {v: i for i, v in enumerate(np.unique(self.data_model.ratings['item_id']))}
         item_model = AdaptiveRepresentation(n_items, d_item_feats, d_hidden=d_hidden, d_embed=d_embed, id2idx=iid2idx)
-        dot_embed_model = TwoTowerRecommender(user_model, item_model)
-        Trainer(dot_embed_model, None, model_dir=self.root).load_model(embed_model_name)
+        s1_embed_model = TwoTowerRecommender(user_model, item_model)
+        Trainer(s1_embed_model, None, model_dir=self.root).load_model(s1_model_name)
 
         # LOAD THE ANN
         index = faiss.IndexFlatIP(d_embed)
@@ -53,7 +53,7 @@ class EmbedDotSolution(Solution):
             idx2iid[idx] = iid
 
         self.d_embed, self.n_users, self.n_items, self.d_user_feats, self.d_item_feats = d_embed, n_users, n_items, d_user_feats, d_item_feats
-        self.uid2idx, self.user_model, self.iid2idx, self.item_model, self.dot_embed_model = uid2idx, user_model, iid2idx, item_model, dot_embed_model
+        self.uid2idx, self.user_model, self.iid2idx, self.item_model, self.s1_embed_model = uid2idx, user_model, iid2idx, item_model, s1_embed_model
         self.index, self.idx2iid = index, idx2iid
 
     def get_recommendations(self, user_ids: list[int], top_k=10, filter_already_liked_items=False, last_item_id=None, did_user_click=None) -> list[list[int]]:
@@ -72,19 +72,19 @@ class HistoryModelS1Solution(EmbedDotSolution):
                  d_hidden=512,
                  metrics_window=10,
 
-                 embed_model_name='model_id_trained_embedder_v3_128.pt',
-                 s1_model_name='model_recommender_v6.pt',
+                 s1_model_name='model_id_trained_embedder_v3_128.pt',
+                 s2p_model_name='model_recommender_v6.pt',
 
                  ):
-        super().__init__(data_model, root, d_embed, d_hidden, embed_model_name)
+        super().__init__(data_model, root, d_embed, d_hidden, s1_model_name)
         self.metrics_window = metrics_window
 
         # LOAD THE SYSTEM 1
         history_model = ConcatInteractionHistoryRepresentationWithUserEmbedInitialization(d_embed, d_hidden)
-        s1recommender = ThreeTowerRecommenderV2(d_embed, self.user_model, self.item_model, history_model)
-        Trainer(s1recommender, None, model_dir=self.root).load_model(s1_model_name)
+        s2p_recommender = ThreeTowerRecommenderV2(d_embed, self.user_model, self.item_model, history_model)
+        Trainer(s2p_recommender, None, model_dir=self.root).load_model(s2p_model_name)
 
-        self.history_model, self.s1recommender = history_model, s1recommender
+        self.history_model, self.s2p_recommender = history_model, s2p_recommender
 
         self.history_state = {}
 
@@ -95,7 +95,7 @@ class HistoryModelS1Solution(EmbedDotSolution):
         uid, uft = user_ids, self.data_model.get_user_features(user_ids)
         hid, hcl = self._get_history_state(user_ids, last_item_id, did_user_click)
         hft = [self.data_model.get_item_features(x) for x in hid]
-        hem, (_, _) = self.s1recommender.embed(uid, uft, hid, hft, hcl)
+        hem, (_, _) = self.s2p_recommender.embed(uid, uft, hid, hft, hcl)
         self._update_history_state(user_ids, hem)
         return get_relevant_items(self.index, self.idx2iid, hem, top_k).reshape(len(user_ids), top_k).tolist()
 
@@ -139,7 +139,7 @@ class HistoryModelS1Solution(EmbedDotSolution):
             history_state['session_length'] = 1.0 + history_state['session_length']
 
 
-class RLModelS2Solution(HistoryModelS1Solution):
+class RLModelS2FSolution(HistoryModelS1Solution):
 
     def __init__(self,
 
@@ -151,30 +151,30 @@ class RLModelS2Solution(HistoryModelS1Solution):
                  metrics_window=10,
                  n_action=(70, 20, 10),
 
-                 embed_model_name='model_id_trained_embedder_v3_128.pt',
-                 s1_model_name='model_recommender_v6.pt',
-                 s2_model_name='ppo_system_2_v4',
+                 s1_model_name='model_id_trained_embedder_v3_128.pt',
+                 s2p_model_name='model_recommender_v6.pt',
+                 s2f_model_name='ppo_system_2_v4',
 
                  ):
-        super().__init__(data_model, root, d_embed, d_hidden, metrics_window, embed_model_name, s1_model_name)
+        super().__init__(data_model, root, d_embed, d_hidden, metrics_window, s1_model_name, s2p_model_name)
         self.n_action = n_action
 
         # LOAD THE SYSTEM 2
         norm_press_preference = create_norm_press_preference(self.data_model, self.user_model)
 
         def create_env(user_id=None):
-            return SSREnvironment(self.data_model, d_embed, self.user_model, self.item_model, self.s1recommender, self.index, self.idx2iid, norm_press_preference, user_id)
+            return SSREnvironment(self.data_model, d_embed, self.user_model, self.item_model, self.s2p_recommender, self.index, self.idx2iid, norm_press_preference, user_id)
 
-        # s2recommender = sb.DQN.load(os.path.join(self.root, s2_model_name), make_vec_env(create_env, n_envs=8))
-        s2recommender = sb.PPO.load(os.path.join(self.root, s2_model_name), make_vec_env(create_env, n_envs=8))
+        # s2f_recommender = sb.DQN.load(os.path.join(self.root, s2_model_name), make_vec_env(create_env, n_envs=8))
+        s2f_recommender = sb.PPO.load(os.path.join(self.root, s2f_model_name), make_vec_env(create_env, n_envs=8))
 
-        self.norm_press_preference, self.create_env, self.s2recommender = norm_press_preference, create_env, s2recommender
+        self.norm_press_preference, self.create_env, self.s2f_recommender = norm_press_preference, create_env, s2f_recommender
 
     def get_recommendations(self, user_ids: list[int], top_k=10, filter_already_liked_items=False, last_item_id=None, did_user_click=None) -> list[list[int]]:
         uid, uft = user_ids, self.data_model.get_user_features(user_ids)
         hid, hcl = self._get_history_state(user_ids, last_item_id, did_user_click)
         hft = [self.data_model.get_item_features(x) for x in hid]
-        hem, (_, hbs) = self.s1recommender.embed(uid, uft, hid, hft, hcl)
+        hem, (_, hbs) = self.s2p_recommender.embed(uid, uft, hid, hft, hcl)
         self._update_history_state(user_ids, hem)
 
         n_relevant_item_ids, n_semi_relevant_item_ids, n_random_item_ids = self.n_action
@@ -186,7 +186,7 @@ class RLModelS2Solution(HistoryModelS1Solution):
         obses = self._create_obses(uid, hem, hbs)
 
         try:
-            actions = [self.s2recommender.predict(obs, deterministic=True) for obs in obses]
+            actions = [self.s2f_recommender.predict(obs, deterministic=True) for obs in obses]
         except Exception as e:
             raise e
 
@@ -234,8 +234,8 @@ class DSHCRSSolution(Solution):
         user_model = AdaptiveRepresentation(n_users, d_user_feats, d_hidden=512, d_embed=d_embed, id2idx=uid2idx)
         iid2idx = {v: i for i, v in enumerate(np.unique(self.data_model.ratings['item_id']))}
         item_model = AdaptiveRepresentation(n_items, d_item_feats, d_hidden=512, d_embed=d_embed, id2idx=iid2idx)
-        dot_embed_model = TwoTowerRecommender(user_model, item_model)
-        Trainer(dot_embed_model, None, model_dir=self.root).load_model('model_id_trained_embedder_v3_128.pt')
+        s1_embed_model = TwoTowerRecommender(user_model, item_model)
+        Trainer(s1_embed_model, None, model_dir=self.root).load_model('model_id_trained_embedder_v3_128.pt')
 
         # LOAD THE SYSTEM 1
         for mod in (user_model, item_model):
@@ -243,8 +243,8 @@ class DSHCRSSolution(Solution):
                 par.requires_grad = False
 
         history_model = ConcatInteractionHistoryRepresentationWithUserEmbedInitialization(d_embed, 512)
-        s1recommender = ThreeTowerRecommenderV2(d_embed, user_model, item_model, history_model)
-        Trainer(s1recommender, None, model_dir=self.root).load_model('model_recommender_v6.pt')
+        s2p_recommender = ThreeTowerRecommenderV2(d_embed, user_model, item_model, history_model)
+        Trainer(s2p_recommender, None, model_dir=self.root).load_model('model_recommender_v6.pt')
 
         # LOAD THE ANN
         index = faiss.IndexFlatIP(d_embed)
@@ -262,14 +262,14 @@ class DSHCRSSolution(Solution):
         norm_press_preference = create_norm_press_preference(self.data_model, user_model)
 
         def create_env(user_id=None):
-            return SSREnvironment(self.data_model, d_embed, user_model, item_model, s1recommender, index, idx2iid, norm_press_preference, user_id)
+            return SSREnvironment(self.data_model, d_embed, user_model, item_model, s2p_recommender, index, idx2iid, norm_press_preference, user_id)
 
-        s2recommender = sb.DQN.load(os.path.join(self.root, 'dqn_system_2'), make_vec_env(create_env, n_envs=8))
+        s2f_recommender = sb.DQN.load(os.path.join(self.root, 'dqn_system_2'), make_vec_env(create_env, n_envs=8))
 
         self.d_embed, self.n_users, self.n_items, self.d_user_feats, self.d_item_feats = d_embed, n_users, n_items, d_user_feats, d_item_feats
-        self.uid2idx, self.user_model, self.iid2idx, self.item_model, self.dot_embed_model = uid2idx, user_model, iid2idx, item_model, dot_embed_model
-        self.history_model, self.s1recommender = history_model, s1recommender
-        self.index, self.idx2iid, self.norm_press_preference, self.create_env, self.s2recommender = index, idx2iid, norm_press_preference, create_env, s2recommender
+        self.uid2idx, self.user_model, self.iid2idx, self.item_model, self.s1_embed_model = uid2idx, user_model, iid2idx, item_model, s1_embed_model
+        self.history_model, self.s2p_recommender = history_model, s2p_recommender
+        self.index, self.idx2iid, self.norm_press_preference, self.create_env, self.s2f_recommender = index, idx2iid, norm_press_preference, create_env, s2f_recommender
 
     def get_recommendations(self, user_ids: list[int], top_k=10, filter_already_liked_items=False, last_item_id=None, did_user_click=None) -> list[list[int]]:
         results = []
@@ -287,7 +287,7 @@ class DSHCRSSolution(Solution):
             msk = torch.tensor([[True] * hft.shape[1]], dtype=torch.bool)
             lns = torch.tensor([hft.shape[1]], dtype=torch.int64)
             with torch.no_grad():
-                pem, (_, pbs) = self.s1recommender(
+                pem, (_, pbs) = self.s2p_recommender(
                     torch.tensor([uid], dtype=torch.int64),
                     torch.tensor(uft, dtype=torch.float32),
                     hid, hft, hcl, msk, lns)
@@ -300,7 +300,7 @@ class DSHCRSSolution(Solution):
             item_ids = np.concatenate((relevant_item_ids, semi_relevant_item_ids, random_item_ids))
 
             obs = self._create_obs(uid)
-            action = self.s2recommender.predict(obs, deterministic=True)
+            action = self.s2f_recommender.predict(obs, deterministic=True)
             iid = item_ids[action]
             ift = self.data_model.get_item_features(iid)
             with torch.no_grad():

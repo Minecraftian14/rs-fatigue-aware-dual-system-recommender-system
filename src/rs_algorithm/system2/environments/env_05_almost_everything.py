@@ -40,7 +40,7 @@ class SSREnvironment(gym.Env):
                  d_embed: int,
                  user_model: AdaptiveRepresentation,
                  item_model: AdaptiveRepresentation,
-                 s1recommender: ThreeTowerRecommenderV2,
+                 s2p_recommender: ThreeTowerRecommenderV2,
                  index: Index,
                  idx2iid: dict[int, int],
 
@@ -66,7 +66,7 @@ class SSREnvironment(gym.Env):
         self.d_embed = d_embed
         self.user_model = user_model
         self.item_model = item_model
-        self.s1recommender = s1recommender
+        self.s2p_recommender = s2p_recommender
         self.index = index
         self.idx2iid = idx2iid
         if norm_press_preference is None: norm_press_preference = create_norm_press_preference(data_model, user_model)
@@ -134,7 +134,7 @@ class SSREnvironment(gym.Env):
         msk = torch.tensor([[True] * hft.shape[1]], dtype=torch.bool)
         lns = torch.tensor([hft.shape[1]], dtype=torch.int64)
         with torch.no_grad():
-            pem, (_, pbs) = self.s1recommender(uid, uft, hid, hft, hcl, msk, lns)
+            pem, (_, pbs) = self.s2p_recommender(uid, uft, hid, hft, hcl, msk, lns)
             pem, pbs = pem.cpu().numpy(), pbs.cpu().numpy()
 
         n_relevant_item_ids, n_semi_relevant_item_ids, n_random_item_ids = self.n_action

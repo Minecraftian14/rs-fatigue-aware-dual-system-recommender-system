@@ -1,494 +1,461 @@
 \section{Proposed Methodology: DS-HCRS Framework}
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% \subsection{Design Objectives}
-% 
-% The recommender system proposed here aims to address the problems identified in the earlier section. 
-% % More importantly, we need a system to evaluate and compare whether our model was actually able 
-% % to perform better.
-% While the focus of existing system is short-term engagement oriented, it ignores the user's long-term
-% satisfaction; leading to repetitive or exhausting recommendation experiences.
-% 
-% The main objective of the proposal is to establish a balance \textbf{short-term engagement with long-term user satisfaction}.
-% Instead of only predicting what a user is most likely to click next, the system attempts 
-% to understand the user's interaction context and cognitive state during a session.
-% This enables the system to adapt its recommendation strategy when fatigue or reduced interest starts developing in the user.
-% 
-% Another important objective is to \textbf{introduce an adaptive decision-making} mechanism.
-% Rather than relying on a single recommendation strategy, the system should be capable of dynamically switching between
-% a fast, engagement-focused model and a more reflective, long-term optimization process, depending on the user's current state.
-% 
-% In summary, the proposed system aims to:
-% 
-% \begin{itemize}
-%     \item Balance short-term with long-term satisfaction
-%     \item Model user cognitive state during interactions
-%     \item Detect and reduce fatigue or repetitive recommendations
-%     \item Adapt recommendation strategies dynamically
-%     \item Encourage sustainable and satisfying user experiences
-% \end{itemize}
-% 
-% These objectives directly address the problems identified in the previous section;
-% including short-term optimization bias, lack of cognitive modeling, repetitive recommendations, 
-% static decision policies, and misalignment between engagement metrics and user wellbeing.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Overall System Architecture}
 
-The proposed system is designed to balance short-term engagement with long-term user satisfaction.
-The system incorporates user interaction history, cognitive state modeling, and fatigue detection to adapt recommendation strategies dynamically.
-Each of these items form their own modules; that not only they provide a flow for architecture presentation, 
-but also supports development in an incremental manner.
-
-At a high level, the system collects \textbf{user interaction data}, such as past clicks, ratings, and timestamps.
-This information is used to construct a representation of the user's recent behavior and interaction context.
-Instead of relying on a single model, the system will combine a fast prediction,
-with additional analysis of the user's current interaction state.
-
-At time step $t$, the recommender observes a sequence of user interactions.
-
-\noindent Each interaction at time step $t$ is represented as
-
-\begin{equation}
-    x_t = (u, i_t, t_t, d_t, c_t, s_t^{session})
-\end{equation}
-
-Here:
-\begin{itemize}
-    \item $u$ = user ID
-    \item $i_t$ = interacted item
-    \item $t_t$ = timestamp
-    \item $d_t$ = dwell time
-    \item $c_t$ = item category
-    \item $s_t^{session}$ = session identifier
-\end{itemize}
-
-% TODO: Description lists are definitely better looking
-% \begin{description}
-%     \item[$u$] user ID
-%     \item[$i_t$] interacted item
-%     \item[$t_t$] timestamp
-%     \item[$d_t$] dwell time
-%     \item[$c_t$] item category
-%     \item[$s_t^{session}$] session identifier
-% \end{description}
-
-\noindent The interaction history up to time $t$ is:
-
-\begin{equation}
-    X_{0:t-1} = \{x_0, x_1, \ldots, x_{t-1}\}
-\end{equation}
-
-\noindent The interaction sequence is encoded into a latent user state representation:
-
-\begin{equation}
-    s_t = Encoder(X_{0:t-1})
-\end{equation}
-
-Here:
-\begin{itemize}
-    \item $Encoder(\cdot)$ is a sequential representation model
-    \item possible implementations include Transformer encoders, GRU networks, or
-    attention-based sequential recommenders
-\end{itemize}
-
-The state vector $s_t \in \mathbb{R}^d$ represents the current contextual preference state of the user.
-
-This representation is first processed by a \textbf{fast recommendation model (System 1)}, 
-which predicts items that are immediately relevant based on the user's interaction history.
-These predictions capture short-term interests and behavioral patterns.
-
-Meanwhile, the system analyzes the interaction context using a \textbf{fatigue and cognitive state model}.
-This fatigue detection component would estimate whether the user is experiencing reduced 
-interest, repetition, or cognitive overload during the current session.
-
-If the system detects that the user may benefit from more thoughtful recommendations, the candidate 
-recommendations are evaluated by a \textbf{long-term optimization module (System 2)}.
-This long-term optimizer focuses on maintaining long-term user satisfaction rather than simply maximizing immediate clicks.
-
-Finally, an \textbf{adaptive gating mechanism} decides how much influence 
-each system should have, when generating the final recommendation list.
-
-The overall flow of information through the system can be summarized as follows:
+The final system is designed to model not just what a user likes, 
+but also how their behavior changes over time.
+Instead of treating recommendation as a static prediction problem, 
+we try to capture three important aspects:
 
 \begin{itemize}
-    \item User Interaction Data
-    \item User State Representation
-    \item System 1 Fast Recommender
-    \item Fatigue \& Context Analysis
-    \item System 2 Long-Term Optimizer
-    \item Adaptive Gating Decision
-    \item Final Recommendation List
+    \item What the user prefers
+    \item How their preference changes
+    \item How their cognitive state evolves
 \end{itemize}
 
-This architecture allows the recommender system to remain efficient while also considering longer-term user experience.
+To achieve this, the system is divided into three main modules, along with a few supporting components.
+
+We start with the \textbf{KuaiRec dataset}, which acts as our base dataset (T0, time=0). 
+One important observation from this dataset is that user preference does not change over time. 
+Because of this, we can safely train a model to learn stable user and item embeddings.
+
+The first main module is \textbf{System 1 (S1)}. This is a Two-Tower recommender system. 
+Since S1 is trained on the static dataset, it gives us a good starting point for user preferences (T0 embeddings).
+Item embeddings remain fixed, but user embeddings will change later as the system observes more interactions.
+
+To simulate realistic user behavior, we introduce a \textbf{UserModel} component. 
+This is not a neural network, but a behavioral model. 
+It can imitate three user begaviors:
+
+\begin{itemize}
+    \item Change in user preference over time
+    \item Probability of clicking based on relevance
+    \item Cognitive states: fatigue and discontentment
+\end{itemize}
+
+When a user sees too many relevant items, fatigue increases. 
+When too many irrelevant items are shown, discontentment increases.
+
+Using this UserModel, we create a synthetic dataset called \textbf{UserModelDataset}. 
+Here, we start with T0 user embeddings from S1 and expose the user to many items. 
+This dataset is mainly used to train the preference modeling component.
+
+The second main module is \textbf{System 2 Preference Model (S2P)}. 
+This module learns how user preferences evolve. 
+It takes a sequence of interactions, which include item embeddings and click signals, and encodes them using an LSTM.
+This helps us capture dynamic preferences.
+
+The third main module is \textbf{System 2 Cognitive State Model (S2F)}. 
+This is responsible for modeling fatigue and discontentment. 
+It is implemented using \textbf{Proximal Policy Optimization (PPO)}. 
+Over time, it learns how to balance relevant and irrelevant items. 
+This helps control both fatigue and discontentment.
+
+In addition to these main modules, we have a few supporting components. 
+The \textbf{Index Search module} uses \textbf{FAISS IndexFlatIP} to efficiently retrieve top-k items based on user embeddings. 
+It can work with embeddings from S1 or S2P, and is also used inside S2F to generate candidate items.
+
+Another important component is the \textbf{User Embedding Updater}. 
+This module helps keep updating the learnt user embeddings to stay up to date with the change in preference.
+
+Overall, the architecture works as a pipeline. 
+We start with static embeddings from S1, then update them using S2P as the user interacts. 
+Finally, S2F controls what items should be shown by considering fatigue and discontentment. 
+This allows the system to balance short-term relevance with long-term user experience in a more realistic way.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Dataset: Twitter}
+\subsection{Dataset and Preprocessing}
 
-To evaluate this system, a dataset derived from Twitter user interactions will be used.
-The dataset consists of sequences of user activities such as likes, retweets, and replies to posts over time.
-These interactions are treated as implicit feedback signals that reflect user engagement with recommended content.
+The foundation of our system is the \textbf{KuaiRec dataset}. 
+This dataset contains a rich set of user-item interactions along with multiple features for both users and items. 
+While this dataset provides many important assets required towards building a good recommender system, 
+we only utilise the \textbf{watch\_ratio}, which is the ratio of time spent on an item by the total length of that item.
 
-The data is organized as chronological interaction sequences for each user.
-This sequential structure allows the recommendation system to model evolving user preferences
-and detect patterns that may indicate cognitive fatigue or reduced engagement.
+One key observation we made while working with this dataset is that \textbf{user preferences do not change over time}. 
+In other words, there is no strong relationship between when an interaction happened and what the user prefers. 
+Because of this, we treat KuaiRec as a \textbf{T0 dataset}, meaning it represents a \textit{static snapshot} of user preferences.
 
-Twitter is chosen as the data source because it contains diverse content and frequent user interactions, 
-making it suitable for studying recommendation behavior in a dynamic social media environment.
-
+Since preferences are static here, this dataset is only used to train our \textbf{System 1 (S1)} model to learn stable embeddings for users and items. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{System 1: Fast Engagement Recommender}
 
-The first module of the proposed system is a fast recommender model. 
-This is designed to capture the user's \textbf{short-term interests}.
-This module is responsible for producing fast predictions of items that the user is likely to interact with next.
-The goal of System 1 is to estimate the probability that a user interacts with an item given their current state.
+System 1 is our base recommender. 
+It learns the user's initial preference and the item representation in a shared embedding space. 
+In our implementation, both the user and item towers use the same idea: 
+the raw ID and the side features are mapped into a dense vector space, and then the final representation is used for scoring. 
+The model also learns a small bias term for each user and item. 
+This is done inside the \texttt{AdaptiveRepresentation} module, 
+which combines an ID embedding with a feature-based embedding using a learned weight $\alpha$.
 
-\subsubsection*{Candidate Score Prediction}
-
+For a user $u$ and an item $i$, the two towers produce embeddings $e_u$ and $e_i$. 
+Both vectors are normalized before scoring. 
+The relevance score is then computed using dot product:
 \begin{equation}
-    P_1(i | s_t) = softmax(f_{S1}(s_t, e_i))
+    s(u,i) = \frac{e_u^\top e_i}{|e_u||e_i|}    
 \end{equation}
 
-Here:
-\begin{itemize}
-    \item $f_{S1}$ = Simple dot product, a neural network, or an attention-based scoring function.
-    \item $i$ = candidate item
-    \item $s_t$ = encoded user interaction state
-\end{itemize}
-
-This formulation is commonly used in sequential recommendation models.
-
-The model uses the user's recent interaction history, such as previously viewed or selected items, to identify patterns in user behavior.
-Since the system-1 module deals with interactions and their orders, sequential recommendation methods are the most suitable.
-These models can learn patterns such as recency effects, temporary interests, and common item transitions.
-The output in this case is a list of candidate items ranked in the order of immediate relevance.
-
-\subsubsection*{Candidate Set Generation}
-
-\noindent Instead of evaluating the entire item space in later stages, System 1 generates a candidate set:
-
+In our code, this is followed by optional bias terms:
 \begin{equation}
-    C_t = TopK(P_1(i | s_t))
+    s(u,i) = e_u^\top e_i + b_u + b_i
 \end{equation}
 
-Here:
-\begin{itemize}
-    \item $TopK$ selects the $K$ highest scoring items
-    \item $C_t = \{i_1, i_2, \ldots, i_K\}$
-\end{itemize}
+So, if the score is high, the item is considered relevant for that user; otherwise, it is treated as irrelevant. 
+This matches the way the two-tower model is used in training and inference.
 
-This candidate set acts as the search space for downstream components.
+The training data is built in a pairwise way. 
+For each user, the dataset samples one positive interaction and several negative items. 
+In the code, positive items are chosen from ratings above a threshold, while negative items are sampled from lower-rated ones. 
+The model is then trained to give the positive item a higher score than the negative ones. The ranking loss is:
+\begin{equation}
+    \mathcal{L}_{rank} = -\log \sigma(s(u,i^+) - s(u,i^-))
+\end{equation}
 
-This module attempts to handle \textbf{efficient and responsive recommendation generation}.
-Since real-world recommender systems must operate under strict time constraints, 
-this fast model provides a reliable "minimum" for predicting immediate engagement.
+When there are multiple negatives, the loss is summed over all of them. 
+This makes the model learn a clean separation between relevant and irrelevant items in the embedding space.
 
-Since it focuses primarily on predicting the next interaction, this model 
-is incapable of considering repeated exposure or long sessions.
-Therefore, its predictions are later evaluated together with other modules 
-that can consider the broader context of the user's interaction.
+We train System 1 in two phases. 
+First, the feature-based embeddings are trained, which gives us a strong representation of the entity only using the features.
+This gives us feature-based embeddings as user embeddings $e_{uf}$ and item embeddings $e_{if}$.
+Later both the feature-based embeddings and ID-based embeddings are used together in training while feature-based embeddings are kept frozen.
+This allows the embeddings to learn to use ID-based embeddings only as a corrector or offset embeddings.
+This gives us ID-based embeddings user embeddings $e_{ui}$ and item embeddings $e_{ii}$.
+The final embeddings are calculated as:
+\begin{equation}
+    e_u = e_{uf} + e_{ui}
+\end{equation} \begin{equation}
+    e_i = e_{if} + e_{ii}    
+\end{equation}
+
+This gives us a good starting representation for users and items before any dynamic behavior is introduced.
+That means it learns a static preference state, which we treat as the user's (T\_0) embedding.
+In other words, S1 tells us what the user generally likes at the start, before later modules update that preference over time.
+
+\subsubsection*{Cold Start Handling}
+
+A nice thing about S1 is that it does not depend only on IDs. 
+In the \texttt{AdaptiveRepresentation} module, each user and item is represented using both an \textbf{ID embedding} and a \textbf{feature-based embedding}.
+The model is first trained on the feature side, so it learns a strong representation from the available user and item features. 
+Meanwhile, during the training of ID-based embeddings, since we use features as well while keeping them frozen, the model learns ID-based embeddings as an offset pr correction representation.
+Therefore, a new user or a new item can still be mapped into the same latent space using only its features.
+
+This is how we handle cold start in practice. 
+For a new user, we only need the user features already available in KuaiRec.
+For a new item, we only need the item-side features, such as its metadata and category-related information. 
+Once those features are passed through the model, we get an embedding that can already be used for recommendation. 
+The ID embedding part can start from a random initialization with a very small magnitude and then get updated later as more interactions are collected.
+
+So, the main idea is simple: \textbf{features give us a usable starting point, and IDs help refine the representation over time}.
+This is why S1 works well as the base model for both old and new entities, and why it is also a good foundation for the later dynamic modules.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{User Fatigue and Cognitive State Modeling}
+\subsection{User Behavior Simulation (UserModel)}
 
-The proposed framework models fatigue, boredom, and users cognitive state,
-during long sessions and repeated exposure to similar items, 
-which was rarely captured by conventional recommender systems.
+This component is one of the strongest parts of the whole system, 
+because it connects the theory of user behavior with the actual training data. 
+Instead of assuming that users always behave in a clean and fixed way, 
+we simulate how a user may react over time when they see relevant items, 
+irrelevant items, repeated items, or too much variety. 
+This is what gives the later models realistic supervision.
 
-It is modelled as:
-
-\subsubsection*{Fatigue State Update}
-
-\noindent Fatigue is modeled as a recurrent latent variable:
-
+At its core, the \textbf{UserModel} keeps track of a user's \textbf{preference vector}, \textbf{fatigue} and \textbf{discontentment}. 
+The user also has a probabilistic click behavior. For an item $i_t$ at time $t$, 
+we first compute a relevance score $r_t$ from the current user preference $u_t$ and item embedding $v_t$. 
+In our implementation, relevance is based on the normalized dot product between user and item vectors. 
+A simple form is:
 \begin{equation}
-    F_t = f_{f}(F_{t-1}, s_t)
+    r_t = \frac{u_t^\top v_t}{|u_t| , |v_t|}
 \end{equation}
 
-Here:
-\begin{itemize}
-    \item $f_{f}$ = A recurrent model capable of long-term representation
-    \item $F_t$ = fatigue state at time $t$
-    \item $F_{t-1}$ = previous fatigue state
-    \item $s_t$ = current user context
-\end{itemize}
-
-The $f_{f}$ model can be implemented using GRU, LSTM or even Attention-based methods.
-
-Here, the fatigue module aims to estimate whether the current recommendation experience may be deteriorating.
-This estimation can be based on several behavioral signals:
-
+Then the click is sampled probabilistically:
 \begin{equation}
-    z_t = ({rep}_t, {len}_t, {div}_t, {dwell}_t)
+    c_t \sim \text{Bernoulli}(p_t)
 \end{equation}
 
-Here:
-\begin{itemize}
-    \item ${rep}_t$ = repetition rate of recent items
-    \item ${len}_t$ = current session length
-    \item ${div}_t$ = diversity of recent recommendations
-    \item ${dwell}_t$ = recent dwell time
-\end{itemize}
+where the click probability is reduced when fatigue is high. 
+In code, this is implemented by blending the relevance score toward zero as fatigue grows:
+\begin{equation}
+    p_t = (1 - f_t), r_t
+\end{equation}
 
-These signals can be combined with $s_t$ to produce an estimated fatigue score,
-that gives the likelihood that a user's interest has started to decline.
+So if the user is fresh, relevant items are likely to be clicked.
+But if the user is already fatigued, even good items become less effective.
 
-\subsubsection*{Fatigue Score}
+The user preference is also updated when a click happens.
+This is the part that models \textbf{preference drift}.
+The preference vector slowly moves toward the clicked item embedding. 
+\begin{equation}
+    \tilde{u}_{t+1} = (1-\eta),u_t + \eta,v_t
+\end{equation}
 
-A scalar fatigue estimate is computed as:
+It is then passed through a preference update manager that rescales it so that the new preference vector has the same norm as the other learned user embeddings.
+\begin{equation}
+    u_{t+1} = \text{NormMatch}(\tilde{u}_{t+1})
+\end{equation}
 
-$f_t = \sigma(w^T F_t)$
+This keeps the new preference vector stable and compatible with the embedding space used by the recommender. 
 
-Here:
-\begin{itemize}
-    \item $f_t \in [0,1]$
-    \item $w$ = learned parameter vector
-    \item $\sigma(\cdot)$ = sigmoid function
-\end{itemize}
+The model also maintains two separate cognitive states: \textbf{fatigue} and \textbf{discontentment}. 
+These are updated differently depending on whether the shown item is relevant or not. 
+If the item is relevant, fatigue increases because the user is being shown many good items in a row,
+and discontentment decreases because the experience is still pleasant. 
+If the item is irrelevant, fatigue decreases a bit, 
+but discontentment increases because the user is seeing items that do not match their interest. 
+\begin{equation}
+    f_{t+1} = \text{clip}\left(f_t + \mathbf{1}[r_t > \tau]\eta_f^+ - \mathbf{1}[r_t \le \tau]\eta_f^- \right)
+\end{equation} 
+\begin{equation}
+    d_{t+1} = \text{clip}\left(d_t - \mathbf{1}[r_t > \tau]\eta_d^+ + \mathbf{1}[r_t \le \tau]\eta_d^- \right)
+\end{equation}
 
-Interpretation:
-\begin{itemize}
-    \item $f_t \approx 0 \to$ low fatigue
-    \item $f_t \approx 1 \to$ high fatigue
-\end{itemize}
+where $\tau$ is the relevance threshold, $f_t$ is fatigue, and $d_t$ is discontentment. 
 
-The purpose of this module is to allow the recommender system to recognize
-when its current strategy may no longer be beneficial for the user.
-By detecting signs of fatigue or saturation, the system can adjust its 
-recommendation approach before the user becomes disengaged or leaves the platform.
+These two states behave differently in the session. 
+\textbf{Fatigue} leads to a temporary exit. 
+If fatigue becomes too high, the user stops interacting for the rest of the day. 
+The next day, the fatigue level is reduced using a cooldown factor, so the user can come back in a partly recovered state.
+On the other hand, \textbf{discontentment} is more severe. 
+If discontentment reaches the maximum level, the user is considered to have left the platform for good. 
+
+Overall, this UserModel acts like a bridge between the clean training setup and real human behavior. 
+It generates interaction sequences where preference can drift, clicks are probabilistic, 
+fatigue can build up, and discontentment can eventually end the session.
+That makes the synthetic data much more useful for training the later System 2 modules,
+especially the preference model and the feedback model.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{System 2: Long-Term Utility Optimization}
+% TODO: REMOVE ALL FIRST PERSON REFERNCES UP UNTIL NOW
 
-The second module is designed towards \textbf{long-term user utility} rather than immediate engagement.
+\subsection{Synthetic UserModelDataset}
 
-Instead of predicting which item the user is most likely to click next, this module
-evaluates how recommendations may influence the user's experience over a longer term.
-For example, recommendations that introduce novelty or maintain balanced 
-content exposure may contribute to sustained engagement over time.
+To train the preference modeling part of the system, we generate a synthetic dataset using the UserModel. 
+This dataset is built on top of the embeddings learned from System 1.
 
-Conceptually, this system-2 module draws in ideas from reinforcement learning and long-horizon recommendation research.
-In these approaches, recommendations are treated as sequential decisions that influence future user behavior.
+This process starts by sampling \textbf{T0 user embeddings} from S1. 
+Each sampled user is then assigned a UserModel instance, which acts like a simulated user. 
+Then this user is exposed to a sequence of items and how they interact over time is recorded. 
+This creates realistic interaction histories consisting of item features, embeddings, and click signals.
 
-This long-term optimizer can considers outcomes such as:
+A key design choice here is that \textbf{fatigue and discontentment are disabled} during this process.
+This is done intentionally to focus on how the user's \textbf{preference changes over time} without any external effects interfering with it.
 
-\begin{itemize}
-    \item sustained user engagement over multiple sessions
-    \item continued platform usage over time
-    \item balanced and diverse recommendation patterns
-\end{itemize}
+The item sequence is generated in a mixed way. 
+Some items are relevant (close to the user's preference), while others are random. 
+This ensures that the user sees a variety of items, and their preference evolves naturally based on what they interact with.
+It helps us train the S2P module to understand how user preferences shift as more interactions happen.
 
-Therefore, recommendation in this case can be modeled as a \textbf{Markov Decision Process (MDP)}.
-
-\subsubsection*{State}
-
-\begin{equation}
-    S_t = (s_t, f_t)
-\end{equation}
-
-Here:
-\begin{itemize}
-    \item ${s_t}$ = user preference state
-    \item ${f_t}$ = fatigue estimate
-\end{itemize}
-
-\subsubsection*{Action}
-
-\noindent The system selects an item from the candidate set:
-
-\begin{equation}
-    a_t \in C_t
-\end{equation}
-
-\subsubsection*{Policy Function}
-
-\noindent System 2 produces a policy distribution over candidate items:
-
-\begin{equation}
-    P_{S2}(i | S_t)
-\end{equation}
-
-This function may be implemented using:
-\begin{itemize}
-    \item policy networks
-    \item value-based models
-    \item actor-critic approaches
-\end{itemize}
-
-\subsubsection*{Reward Function}
-
-\noindent The reward balances multiple objectives:
-
-\begin{equation}
-    R_t = \alpha {Click}_t + \beta {Retention}_{t+N} - \gamma f_t
-\end{equation}
-
-Here:
-\begin{itemize}
-    \item ${Click}_t$ = immediate interaction
-    \item ${Retention}_{t+N}$ = continued activity after $N$ steps
-    \item $f_t$ = fatigue penalty
-\end{itemize}
-
-Parameters:
-\begin{itemize}
-    \item $\alpha$ controls short-term engagement importance
-    \item $\beta$ emphasizes long-term satisfaction
-    \item $\gamma$ penalizes cognitive burden
-\end{itemize}
-
-\subsubsection*{Expected Long-Term Return}
-
-\noindent The RL objective is to maximize cumulative reward:
-
-\begin{equation}
-    V^{\pi^*}(s) = \mathbb{E} \left[ \sum_{t=1}^{T} \gamma^t R(s_t,\pi(s_t)) \right]
-\end{equation}
-
-Here:
-\begin{itemize}
-    \item $\pi$ = recommendation policy
-    \item $\gamma$ = temporal discount factor
-\end{itemize}
-
-By incorporating these long-term considerations, the system attempts to avoid
-recommendation strategies that maximize short-term activity at the expense of long-term satisfaction.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Adaptive Gating Mechanism}
+\subsection{System 2 - Preference Component}
 
-A key feature of the proposed system is the \textbf{adaptive gating mechanism}.
-This mechanism will determine how recommendations from either of the system contribute to the final recommendations returned.
-Rather than always using a single recommendation strategy, the system can dynamically 
-adjusts the decision process based on what the user's current interaction state is.
+The preference component (S2P) is the part of the system that learns how user preference changes over time. 
+It takes the initial user embedding from S1 and updates it using the user;s interaction history. 
+So instead of treating the user as a fixed point, this module treats preference as something that evolves step by step.
 
-For example:
-\begin{itemize}
-    \item When the user is exploring content and showing strong engagement, 
-    the system may rely more heavily on the fast System 1 recommender.
-    \item When fatigue signals or repetitive patterns are detected, 
-    the system may increase the influence of the System 2 optimizer and produce more varied recommendations.
-\end{itemize}
+The input to this model is a sequence of interactions. 
+For each step, we use the item embedding together with the click signal. 
+The user embedding from S1 is also used as the starting representation, so the model knows where the user began before the history is applied.
+This setup is exactly what allows the model to work with variable-length sessions.
 
-\subsubsection*{Gating Function}
-
+We can write the input history as:
 \begin{equation}
-    g_t = \sigma(f_g(s_t,f_t))
+    H_t = {(e_1, b_1, c_1), (e_2, b_2, c_2), \dots, (e_t, b_t, c_t)}
 \end{equation}
 
-where,
-\begin{itemize}
-    \item $g_t$ describes the gate state
-    \item $f_g$ is a neural network
-\end{itemize}
-
-Interpretation:
-\begin{itemize}
-    \item $g_t \approx 0 \to$ rely mostly on System 1
-    \item $g_t \approx 1 \to$ rely mostly on System 2
-\end{itemize}
-
-\subsubsection*{Final Recommendation Score}
-
-\noindent Scores from both systems are blended:
-
+where $e_j$ is the embedding and $b_j$ is the bias of the $j$-th item shown to the user, and $c_j$ is the click indicator. 
+The history encoder processes this sequence along with the initial user embedding $u_0$, and produces an updated preference embedding:
 \begin{equation}
-    Score(i) = (1 - g_t) P_1(i | s_t) + g_t P_2(i | S_t)
+    u_t = \text{S2P}(u_0, H_t)
 \end{equation}
 
-This creates a soft transition between impulsive and reflective recommendation strategies.
+The important thing here is that the output embedding lives in the \textbf{same latent space} as the user and item embeddings learned by S1. 
+That means the result is not some separate hidden state that cannot be used later. 
+It is a proper \textbf{updated user preference embedding}, which can directly interact with item embeddings through dot product scoring.
 
-This adaptive control mechanism allows the system to balance efficiency of 
-the fast System 1 with deeper reasoning of the System 2 when needed.
-In effect, the recommender system becomes capable of adjusting its behavior depending on the user's situation, 
-rather than applying the same strategy to all interactions.
+This is why S2P is the temporal preference learning module. 
+It gives us the transition from $T_0$ to $T_n$: the user embedding starts from the static base learned by S1 and then gets refined as more interactions arrive. 
+So after enough history, the system has a much better picture of what the user currently prefers, not just what they liked at the beginning.
+
+In the implementation, the item tower and user tower from S1 are frozen while this module is trained.
+That is a useful design choice, because it keeps the base embedding space stable and lets S2P focus only on learning the change in preference from history.
+So the role of S2P is not to relearn everything from scratch, but to update the user representation in a controlled and time-aware way.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Item Representation and Cold-Start Handling}
+\subsection{System 2 - Cognitive State Component}
 
-Another challenge in recommender systems is the \textbf{cold-start problem}. 
-This problem discusses the lack of interaction history for users and items.
+The cognitive state component (S2F) is one of the most advanced parts of the system. 
+It is the module that learns how to balance \textbf{good recommendations}, \textbf{fatigue}, and \textbf{discontentment} using reinforcement learning.
+This implementation uses \textbf{Proximal Policy Optimization (PPO)} as the RL algorithm. 
 
-To address this issue, items can be represented using semantic embeddings derived from item descriptions, categories, or other metadata.
+The \textbf{state} given to PPO is built from the updated user preference embedding coming from S2P, plus a few session-level signals. 
+So the observation at time $t$ is:
 
+% TODO: Ensure that no extra ; are visible and the slash in \_ is not visible
 \begin{equation}
-    e_i = Embed(i)
+    o_t = \begin{bmatrix}
+            p_t, b_t \\
+            \text{recent\_click\_rate}_t \\
+            \text{similarity\_of\_recent\_items}_t \\
+            \text{diversity\_score}_t \\
+            \text{session\_length}_t
+           \end{bmatrix}
 \end{equation}
 
-Here:
+where $p_t$ is the current preference embedding and $b_t$ is the preference bias. 
+In the code, the observation space is explicitly defined as a vector of size $d_{\text{embed}} + 1 + 4$,
+so the embedding part stays in the same latent space as S1 and S2P, and the four extra values summarize the current user state.
+
+% TODO: Check if setting these extra state signals on separate lines will be better
+
+The extra state signals are computed from recent interaction history. 
+The \textbf{recent click rate} measures how often the user clicked in the last few steps. 
+The \textbf{similarity of recent items} is the mean cosine-like similarity between consecutive recent item embeddings. 
+The \textbf{diversity score} is simply $1 - \text{similarity\_of\_recent\_items}$.
+and \textbf{session length} counts how many interactions have happened since the last temporary exit caused by fatigue. 
+These values help PPO understand whether the user is still comfortable, getting bored, or starting to disengage.
+
+As for the \textbf{action space}, PPO does not choose directly from the whole catalog.
+Instead, it chooses from a \textbf{mixed candidate pool of 100 items}, made of:
+
 \begin{itemize}
-    \item $Embed(\cdot)$ maps an item into a dense vector space.
+    \item 70 relevant items
+    \item 20 semi-relevant items
+    \item 10 random items
 \end{itemize}
 
-Possible sources include:
-\begin{itemize}
-    \item metadata features
-    \item category embeddings
-    \item textual descriptions encoded by pretrained models
-\end{itemize}
-
-These representations capture the conceptual similarity between items and allow the system to recommend new items even when historical interaction data is limited.
-
-\noindent This allows similarity to be computed as
-
+First, the current preference embedding from S2P is passed through ANN search using FAISS.
+That gives relevant candidates.
+Then a smaller group of semi-relevant items is sampled the in a similar way. 
+Finally, random items are added to introduce variety. 
+PPO then selects one action from this fixed pool:
 \begin{equation}
-    sim(i, j) = e_i^T e_j
+    a_t \in {0,1,\dots,99}
 \end{equation}
 
-which supports recommendation for new items with limited interaction data.
+and that action is mapped to one of the 100 candidate items. 
+This design does not require the agent to search over the full item universe, 
+thus preventing the use of an enoumous action space while also staying compatible with cold start in case new items are added.
+It only needs to learn how to balance relevance and exploration inside a controlled set.
 
-By incorporating these item representations, the system can improve recommendation diversity. 
-This also enables a better support for new content entering the platform.
+Once the chosen item is shown to the simulated user, the environment updates the user state. 
+If the item is relevant, the user is more likely to click and the preference vector is updated through the user simulator. 
+If the user becomes fatigued, the environment forces a temporary break for the rest of the day. 
+If discontentment becomes too high, the user leaves permanently. 
+So S2F is not just predicting clicks; it is directly learning how recommendation choices affect long-term user behavior.
+
+The reward function is designed to reflect that. 
+In code, it strongly rewards clicks, but penalizes temporary fatigue, permanent exit, and high internal fatigue or discontentment levels:
+\begin{equation}
+    r_t = 
+        \sum
+        \begin{bmatrix}
+            2\cdot \mathbf{1}[\text{click}] \\
+            - 8\cdot \mathbf{1}[\text{cannot\_interact}] \\
+            - 100\cdot \mathbf{1}[\text{gone\_for\_good}] \\
+            - 2 f_t^{1/4} \\
+            - 2 d_t^{1/4}
+        \end{bmatrix}
+\end{equation}
+
+where $f_t$ is fatigue and $d_t$ is discontentment. 
+So the policy is encouraged to keep the user engaged, but not by overusing either relevant items or irrelevant items. 
+That is exactly how S2F balances the two failure modes from the simulator.
+
+For PPO itself, the policy is trained with the usual clipped objective:
+\begin{equation}
+    \mathcal{L}^{\text{PPO}}(\theta) =
+        \mathbb{E}_t \left[
+            \min\left(
+                \rho_t(\theta) A_t,
+                \text{clip}(\rho_t(\theta), 1-\epsilon, 1+\epsilon) A_t
+            \right)
+        \right]
+\end{equation}
+
+where $\rho_t(\theta)$ is the policy ratio and $A_t$ is the advantage estimate. 
+In the training setup, PPO uses a discount factor of $0.997$, an entropy coefficient of $0.05$, and a small MLP policy network with $82977$ parameters.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Learning Objective}
+\subsection{Candidate Generation and Retrieval}
 
-The overall goal of the system is to balance the several competing objectives.
-Traditional recommender systems typically optimize only for immediate engagement, 
-but the proposed framework considers additional factors that influence the long-term user experience.
+To efficiently retrieve items from a large catalog, we use \textbf{IndexFlatIP} method. 
+This index performs \textbf{inner product search}, meaning it retrieves items whose embeddings have the highest dot product with a given query embedding.
 
-Conceptually, the recommendation system aims to balance three key factors:
-\begin{itemize}
-    \item \textbf{Immediate engagement}: representing the likelihood that a user interacts with a recommended item.
-    \item \textbf{Long-term utility}: reflecting sustained user satisfaction and continued platform use.
-    \item \textbf{User fatigue}: representing the potential decline in user interest due to repetitive or excessive recommendations.
-\end{itemize}
-
-\noindent This balance can be represented conceptually using a reward formulation:
-
+Since all our user and item representations lie in the same embedding space, this becomes a very natural choice. 
+Given a user embedding $u$, the index simply returns items $i$ that maximize:
 \begin{equation}
-    \mathcal{L} = \mathcal{L}_{S1} + \lambda_1 \mathcal{L}_{S2} + \lambda_2 \mathcal{L}_{f}
+    u^\top v_i
 \end{equation}
- 
-Here:
+
+This makes retrieval very fast and scalable, while still being aligned with how relevance is defined in S1.
+
+This index is used across multiple parts of the system:
+
 \begin{itemize}
-    \item System 1 loss $= \mathcal{L}_{S1} = -log P_1(i_{t+1} | s_t)$
-    \item RL objective $= \mathcal{L}_{S2} = -V^{\pi^*}(s)$
-    \item Fatigue prediction loss $= \mathcal{L}_{f} = BCE(f_t, {churn}_t)$
-    \item $churn_t$ = indicator of session termination or disengagement
+    \item In \textbf{S1}, it is used for fast top-k retrieval based on static user embeddings
+    \item In \textbf{S2P}, it is used with updated preference embeddings to get more context-aware recommendations
+    \item In \textbf{S2F}, it is used twice: first to generate a pool of candidate items (relevant and semi-relevant), and later to retrieve final recommendations
 \end{itemize}
 
-In this formulation, the parameters control the relative importance of short-term engagement, long-term user value, and fatigue reduction.
-By incorporating these factors together, the system aims to generate recommendations that are both immediately relevant and sustainable over time.
+% A practical detail we found useful is to **mix and shuffle results** from different sources. 
+% Instead of relying on a single ranked list, we combine items retrieved using S1, S2P, and S2F, and then randomly sample from this combined set. 
+% This helps avoid overly deterministic recommendations and adds a bit of controlled randomness, which improves diversity in practice.
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{User Embedding Update Mechanism}
+
+This mechanism is a small part of the code, but it plays a very important role in the system. 
+Its main idea is simple: after S2P learns a better representation of the user from session history, 
+that updated embedding can be written back into S1. 
+In this way, the system does not need to rebuild the user state from scratch every time. 
+Instead, the current session history gets condensed into a single updated user embedding.
+
+If we write the S1 user embedding as $u^{(0)}$ and the updated preference embedding from S2P as $u^{(t)}$, 
+then the update step can be seen as:
+\begin{equation}
+    u^{(0)} \leftarrow u^{(t)}
+\end{equation}
+
+with the corresponding bias updated in the same way. 
+In the implementation, the update is done carefully so that the stored S1 embedding is adjusted while still staying compatible with the feature-based part of the representation. 
+So the system does not just overwrite the vector blindly; it updates the internal embedding in a way that preserves the learned latent space. 
+
+The purpose of this mechanism is mostly practical. 
+Since S2P is based on an LSTM and works over interaction history, using it too often can become expensive as the history grows. 
+By saving the latest updated user embedding back into S1 and clearing the current session history, we keep the user state compact. 
+This makes it possible to rely on S1-style retrieval again for a while, without needing to query S2P every single time.
+
+So this mechanism acts like a memory compression step. 
+It takes the long interaction history, turns it into one updated embedding, and resets the session state. 
+This helps keep the system efficient while still allowing user preferences to evolve over time. 
+In a way, it creates a balance between fast retrieval and deeper temporal modeling.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

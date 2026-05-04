@@ -41,33 +41,35 @@
 \maketitle
 
 \begin{abstract}
-Modern recommender systems are often designed to optimize for short-term engagement metrics such as click-through rates and interaction frequency.
-These signals are easy to measure, but they may not always reflect long-term user satisfaction.
-This can lead to repetitive recommendations, cognitive fatigue, and reduced user interest.
+Recommender systems are often designed to optimize for metrics such as click-through rates and interaction frequency.
+These signals are easy to measure, but they only reflect short-term engagement statistics and may not always reflect long-term user satisfaction.
+Optimising heavily on short term engagement leads to repetitive recommendations, cognitive fatigue, and reduced user interest, which further leads to reduced engagement with the platform.
 This work explores the design of a Dual-System Human-Centric Recommender System (DS-HCRS) that balances short-term engagement with long-term user experience.
-The framework combines a fast sequential recommender for immediate relevance 
-with a component that attempts to model long-term user satisfaction.
-In addition, this system will include a fatigue state model which estimates when users may experience boredom or repetition,
-allowing the system to change its recommendation strategy through an adaptive gating mechanism.
+The framework combines a fast sequential recommender for immediate relevance with a component that attempts to model long-term user satisfaction.
+This long-term component attempts to model the fatigue and discontentment states in a user based on interaction history, which helps create an estimate of boredom or dissatisfaction states.
+Furthermore, this component also attempts to model changes in preference of the user over time.
+This allows the system to adapt its recommendation strategy accordingly to establish a balance between short and long term goals of user retension.
 % The proposed evaluation framework includes both traditional ranking metrics and additional measures related to diversity, novelty, and user engagement on social media datasets.
 \end{abstract}
 
 \begin{IEEEkeywords}
-Recommender Systems, Long-Term Optimization, User Fatigue,
-Reinforcement Learning, Cognitive State Modeling, Dual-System Theory,
-Adaptive Gating, Sequential Recommendation
+Recommender Systems, Long-Term Optimization, Reinforcement Learning,
+User Fatigue, Cognitive State Modeling, Dynamics of Preference,
+Sequential Recommendation
 \end{IEEEkeywords}
 
 \input{sections/s01_introduction.tex}
 % \input{sections/s02_foundations_and_background_concepts.tex}
 \input{sections/s03_literature_survey.tex}
-\input{sections/s04_problem_identification.tex}
+% \input{sections/s04_problem_identification.tex}
 \input{sections/s05_proposed_methodology.tex}
 \input{sections/s06_evaluation_design.tex}
 % \input{sections/s07_expected_research_contributions.tex}
 % \input{sections/s08_limitations_and_ethical_considerations.tex}
 % \input{sections/s09_future_research_directions.tex}
-\input{sections/s10_conclusion.tex}
+\input{sections/s10_results.tex}
+\input{sections/s11_future_scopes.tex}
+\input{sections/s12_conclusion.tex}
 
 % // TODO: Reformat all tables to TOP or BOTTOM and reference them in their appropriate location.
 % // TODO: Add captions and labels to all tables and then reference them properly.

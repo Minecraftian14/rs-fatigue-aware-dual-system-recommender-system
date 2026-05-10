@@ -145,7 +145,7 @@ In other words, S1 tells us what the user generally likes at the start, before l
 A nice thing about S1 is that it does not depend only on IDs. 
 In the \texttt{AdaptiveRepresentation} module, each user and item is represented using both an \textbf{ID embedding} and a \textbf{feature-based embedding}.
 The model is first trained on the feature side, so it learns a strong representation from the available user and item features. 
-Meanwhile, during the training of ID-based embeddings, since we use features as well while keeping them frozen, the model learns ID-based embeddings as an offset pr correction representation.
+Meanwhile, during the training of ID-based embeddings, since we use features as well while keeping them frozen, the model learns ID-based embeddings as an offset representation.
 Therefore, a new user or a new item can still be mapped into the same latent space using only its features.
 
 This is how we handle cold start in practice. 

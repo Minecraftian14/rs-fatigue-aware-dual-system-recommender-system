@@ -1,62 +1,90 @@
-# Dual-System Human-Centric Recommender with Fatigue-Aware Long-Term Optimization (DS-HCRS)
+# Dynamic Personal Finance Planner
 
-**DS-HCRS** is a dual-system recommender framework that explores how recommendation systems can balance immediate content relevance with long-term user experience. Unlike conventional recommenders that primarily optimize engagement, the framework incorporates evolving user preferences, cognitive states, and fatigue-aware decision-making.
+A reinforcement learning framework for dynamic personal financial planning under market and household uncertainty.
 
-This project was completed as part of the **Recommender Systems** course in the second semester of the M.Tech programme at the **International Institute of Information Technology Bangalore (IIIT-B)**.
+This project explores how reinforcement learning can be used to make adaptive portfolio allocation decisions by considering not only financial market conditions but also household-level factors such as income instability, expenses, employment risk, emergency liquidity requirements, and retirement horizons.
+
+The project was completed as an academic research implementation.
 
 ## Overview
 
-The framework consists of two primary systems:
+Traditional portfolio allocation strategies primarily consider investment returns and market risk. However, personal financial decisions are also influenced by changing income, household expenses, employment uncertainty, and financial obligations.
 
-- **System 1 (S1):** A fast, two-tower neural recommender that learns initial user and item representations and provides relevance-based recommendations.
-- **System 2 (S2):** An adaptive system comprising two complementary components:
-  - **S2P – Preference Model:** Uses an LSTM to model evolving user preferences from interaction histories and generate updated user embeddings.
-  - **S2F – Cognitive State Model:** Uses Proximal Policy Optimization (PPO) to select recommendations while accounting for user fatigue, discontentment, and relevance.
+This project models personal finance as a sequential decision-making problem, where an agent dynamically allocates wealth across equity, debt, and cash while accounting for both market conditions and household financial resilience.
 
-Together, these systems aim to move beyond static preference prediction towards adaptive, long-term recommendation.
+The objective is to balance long-term wealth growth with liquidity preservation, downside-risk control, and financial survival.
 
 ## Architecture and Components
 
-The implementation consists of the following components:
+The implementation consists of the following major components:
 
 | Component | Description and Purpose |
 |---|---|
-| **System 1 (S1)** | A two-tower recommender that learns user and item embeddings from IDs and available features. Provides the initial preference representations and supports feature-based cold-start handling. |
-| **User Model** | A behavioural simulator that models probabilistic user interactions, preference drift, fatigue, and discontentment. |
-| **Synthetic User Dataset** | Generated using the User Model and S1 embeddings. Provides interaction sequences for training the temporal preference model. |
-| **System 2 Preference (S2P)** | An LSTM-based model that processes interaction histories to estimate evolving user preferences and update user embeddings. |
-| **System 2 Cognitive State (S2F)** | A PPO-based reinforcement learning agent that balances recommendation relevance against fatigue and discontentment to optimize long-term user experience. |
-| **Candidate Retrieval** | Uses FAISS (`IndexFlatIP`) for efficient nearest-neighbour retrieval of relevant items and candidate generation. |
-| **User Embedding Updater** | Transfers updated preference representations from S2P back into the base user representation, allowing the system to retain learned preferences without repeatedly processing the entire interaction history. |
+| **Financial Planning Environment** | A Gymnasium-compatible simulation environment that models monthly financial decisions over a finite planning horizon. |
+| **Market Dynamics** | Processes historical equity and debt returns, derives market volatility and drawdown indicators, and identifies market regimes (bull, bear, and crisis). Cash returns are modelled separately. |
+| **Synthetic User Profiles** | Generates household profiles with varying ages, wealth, income levels, income volatility, employment risk, expenses, emergency-buffer requirements, goal horizons, and risk appetites. |
+| **Household Dynamics** | Simulates income growth, promotions, employment shocks, job loss, expense inflation, discretionary spending, and retirement-related income changes. |
+| **Portfolio Dynamics** | Updates household wealth based on portfolio returns, income, expenses, and transaction costs. It also tracks portfolio drawdowns and emergency liquidity. |
+| **State Representation** | Combines portfolio, market, household, temporal, and user-preference variables into a 17-dimensional observation vector for the RL agent. |
+| **Reward Function** | Balances wealth growth against portfolio drawdowns, insufficient emergency liquidity, and financial ruin through a risk-aware reward formulation. |
+| **RL Agents** | Implements and evaluates PPO, SAC, TD3, DDPG, and a CVaR-aware SAC variant for continuous portfolio allocation decisions. |
+| **Baseline Strategies** | Provides static 60/40 allocation and age-based glide-path strategies for comparison with learned policies. |
 
-### How the Components Connect
+## How the Components Connect
 
-The overall workflow can be summarized as follows:
+The framework follows a monthly interaction loop:
 
-1. **Initial representation learning:** S1 is trained on the KuaiRec dataset to obtain user and item embeddings.
-2. **User behaviour simulation:** The User Model uses these initial representations to simulate user interactions and generate evolving preference histories.
-3. **Preference adaptation:** S2P learns from interaction sequences and updates the user's representation as preferences change.
-4. **Cognitive-aware recommendation:** S2F uses the updated preference representation and session-level signals to select items from a candidate pool, accounting for fatigue and discontentment.
-5. **Retrieval and embedding updates:** FAISS supports efficient candidate retrieval, while the embedding updater periodically consolidates learned preferences into the base user representation.
+1. **Profile initialization:** A synthetic household profile is sampled, along with an initial wealth level, financial characteristics, and planning horizon.
+2. **Market observation:** The environment provides current market returns, volatility, drawdown, and market-regime information.
+3. **State construction:** Market conditions are combined with household and portfolio information to construct the agent's observation.
+4. **Portfolio allocation:** The RL agent selects allocation weights across equity, debt, and cash.
+5. **Financial simulation:** Market returns, income changes, expenses, employment events, and transaction costs are applied to update household wealth.
+6. **Reward calculation:** The agent receives a reward reflecting wealth growth, drawdown exposure, emergency-buffer adequacy, and financial survival.
+7. **Policy learning:** The process repeats monthly, allowing the agent to learn allocation policies that account for changing financial circumstances.
 
-The two System 2 components therefore serve different but complementary purposes: S2P estimates **what the user currently prefers**, while S2F determines **what should be recommended considering the user's current state**.
+The action space is continuous, with a softmax transformation ensuring that portfolio weights are non-negative and sum to one.
 
-## Dataset
+## Reinforcement Learning Approaches
 
-The implementation uses the **KuaiRec dataset** as the foundation for learning initial user and item representations.
+The project implements and compares five reinforcement learning approaches:
 
-A synthetic interaction dataset is additionally generated using the User Model to simulate preference evolution and provide training data for the temporal preference component.
+- **PPO (Proximal Policy Optimization):** An on-policy actor-critic algorithm for continuous allocation decisions.
+- **SAC (Soft Actor-Critic):** An off-policy algorithm incorporating entropy-based exploration.
+- **TD3 (Twin Delayed Deep Deterministic Policy Gradient):** A deterministic actor-critic approach designed to improve learning stability.
+- **DDPG (Deep Deterministic Policy Gradient):** An off-policy deterministic policy-gradient algorithm.
+- **CVaR-aware SAC:** A SAC variant incorporating lower-tail reward adjustments to increase sensitivity to adverse outcomes.
+
+These approaches are evaluated against two conventional allocation strategies:
+
+- **Static 60/40:** Allocates the non-emergency-reserve portion of wealth between equity and debt using a fixed 60:40 ratio.
+- **Age-based Glide Path:** Gradually reduces equity exposure as the investor ages.
+
+## Evaluation
+
+The learned policies and baseline strategies are compared using both portfolio-performance and financial-resilience metrics:
+
+- Average and median final wealth
+- Wealth standard deviation
+- Sharpe ratio
+- Maximum drawdown
+- Ruin probability
+- Conditional Value at Risk (CVaR) of final wealth at the 10% lower tail
+
+The evaluation considers multiple simulated household trajectories and market conditions, highlighting the trade-offs between wealth accumulation, consistency, liquidity, and downside risk.
 
 ## Technologies and Methods
 
-- **Deep Learning:** Two-tower neural networks and LSTM-based sequence modeling.
-- **Reinforcement Learning:** Proximal Policy Optimization (PPO).
-- **Similarity Search:** FAISS (`IndexFlatIP`).
-- **Dataset:** KuaiRec.
-- **Core Concepts:** Sequential recommendation, preference dynamics, cognitive state modeling, fatigue-aware recommendation, and long-term optimization.
+- **Python**
+- **Reinforcement Learning:** Stable-Baselines3
+- **Simulation Environment:** Gymnasium
+- **Algorithms:** PPO, SAC, TD3, DDPG
+- **Numerical Computing and Data Processing:** NumPy, Pandas
+- **Core Concepts:** Portfolio optimization, continuous control, Markov Decision Processes, household financial simulation, risk-sensitive reinforcement learning.
 
-## Project Scope
+## Scope and Limitations
 
-This repository contains the implementation and experimental work carried out for an academic course project. It explores a research-oriented recommender architecture through offline experiments and simulated user interactions.
+This repository contains an experimental research implementation of a simulated personal financial planning framework. It is intended to explore and compare adaptive portfolio allocation strategies under different market and household conditions.
 
-It is a project prototype rather than a production-ready or independently deployable recommendation service.
+Household profiles and financial events are synthetically generated, and the framework relies on simplified behavioural and economic assumptions. The results therefore represent simulation-based experiments rather than validated financial advice or recommendations for real-world investment decisions.
+
+The project is not a production-ready financial planning application.
